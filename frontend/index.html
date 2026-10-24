@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Farm-to-Market-AI | Smart Crop & Market Decision Support</title>
+  <title>Farm-to-Market-AI | 3-Phase Agricultural Ecosystem</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,381 +18,741 @@
         <span class="logo-icon">🌱</span>
         <div>
           <h1>Farm-to-Market AI</h1>
-          <p class="tagline">Intelligent Agricultural Suitability & Market Profit Advisory</p>
+          <p class="tagline">3-Phase Smart Agricultural Decision & Trading Network</p>
         </div>
       </div>
-      <div class="header-badges">
-        <span class="badge badge-soil">💧 Water & Weather AI</span>
-        <span class="badge badge-market">📈 Live Mandi Economics</span>
-      </div>
+      
+      <!-- Top Navigation Tabs for the 3 Phases -->
+      <nav class="phase-nav-tabs">
+        <button type="button" class="phase-nav-btn active" id="navPhase1Btn" data-phase="1">
+          <span class="nav-num">1</span>
+          <span class="nav-title">Crop Recommendation</span>
+        </button>
+        <button type="button" class="phase-nav-btn" id="navPhase2Btn" data-phase="2">
+          <span class="nav-num">2</span>
+          <span class="nav-title">Crop Growing Care</span>
+        </button>
+        <button type="button" class="phase-nav-btn" id="navPhase3Btn" data-phase="3">
+          <span class="nav-num">3</span>
+          <span class="nav-title">Direct Marketplace</span>
+        </button>
+      </nav>
     </div>
   </header>
 
-  <!-- Hero Banner -->
-  <section class="hero-banner">
-    <div class="container hero-content">
-      <h2>Smart Farming: From Soil Suitability to Market Profit</h2>
-      <p>
-        Make data-backed decisions in two steps: first identify the <strong>Top 5 Crops</strong> suited to your 
-        water availability, weather, soil type, N-P-K, and pH; then discover the <strong>Top 3 Crops</strong> 
-        that maximize your market price and net profit.
-      </p>
-      <div class="pipeline-steps">
-        <div class="step-card">
-          <span class="step-num">Step 1</span>
-          <h4>Agronomic Screening</h4>
-          <p>Top 5 crops for your Water, Weather, NPK, pH & Soil</p>
-        </div>
-        <div class="step-arrow">➔</div>
-        <div class="step-card highlight">
-          <span class="step-num">Step 2</span>
-          <h4>Market & Profit Ranking</h4>
-          <p>Top 3 crops ranked by Mandi Price & Net Profit / Acre</p>
-        </div>
+  <!-- Active Crop Banner (Syncs between Phase 1, Phase 2, and Phase 3) -->
+  <div class="active-crop-sticky-bar" id="activeCropBar" style="display: none;">
+    <div class="container active-crop-inner">
+      <div>
+        <span>Currently Selected Crop:</span>
+        <strong id="activeCropNameDisplay">Groundnut</strong>
+        <span class="badge badge-soil" id="activeCropAreaDisplay">2.0 Acres</span>
+      </div>
+      <div class="active-bar-actions">
+        <button type="button" class="btn btn-sm btn-outline-white" id="quickJumpPhase2Btn">🚜 Open Phase 2 Growing Care</button>
+        <button type="button" class="btn btn-sm btn-accent" id="quickJumpPhase3Btn">🏪 List in Phase 3 Market</button>
       </div>
     </div>
-  </section>
+  </div>
 
   <main class="container">
 
-    <!-- Quick Presets Bar -->
-    <div class="presets-bar card">
-      <div class="presets-label">
-        <span>⚡ Quick Test Presets:</span>
-        <small>Click any regional farm profile to auto-fill inputs</small>
-      </div>
-      <div class="presets-buttons">
-        <button type="button" class="preset-btn" id="presetDryland">
-          🥜 Rayalaseema Dryland (Red Soil, Low Water)
-        </button>
-        <button type="button" class="preset-btn" id="presetWetland">
-          🌾 Coastal Delta (Alluvial, High Water)
-        </button>
-        <button type="button" class="preset-btn" id="presetBlackCommercial">
-          🌶️ Guntur Commercial (Black Soil, Medium Water)
-        </button>
-      </div>
-    </div>
+    <!-- ===================================================================
+         PHASE 1: CROP RECOMMENDATION & PROFIT RANKING
+         =================================================================== -->
+    <div id="phase1Container" class="phase-container active">
 
-    <!-- Section 1: Weather Intelligence -->
-    <section class="card weather-section" id="weatherSection">
-      <div class="card-header">
-        <div>
-          <h3>🌦️ Real-Time Weather Intelligence</h3>
-          <p class="section-desc">Search your city or district to view local weather and auto-fill climate data into your crop recommendation.</p>
-        </div>
-        <button id="applyWeatherBtn" type="button" class="btn btn-accent btn-sm" disabled>
-          ⚡ Apply Weather to Farm Inputs
-        </button>
-      </div>
-
-      <div class="search-row">
-        <input id="weatherCity" type="text" placeholder="Enter city or district (e.g. Guntur, Kurnool, Vijayawada, Anantapur)" value="Vijayawada">
-        <button id="refreshWeatherButton" type="button" class="btn btn-primary">Fetch Weather</button>
-      </div>
-
-      <p id="weatherStatus" class="status">Click "Fetch Weather" to load current meteorological data.</p>
-      <div id="currentWeather" class="weather-display"></div>
-      <div id="weatherForecast" class="forecast-grid"></div>
-    </section>
-
-    <!-- Section 2: Farm & Soil Input Form -->
-    <section class="card input-section" id="recommendationFormSection">
-      <div class="card-header">
-        <div>
-          <h3>🌾 Farm Input Parameters</h3>
-          <p class="section-desc">Provide your soil nutrients, soil type, water availability, and weather measurements.</p>
-        </div>
-      </div>
-
-      <form id="farmForm">
-        <div class="form-sections-grid">
-
-          <!-- Group A: Soil & Water -->
-          <div class="form-subgroup">
-            <h4 class="subgroup-title">🌱 Soil & Water Resource</h4>
-            
-            <div class="form-group">
-              <label for="soil_type">Soil Type <span class="req">*</span></label>
-              <select id="soil_type" name="soil_type" required>
-                <option value="">Select Soil Type</option>
-                <option value="Red" selected>Red Soil</option>
-                <option value="Black">Black Soil (Regur)</option>
-                <option value="Alluvial">Alluvial Soil</option>
-                <option value="Sandy">Sandy Soil</option>
-                <option value="Loamy">Loamy Soil</option>
-                <option value="Clay">Clay Soil</option>
-              </select>
+      <!-- Hero Banner -->
+      <section class="hero-banner">
+        <div class="hero-content">
+          <span class="phase-pill">PHASE 1 : CROP RECOMMENDATION</span>
+          <h2>From Soil Suitability to Market Profit</h2>
+          <p>
+            Find the <strong>Top 5 Crops</strong> suited to your water availability, weather, soil type, N-P-K, and pH. 
+            Then identify the <strong>Top 3 Crops</strong> that maximize mandi market price and net profit per acre. 
+            Select your preferred crop to enter <strong>Phase 2: Crop Growing Care</strong>!
+          </p>
+          <div class="pipeline-steps">
+            <div class="step-card">
+              <span class="step-num">Step 1</span>
+              <h4>Agronomic Screening</h4>
+              <p>Top 5 crops for Water, Weather, NPK, pH & Soil</p>
             </div>
-
-            <div class="form-group">
-              <label for="water_availability">Water Availability <span class="req">*</span></label>
-              <select id="water_availability" name="water_availability" required>
-                <option value="">Select Water Availability</option>
-                <option value="Low" selected>Low (Rainfed / Dryland)</option>
-                <option value="Medium">Medium (Borewell / Semi-irrigated)</option>
-                <option value="High">High (Canal / Perennial Irrigated)</option>
-              </select>
+            <div class="step-arrow">➔</div>
+            <div class="step-card highlight">
+              <span class="step-num">Step 2</span>
+              <h4>Market & Profit Ranking</h4>
+              <p>Top 3 crops ranked by Mandi Price & Net Profit</p>
             </div>
-
-            <div class="form-group">
-              <label for="season">Cropping Season <span class="req">*</span></label>
-              <select id="season" name="season" required>
-                <option value="Kharif" selected>Kharif (Monsoon / Autumn)</option>
-                <option value="Rabi">Rabi (Winter)</option>
-                <option value="Summer">Summer / Zaid</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="land_acres">Farm Land Area (Acres) <span class="req">*</span></label>
-              <input id="land_acres" name="land_acres" type="number" min="0.1" max="1000" step="0.5" value="2.0" required>
-              <small class="field-hint">Used to calculate total farm production and profit</small>
+            <div class="step-arrow">➔</div>
+            <div class="step-card next-phase-card">
+              <span class="step-num">Phase 2</span>
+              <h4>Select & Start Growing</h4>
+              <p>Smart Irrigation, Fertilizer & Pest Care</p>
             </div>
           </div>
-
-          <!-- Group B: Soil Nutrients & pH -->
-          <div class="form-subgroup">
-            <h4 class="subgroup-title">🧪 Nutrients & Soil Chemistry</h4>
-
-            <div class="form-group">
-              <label for="N_kg_ha">Nitrogen (N) in kg/ha <span class="req">*</span></label>
-              <input id="N_kg_ha" name="N" type="number" min="0" max="500" step="any" value="45" required>
-              <small class="field-hint">Optimal range: 20 – 140 kg/ha</small>
-            </div>
-
-            <div class="form-group">
-              <label for="P_kg_ha">Phosphorus (P) in kg/ha <span class="req">*</span></label>
-              <input id="P_kg_ha" name="P" type="number" min="0" max="500" step="any" value="28" required>
-              <small class="field-hint">Optimal range: 15 – 60 kg/ha</small>
-            </div>
-
-            <div class="form-group">
-              <label for="K_kg_ha">Potassium (K) in kg/ha <span class="req">*</span></label>
-              <input id="K_kg_ha" name="K" type="number" min="0" max="500" step="any" value="38" required>
-              <small class="field-hint">Optimal range: 20 – 100 kg/ha</small>
-            </div>
-
-            <div class="form-group">
-              <label for="pH">Soil pH Level <span class="req">*</span></label>
-              <input id="pH" name="ph" type="number" min="0" max="14" step="0.1" value="6.8" required>
-              <small class="field-hint">Neutral / optimal: 6.0 – 7.8</small>
-            </div>
-          </div>
-
-          <!-- Group C: Weather Conditions -->
-          <div class="form-subgroup">
-            <h4 class="subgroup-title">☀️ Weather & Climate</h4>
-
-            <div class="form-group">
-              <label for="Temperature_C">Temperature (°C) <span class="req">*</span></label>
-              <input id="Temperature_C" name="temperature" type="number" min="-10" max="60" step="0.1" value="28.5" required>
-            </div>
-
-            <div class="form-group">
-              <label for="humidity">Relative Humidity (%) <span class="req">*</span></label>
-              <input id="humidity" name="humidity" type="number" min="0" max="100" step="any" value="62" required>
-            </div>
-
-            <div class="form-group">
-              <label for="Rainfall_mm">Annual / Seasonal Rainfall (mm) <span class="req">*</span></label>
-              <input id="Rainfall_mm" name="rainfall" type="number" min="0" max="10000" step="any" value="650" required>
-              <small class="field-hint">Dryland: &lt;700mm | Irrigated/Wet: &gt;1000mm</small>
-            </div>
-          </div>
-
         </div>
+      </section>
 
-        <div class="button-group">
-          <button id="recommendButton" type="submit" class="btn btn-primary btn-lg">
-            🌾 Recommend 5 Suitable Crops & Top 3 Profitable Crops
+      <!-- Quick Presets Bar -->
+      <div class="presets-bar card">
+        <div class="presets-label">
+          <span>⚡ Quick Farm Presets:</span>
+          <small>Click to auto-fill authentic regional conditions</small>
+        </div>
+        <div class="presets-buttons">
+          <button type="button" class="preset-btn" id="presetDryland">
+            🥜 Rayalaseema Dryland (Red Soil, Low Water)
           </button>
-          <button id="resetButton" type="button" class="btn btn-secondary">
-            Reset Form
+          <button type="button" class="preset-btn" id="presetWetland">
+            🌾 Coastal Delta (Alluvial, High Water)
+          </button>
+          <button type="button" class="preset-btn" id="presetBlackCommercial">
+            🌶️ Guntur Commercial (Black Soil, Medium Water)
           </button>
         </div>
-      </form>
+      </div>
 
-      <p id="cropStatus" class="status" aria-live="polite"></p>
-    </section>
-
-    <!-- Section 3: Dual Recommendation Results (5 Suitable & 3 Profitable) -->
-    <section id="resultsSection" class="results-container" style="display: none;">
-      
-      <!-- Interactive Acreage Bar -->
-      <div class="land-scaler-card card">
-        <div class="scaler-content">
+      <!-- Weather Intelligence -->
+      <section class="card weather-section" id="weatherSection">
+        <div class="card-header">
           <div>
-            <h4>🚜 Interactive Farm Scale Multiplier</h4>
-            <p>Dynamically scale profits and production for your total land holding:</p>
+            <h3>🌦️ Real-Time Weather Intelligence</h3>
+            <p class="section-desc">Search your city or district to view local weather and auto-fill climate data into your crop recommendation.</p>
           </div>
-          <div class="scaler-controls">
-            <label for="liveAcreSlider">Area: <strong id="liveAcreValue">2.0</strong> Acres</label>
-            <input type="range" id="liveAcreSlider" min="0.5" max="25" step="0.5" value="2.0">
-          </div>
-        </div>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="results-tabs">
-        <button type="button" class="tab-btn active" id="tabTop5Btn">
-          🌾 Step 1: Top 5 Suitable Crops (Agronomic Match)
-        </button>
-        <button type="button" class="tab-btn" id="tabTop3Btn">
-          💰 Step 2: Top 3 Profitable Crops (Market & Profit Ranking)
-        </button>
-      </div>
-
-      <!-- View 1: Top 5 Suitable Crops -->
-      <div id="viewTop5" class="tab-view active">
-        <div class="card panel-recommendation">
-          <div class="panel-header">
-            <div>
-              <h3>🌾 Top 5 Crops Recommended by Agronomic Suitability</h3>
-              <p class="section-desc">Evaluated across your Water Availability, Weather (Temp, Rain, Humidity), N-P-K, pH, and Soil Type.</p>
-            </div>
-            <span class="badge badge-soil">Agronomic Stage</span>
-          </div>
-
-          <div id="top5CardsGrid" class="crops-cards-grid"></div>
-        </div>
-      </div>
-
-      <!-- View 2: Top 3 Profitable Crops -->
-      <div id="viewTop3" class="tab-view">
-        <div class="card panel-market-ranking">
-          <div class="panel-header">
-            <div>
-              <h3>💰 Top 3 Crops Ranked by Market Price & Net Profit</h3>
-              <p class="section-desc">Ranked among suitable candidates using current Mandi market prices, average regional yields, and cultivation costs.</p>
-            </div>
-            <span class="badge badge-market">Economic Stage</span>
-          </div>
-
-          <div id="top3CardsGrid" class="profit-cards-grid"></div>
-
-          <!-- Comparison Table of all candidate crops -->
-          <div class="table-wrap candidate-table-wrap">
-            <h4>📊 Comprehensive Economic Comparison of Recommended Crops</h4>
-            <table id="candidateEconomicsTable">
-              <thead>
-                <tr>
-                  <th>Rank & Crop</th>
-                  <th>Market Price (₹/q)</th>
-                  <th>Avg Yield (q/acre)</th>
-                  <th>Cultivation Cost (₹/acre)</th>
-                  <th>Gross Revenue (₹/acre)</th>
-                  <th>Net Profit / Acre</th>
-                  <th>Total Profit (<span class="table-acres-label">2</span> Acres)</th>
-                  <th>Profit Margin (ROI)</th>
-                </tr>
-              </thead>
-              <tbody id="candidateEconomicsBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- Section 4: Live Government Mandi Prices -->
-    <section class="card mandi-section" id="mandiSection">
-      <div class="card-header">
-        <div>
-          <h3>🏪 Live Mandi Market Prices</h3>
-          <p class="section-desc">Check current reported prices from Andhra Pradesh and regional agricultural markets.</p>
-        </div>
-      </div>
-
-      <form id="mandiForm" class="mandi-search-form">
-        <div class="search-row-three">
-          <div class="field-item">
-            <label for="mandiCrop">Crop / Commodity</label>
-            <input id="mandiCrop" type="text" placeholder="e.g. Groundnut, Chilli, Cotton, Rice, Maize" value="">
-          </div>
-          <div class="field-item">
-            <label for="mandiState">State</label>
-            <input id="mandiState" type="text" value="Andhra Pradesh">
-          </div>
-          <div class="field-item">
-            <label for="mandiDistrict">District (Optional)</label>
-            <input id="mandiDistrict" type="text" placeholder="e.g. Guntur, Kurnool">
-          </div>
-        </div>
-        <button id="searchMandiButton" type="submit" class="btn btn-primary">Search Mandi Rates</button>
-      </form>
-
-      <p id="mandiStatus" class="status"></p>
-      <div id="mandiResults" class="mandi-cards-grid"></div>
-    </section>
-
-    <!-- Section 5: Custom Farm Profit & Loss Calculator -->
-    <section class="card profit-calculator-section" id="profitCalculatorSection">
-      <div class="card-header">
-        <div>
-          <h3>🧮 Custom Farm Profit Calculator</h3>
-          <p class="section-desc">Calculate your exact projected returns by adjusting price, yield, and specific expense items.</p>
-        </div>
-      </div>
-
-      <form id="customProfitForm">
-        <div class="profit-form-grid">
-          <div class="form-group">
-            <label for="calcCropName">Crop Name</label>
-            <input id="calcCropName" type="text" value="Groundnut" placeholder="e.g. Groundnut">
-          </div>
-          <div class="form-group">
-            <label for="calcModalPrice">Mandi Price (₹ per Quintal) <span class="req">*</span></label>
-            <input id="calcModalPrice" type="number" min="1" step="any" value="8300" required>
-          </div>
-          <div class="form-group">
-            <label for="calcYield">Expected Yield (Quintals / Acre) <span class="req">*</span></label>
-            <input id="calcYield" type="number" min="0.1" step="any" value="10" required>
-          </div>
-          <div class="form-group">
-            <label for="calcLandAcres">Total Land Area (Acres) <span class="req">*</span></label>
-            <input id="calcLandAcres" type="number" min="0.1" step="any" value="2.0" required>
-          </div>
-          <div class="form-group">
-            <label for="calcCultivationCost">Cultivation Cost (₹ per Acre) <span class="req">*</span></label>
-            <input id="calcCultivationCost" type="number" min="0" step="any" value="28000" required>
-          </div>
-          <div class="form-group">
-            <label for="calcTransportCost">Transport & Loading Expenses (₹ Total)</label>
-            <input id="calcTransportCost" type="number" min="0" step="any" value="2500">
-          </div>
-          <div class="form-group">
-            <label for="calcOtherExpenses">Mandi Cesses / Other Expenses (₹ Total)</label>
-            <input id="calcOtherExpenses" type="number" min="0" step="any" value="1500">
-          </div>
-        </div>
-
-        <div class="button-group">
-          <button id="calculateProfitBtn" type="submit" class="btn btn-accent btn-lg">
-            Calculate Net Return
+          <button id="applyWeatherBtn" type="button" class="btn btn-accent btn-sm" disabled>
+            ⚡ Apply Weather to Farm Inputs
           </button>
         </div>
-      </form>
 
-      <div id="customProfitResult" class="profit-outcome-container"></div>
-    </section>
+        <div class="search-row">
+          <input id="weatherCity" type="text" placeholder="Enter city (e.g. Guntur, Kurnool, Vijayawada, Anantapur)" value="Vijayawada">
+          <button id="refreshWeatherButton" type="button" class="btn btn-primary">Fetch Weather</button>
+        </div>
 
-    <!-- Agricultural Advisory Disclaimer -->
-    <div class="disclaimer-banner">
-      <span class="info-icon">ℹ️</span>
-      <p>
-        <strong>Agronomic & Economic Notice:</strong> Recommendations are decision-support estimates synthesized from soil-climatic profiles,
-        regional research benchmarks, and reported agricultural mandi prices. Local microclimates, seed varieties, pest occurrences, and market
-        volatility may affect actual yields and revenues. Farmers are advised to consult their local Rythu Bharosa Kendras (RBKs) or agricultural extension officers.
-      </p>
-    </div>
+        <p id="weatherStatus" class="status">Click "Fetch Weather" to load current meteorological data.</p>
+        <div id="currentWeather" class="weather-display"></div>
+        <div id="weatherForecast" class="forecast-grid"></div>
+      </section>
+
+      <!-- Farm & Soil Input Form -->
+      <section class="card input-section" id="recommendationFormSection">
+        <div class="card-header">
+          <div>
+            <h3>🌾 Farm Input Parameters</h3>
+            <p class="section-desc">Provide your soil nutrients, soil type, water availability, and weather measurements.</p>
+          </div>
+        </div>
+
+        <form id="farmForm">
+          <div class="form-sections-grid">
+
+            <!-- Group A: Soil & Water -->
+            <div class="form-subgroup">
+              <h4 class="subgroup-title">🌱 Soil & Water Resource</h4>
+              
+              <div class="form-group">
+                <label for="soil_type">Soil Type <span class="req">*</span></label>
+                <select id="soil_type" name="soil_type" required>
+                  <option value="">Select Soil Type</option>
+                  <option value="Red" selected>Red Soil</option>
+                  <option value="Black">Black Soil (Regur)</option>
+                  <option value="Alluvial">Alluvial Soil</option>
+                  <option value="Sandy">Sandy Soil</option>
+                  <option value="Loamy">Loamy Soil</option>
+                  <option value="Clay">Clay Soil</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="water_availability">Water Availability <span class="req">*</span></label>
+                <select id="water_availability" name="water_availability" required>
+                  <option value="">Select Water Availability</option>
+                  <option value="Low" selected>Low (Rainfed / Dryland)</option>
+                  <option value="Medium">Medium (Borewell / Semi-irrigated)</option>
+                  <option value="High">High (Canal / Perennial Irrigated)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="season">Cropping Season <span class="req">*</span></label>
+                <select id="season" name="season" required>
+                  <option value="Kharif" selected>Kharif (Monsoon / Autumn)</option>
+                  <option value="Rabi">Rabi (Winter)</option>
+                  <option value="Summer">Summer / Zaid</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="land_acres">Farm Land Area (Acres) <span class="req">*</span></label>
+                <input id="land_acres" name="land_acres" type="number" min="0.1" max="1000" step="0.5" value="2.0" required>
+                <small class="field-hint">Used for profit scaling and fertilizer dosage</small>
+              </div>
+            </div>
+
+            <!-- Group B: Soil Nutrients & pH -->
+            <div class="form-subgroup">
+              <h4 class="subgroup-title">🧪 Nutrients & Soil Chemistry</h4>
+
+              <div class="form-group">
+                <label for="N_kg_ha">Nitrogen (N) in kg/ha <span class="req">*</span></label>
+                <input id="N_kg_ha" name="N" type="number" min="0" max="500" step="any" value="45" required>
+                <small class="field-hint">Soil Health Card value</small>
+              </div>
+
+              <div class="form-group">
+                <label for="P_kg_ha">Phosphorus (P) in kg/ha <span class="req">*</span></label>
+                <input id="P_kg_ha" name="P" type="number" min="0" max="500" step="any" value="28" required>
+                <small class="field-hint">Soil Health Card value</small>
+              </div>
+
+              <div class="form-group">
+                <label for="K_kg_ha">Potassium (K) in kg/ha <span class="req">*</span></label>
+                <input id="K_kg_ha" name="K" type="number" min="0" max="500" step="any" value="38" required>
+                <small class="field-hint">Soil Health Card value</small>
+              </div>
+
+              <div class="form-group">
+                <label for="pH">Soil pH Level <span class="req">*</span></label>
+                <input id="pH" name="ph" type="number" min="0" max="14" step="0.1" value="6.8" required>
+                <small class="field-hint">Neutral: 6.0 – 7.8</small>
+              </div>
+            </div>
+
+            <!-- Group C: Weather Conditions -->
+            <div class="form-subgroup">
+              <h4 class="subgroup-title">☀️ Weather & Climate</h4>
+
+              <div class="form-group">
+                <label for="Temperature_C">Temperature (°C) <span class="req">*</span></label>
+                <input id="Temperature_C" name="temperature" type="number" min="-10" max="60" step="0.1" value="28.5" required>
+              </div>
+
+              <div class="form-group">
+                <label for="humidity">Relative Humidity (%) <span class="req">*</span></label>
+                <input id="humidity" name="humidity" type="number" min="0" max="100" step="any" value="62" required>
+              </div>
+
+              <div class="form-group">
+                <label for="Rainfall_mm">Annual / Seasonal Rainfall (mm) <span class="req">*</span></label>
+                <input id="Rainfall_mm" name="rainfall" type="number" min="0" max="10000" step="any" value="650" required>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="button-group">
+            <button id="recommendButton" type="submit" class="btn btn-primary btn-lg">
+              🌾 Recommend 5 Suitable Crops & Top 3 Profitable Crops
+            </button>
+            <button id="resetButton" type="button" class="btn btn-secondary">
+              Reset Form
+            </button>
+          </div>
+        </form>
+
+        <p id="cropStatus" class="status" aria-live="polite"></p>
+      </section>
+
+      <!-- Recommendation Results (Top 5 Suitable & Top 3 Profitable) -->
+      <section id="resultsSection" class="results-container" style="display: none;">
+        
+        <!-- Interactive Acreage Bar -->
+        <div class="land-scaler-card card">
+          <div class="scaler-content">
+            <div>
+              <h4>🚜 Interactive Farm Scale Multiplier</h4>
+              <p>Scale profit, yield, and production across your total land holding:</p>
+            </div>
+            <div class="scaler-controls">
+              <label for="liveAcreSlider">Area: <strong id="liveAcreValue">2.0</strong> Acres</label>
+              <input type="range" id="liveAcreSlider" min="0.5" max="25" step="0.5" value="2.0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="results-tabs">
+          <button type="button" class="tab-btn active" id="tabTop5Btn">
+            🌾 Step 1: Top 5 Suitable Crops (Agronomic Match)
+          </button>
+          <button type="button" class="tab-btn" id="tabTop3Btn">
+            💰 Step 2: Top 3 Profitable Crops (Market & Profit Ranking)
+          </button>
+        </div>
+
+        <!-- View 1: Top 5 Suitable Crops -->
+        <div id="viewTop5" class="tab-view active">
+          <div class="card panel-recommendation">
+            <div class="panel-header">
+              <div>
+                <h3>🌾 Top 5 Crops Recommended by Agronomic Suitability</h3>
+                <p class="section-desc">Evaluated across your Water Availability, Weather (Temp, Rain, Humidity), N-P-K, pH, and Soil Type.</p>
+              </div>
+              <span class="badge badge-soil">Agronomic Stage</span>
+            </div>
+
+            <div id="top5CardsGrid" class="crops-cards-grid"></div>
+          </div>
+        </div>
+
+        <!-- View 2: Top 3 Profitable Crops -->
+        <div id="viewTop3" class="tab-view">
+          <div class="card panel-market-ranking">
+            <div class="panel-header">
+              <div>
+                <h3>💰 Top 3 Crops Ranked by Market Price & Net Profit</h3>
+                <p class="section-desc">Ranked by Mandi prices, average regional yields, and cultivation costs. Select your crop to start Phase 2!</p>
+              </div>
+              <span class="badge badge-market">Economic Stage</span>
+            </div>
+
+            <div id="top3CardsGrid" class="profit-cards-grid"></div>
+
+            <!-- Comparison Table of all candidate crops -->
+            <div class="table-wrap candidate-table-wrap">
+              <h4>📊 Comprehensive Economic Comparison of Recommended Crops</h4>
+              <table id="candidateEconomicsTable">
+                <thead>
+                  <tr>
+                    <th>Rank & Crop</th>
+                    <th>Market Price (₹/q)</th>
+                    <th>Avg Yield (q/acre)</th>
+                    <th>Cultivation Cost (₹/acre)</th>
+                    <th>Gross Revenue (₹/acre)</th>
+                    <th>Net Profit / Acre</th>
+                    <th>Total Profit (<span class="table-acres-label">2</span> Acres)</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="candidateEconomicsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Live Mandi Prices -->
+      <section class="card mandi-section" id="mandiSection">
+        <div class="card-header">
+          <div>
+            <h3>🏪 Live Mandi Market Prices</h3>
+            <p class="section-desc">Check current reported prices from Andhra Pradesh and regional agricultural markets.</p>
+          </div>
+        </div>
+
+        <form id="mandiForm" class="mandi-search-form">
+          <div class="search-row-three">
+            <div class="field-item">
+              <label for="mandiCrop">Crop / Commodity</label>
+              <input id="mandiCrop" type="text" placeholder="e.g. Groundnut, Chilli, Cotton, Rice, Maize" value="">
+            </div>
+            <div class="field-item">
+              <label for="mandiState">State</label>
+              <input id="mandiState" type="text" value="Andhra Pradesh">
+            </div>
+            <div class="field-item">
+              <label for="mandiDistrict">District (Optional)</label>
+              <input id="mandiDistrict" type="text" placeholder="e.g. Guntur, Kurnool">
+            </div>
+          </div>
+          <button id="searchMandiButton" type="submit" class="btn btn-primary">Search Mandi Rates</button>
+        </form>
+
+        <p id="mandiStatus" class="status"></p>
+        <div id="mandiResults" class="mandi-cards-grid"></div>
+      </section>
+
+    </div><!-- End Phase 1 Container -->
+
+
+    <!-- ===================================================================
+         PHASE 2: CROP GROWING & MONITORING (SMART CARE)
+         =================================================================== -->
+    <div id="phase2Container" class="phase-container">
+
+      <section class="phase-header-card card">
+        <div class="phase-header-left">
+          <span class="phase-pill pill-growing">PHASE 2 : CROP GROWING & CARE</span>
+          <h2 id="phase2CropTitle">Active Cultivation Care: Groundnut</h2>
+          <p class="section-desc">
+            Smart irrigation scheduling, exact fertilizer dosage (Urea, DAP, MOP), weed management, 
+            and pest/disease detection for your growing crop.
+          </p>
+        </div>
+        <div class="phase-header-actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="changeCropBtn">🔄 Switch Crop</button>
+          <button type="button" class="btn btn-accent" id="markHarvestedBtn">📦 Mark Harvested & Move to Phase 3</button>
+        </div>
+      </section>
+
+      <!-- Phase 2 Quick Selector -->
+      <div class="card quick-crop-switch-bar">
+        <div class="switch-field">
+          <label for="careCropSelector"><strong>Growing Crop:</strong></label>
+          <select id="careCropSelector">
+            <option value="Groundnut">Groundnut (Peanut)</option>
+            <option value="Chilli">Chilli (Dry Red)</option>
+            <option value="Cotton">Cotton</option>
+            <option value="Rice">Rice (Paddy)</option>
+            <option value="Maize">Maize</option>
+            <option value="Black Gram">Black Gram (Urad)</option>
+            <option value="Green Gram">Green Gram (Moong)</option>
+            <option value="Bengal Gram">Bengal Gram (Chana)</option>
+            <option value="Red Gram">Red Gram (Tur/Arhar)</option>
+            <option value="Bajra">Bajra (Pearl Millet)</option>
+            <option value="Jowar">Jowar (Sorghum)</option>
+            <option value="Sugarcane">Sugarcane</option>
+          </select>
+        </div>
+
+        <div class="switch-field">
+          <label for="careGrowthStage"><strong>Current Growth Stage:</strong></label>
+          <select id="careGrowthStage">
+            <option value="Germination & Seedling (0-15 DAS)">Germination & Seedling (0-15 DAS)</option>
+            <option value="Vegetative & Tillering (15-35 DAS)">Vegetative & Tillering (15-35 DAS)</option>
+            <option value="Flowering & Pegging / Tasseling (35-65 DAS)" selected>Flowering & Pegging / Tasseling (35-65 DAS)</option>
+            <option value="Grain / Pod Filling (65-90 DAS)">Grain / Pod Filling (65-90 DAS)</option>
+            <option value="Maturity & Ripening (90+ DAS)">Maturity & Ripening (90+ DAS)</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="updateCareBtn">Refresh Growing Advisory</button>
+      </div>
+
+      <!-- Module 1: Smart Irrigation Advisory -->
+      <section class="card irrigation-section">
+        <div class="card-header">
+          <div>
+            <h3>💧 Smart Irrigation Advisory</h3>
+            <p class="section-desc">Calculates precise water volume needed, root zone moisture deficit, and watering schedule.</p>
+          </div>
+          <span class="badge badge-soil" id="irrigationStageBadge">Critical Stage</span>
+        </div>
+
+        <div class="irrigation-dashboard-grid">
+          <div class="irrigation-metric-card">
+            <div class="metric-label">Daily Crop Water Requirement</div>
+            <div class="metric-big-val" id="dailyWaterLiters">15,380 L</div>
+            <small class="metric-sub" id="dailyWaterMm">3.8 mm/day per acre</small>
+          </div>
+
+          <div class="irrigation-metric-card">
+            <div class="metric-label">Soil Moisture Status</div>
+            <div class="metric-big-val status-badge-val" id="soilMoistureStatus">Dry / Deficit</div>
+            <small class="metric-sub" id="soilRetentionInfo">Water retention: 4 days (Red Soil)</small>
+          </div>
+
+          <div class="irrigation-metric-card highlight-card">
+            <div class="metric-label">Next Irrigation Schedule</div>
+            <div class="metric-big-val" id="nextIrrigationDays">Due Today</div>
+            <small class="metric-sub" id="irrigationActionText">Water root zone to field capacity.</small>
+          </div>
+        </div>
+
+        <div class="advisory-callout-box">
+          <strong>💡 Agronomic Irrigation Tip:</strong>
+          <span id="irrigationTipText">Ensure optimum moisture during pegging for pod entry into soil. Avoid standing water.</span>
+        </div>
+      </section>
+
+      <!-- Module 2: Fertilizer Dosage & NPK Deficit Calculator -->
+      <section class="card fertilizer-section">
+        <div class="card-header">
+          <div>
+            <h3>🧪 Tailored Fertilizer Dosage & Schedule (ICAR/ANGRAU Benchmarks)</h3>
+            <p class="section-desc">Calculates exact commercial fertilizer bags (50kg bags) tailored to your soil test.</p>
+          </div>
+          <span class="badge badge-success">Soil Test Tuned</span>
+        </div>
+
+        <div class="fertilizer-bags-grid">
+          <div class="fert-bag-card">
+            <div class="bag-icon">🧪</div>
+            <div class="bag-name">DAP (18-46-0)</div>
+            <div class="bag-count" id="dapBagsDisplay">1.0 Bags</div>
+            <div class="bag-kg" id="dapKgDisplay">52.2 kg total</div>
+            <small>Supplies Phosphorus & starter Nitrogen</small>
+          </div>
+
+          <div class="fert-bag-card">
+            <div class="bag-icon">⚪</div>
+            <div class="bag-name">Urea (46% N)</div>
+            <div class="bag-count" id="ureaBagsDisplay">0.5 Bags</div>
+            <div class="bag-kg" id="ureaKgDisplay">25.0 kg total</div>
+            <small>Supplies Nitrogen for vegetative vigor</small>
+          </div>
+
+          <div class="fert-bag-card">
+            <div class="bag-icon">🔴</div>
+            <div class="bag-name">MOP / Potash (60% K₂O)</div>
+            <div class="bag-count" id="mopBagsDisplay">0.8 Bags</div>
+            <div class="bag-kg" id="mopKgDisplay">40.0 kg total</div>
+            <small>Boosts disease resistance & grain filling</small>
+          </div>
+
+          <div class="fert-bag-card">
+            <div class="bag-icon">🪨</div>
+            <div class="bag-name">Gypsum (Ca + S)</div>
+            <div class="bag-count" id="gypsumBagsDisplay">6.0 Bags</div>
+            <div class="bag-kg" id="gypsumKgDisplay">300 kg total</div>
+            <small>Essential Calcium for pod filling</small>
+          </div>
+        </div>
+
+        <div class="fert-schedule-card">
+          <h4>📅 Recommended Split Application Timeline</h4>
+          <ul id="fertScheduleList" class="schedule-timeline"></ul>
+        </div>
+      </section>
+
+      <!-- Module 3: Weed, Pest & Disease Protection -->
+      <section class="card pest-weed-section">
+        <div class="card-header">
+          <div>
+            <h3>🛡️ Weed & Pest Protection Protocol</h3>
+            <p class="section-desc">Diagnostic identification, organic bio-remedies, and targeted chemical controls for your crop.</p>
+          </div>
+          <span class="badge badge-warning">Crop Health Guard</span>
+        </div>
+
+        <div id="pestDiagnosticsGrid" class="pest-cards-grid"></div>
+      </section>
+
+      <!-- Bottom Phase Transition Bar -->
+      <div class="harvest-ready-banner card">
+        <div>
+          <h3>🌾 Reached Harvest Stage?</h3>
+          <p>Once you harvest and dry your crop, move directly to Phase 3 to connect with verified buyers and mandi traders!</p>
+        </div>
+        <button type="button" class="btn btn-accent btn-lg" id="harvestReadyBannerBtn">
+          📦 Publish Harvest to Phase 3 Marketplace ➔
+        </button>
+      </div>
+
+    </div><!-- End Phase 2 Container -->
+
+
+    <!-- ===================================================================
+         PHASE 3: SELLING & DIRECT FARMER-TO-BUYER MARKETPLACE
+         =================================================================== -->
+    <div id="phase3Container" class="phase-container">
+
+      <section class="phase-header-card card">
+        <div class="phase-header-left">
+          <span class="phase-pill pill-selling">PHASE 3 : SELLING & DIRECT MARKETPLACE</span>
+          <h2>Direct Farm-to-Buyer Trading Hub</h2>
+          <p class="section-desc">
+            Directly bridge farmers with wholesale buyers, food processors, millers, and consumers. 
+            Farmers upload crop lots with photos, and buyers contact them directly via WhatsApp or phone.
+          </p>
+        </div>
+        <div class="phase-header-actions">
+          <button type="button" class="btn btn-accent" id="openPostHarvestModalBtn">
+            ➕ List My Harvested Crop
+          </button>
+        </div>
+      </section>
+
+      <!-- Marketplace Sub-Tabs: Browse Lots vs List Harvest -->
+      <div class="results-tabs">
+        <button type="button" class="tab-btn active" id="tabBrowseLotsBtn">
+          🛒 Buyer Marketplace (Available Crop Lots)
+        </button>
+        <button type="button" class="tab-btn" id="tabListProduceBtn">
+          👨‍🌾 Farmer Listing Portal (Post Your Produce)
+        </button>
+      </div>
+
+      <!-- Sub-View A: Buyer Marketplace Grid -->
+      <div id="viewBrowseLots" class="tab-view active">
+        <div class="marketplace-filter-bar card">
+          <div class="search-row">
+            <input type="text" id="marketSearchCrop" placeholder="Filter by Crop (e.g. Chilli, Groundnut, Cotton, Rice, Black Gram)...">
+            <input type="text" id="marketSearchDistrict" placeholder="Filter by District (e.g. Guntur, Anantapur, Krishna)...">
+            <button type="button" class="btn btn-primary" id="applyMarketFilterBtn">Filter Listings</button>
+            <button type="button" class="btn btn-secondary" id="clearMarketFilterBtn">Reset</button>
+          </div>
+        </div>
+
+        <div id="marketplaceLotsGrid" class="marketplace-grid"></div>
+      </div>
+
+      <!-- Sub-View B: Farmer Listing Portal -->
+      <div id="viewListProduce" class="tab-view">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>👨‍🌾 Post Your Harvested Crop for Direct Buyer Inquiries</h3>
+              <p class="section-desc">List your available lot quantity, quality grade, photo, and asking price.</p>
+            </div>
+          </div>
+
+          <form id="postHarvestForm">
+            <div class="form-sections-grid">
+              
+              <!-- Lot Specifics -->
+              <div class="form-subgroup">
+                <h4 class="subgroup-title">📦 Crop & Lot Details</h4>
+                
+                <div class="form-group">
+                  <label for="postCrop">Crop Name <span class="req">*</span></label>
+                  <select id="postCrop" required>
+                    <option value="Groundnut">Groundnut (Peanut)</option>
+                    <option value="Chilli">Chilli (Dry Red)</option>
+                    <option value="Cotton">Cotton</option>
+                    <option value="Rice">Rice (Paddy)</option>
+                    <option value="Maize">Maize</option>
+                    <option value="Black Gram">Black Gram (Urad)</option>
+                    <option value="Green Gram">Green Gram (Moong)</option>
+                    <option value="Bengal Gram">Bengal Gram (Chana)</option>
+                    <option value="Red Gram">Red Gram (Tur/Arhar)</option>
+                    <option value="Bajra">Bajra (Pearl Millet)</option>
+                    <option value="Jowar">Jowar (Sorghum)</option>
+                    <option value="Sugarcane">Sugarcane</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="postVariety">Variety / Hybrid Name</label>
+                  <input id="postVariety" type="text" placeholder="e.g. Kadiri-6, Teja, Samba Mahsuri" value="Standard High-Yield">
+                </div>
+
+                <div class="form-group">
+                  <label for="postQuantity">Available Quantity (Quintals) <span class="req">*</span></label>
+                  <input id="postQuantity" type="number" min="1" step="any" value="25" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="postGrade">Quality Grade <span class="req">*</span></label>
+                  <select id="postGrade" required>
+                    <option value="Grade A (Premium / Export Quality)" selected>Grade A (Premium / Export Quality)</option>
+                    <option value="Grade B (Commercial / Standard)">Grade B (Commercial / Standard)</option>
+                    <option value="Grade C (Milling / Feed Quality)">Grade C (Milling / Feed Quality)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Pricing & Dates -->
+              <div class="form-subgroup">
+                <h4 class="subgroup-title">💰 Pricing & Harvest Timing</h4>
+
+                <div class="form-group">
+                  <label for="postAskingPrice">Asking Price (₹ / Quintal) <span class="req">*</span></label>
+                  <input id="postAskingPrice" type="number" min="100" step="any" value="8400" required>
+                  <small class="field-hint">Refer to Phase 1 Mandi rate for fair market value</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="postHarvestDate">Harvest Date <span class="req">*</span></label>
+                  <input id="postHarvestDate" type="date" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="postPhotoUrl">Crop Photo URL</label>
+                  <input id="postPhotoUrl" type="url" placeholder="Paste image link or leave default" value="https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=600&q=80">
+                  <small class="field-hint">Buyers prioritize listings with clear photos of the produce</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="postNotes">Storage / Quality Description</label>
+                  <input id="postNotes" type="text" placeholder="e.g. Moisture 11%, sun-dried on tarpaulins, bagged" value="Clean, well-dried, sorted and ready for dispatch.">
+                </div>
+              </div>
+
+              <!-- Farmer Contact Details -->
+              <div class="form-subgroup">
+                <h4 class="subgroup-title">📍 Farmer Contact & Location</h4>
+
+                <div class="form-group">
+                  <label for="postFarmerName">Farmer Name <span class="req">*</span></label>
+                  <input id="postFarmerName" type="text" placeholder="e.g. R. Srinivasulu" value="R. Srinivasulu" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="postPhone">Phone / WhatsApp Number <span class="req">*</span></label>
+                  <input id="postPhone" type="tel" placeholder="10-digit mobile number" value="9848012345" required>
+                  <small class="field-hint">Buyers will contact you directly via this number</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="postVillage">Village / Mandal <span class="req">*</span></label>
+                  <input id="postVillage" type="text" placeholder="e.g. Singanamala" value="Singanamala" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="postDistrict">District <span class="req">*</span></label>
+                  <input id="postDistrict" type="text" placeholder="e.g. Anantapur, Guntur, Krishna" value="Anantapur" required>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="button-group">
+              <button type="submit" class="btn btn-primary btn-lg" id="publishLotBtn">
+                📢 Publish Harvest Lot to Marketplace
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="switchPhase(3); showMarketTab('browse');">
+                Cancel
+              </button>
+            </div>
+          </form>
+
+          <p id="postStatus" class="status"></p>
+        </div>
+      </div>
+
+    </div><!-- End Phase 3 Container -->
 
   </main>
 
+  <!-- Buyer Contact Inquiry Modal -->
+  <div id="buyerInquiryModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modalLotTitle">Contact Farmer for Lot #LOT-1001</h3>
+        <button type="button" class="modal-close" id="closeInquiryModalBtn">&times;</button>
+      </div>
+      <form id="buyerInquiryForm">
+        <input type="hidden" id="inquiryLotId">
+        <div class="form-group">
+          <label>Farmer Contact:</label>
+          <div id="modalFarmerDetails" style="font-size: 0.95rem; font-weight: 700; color: var(--primary-dark);"></div>
+        </div>
+        <div class="form-group">
+          <label for="inquiryBuyerName">Your Name / Agribusiness <span class="req">*</span></label>
+          <input id="inquiryBuyerName" type="text" placeholder="e.g. Sri Balaji Traders / Rajesh" required>
+        </div>
+        <div class="form-group">
+          <label for="inquiryBuyerPhone">Your Phone Number <span class="req">*</span></label>
+          <input id="inquiryBuyerPhone" type="tel" placeholder="e.g. 9876543210" required>
+        </div>
+        <div class="form-group">
+          <label for="inquiryOfferPrice">Your Offer Price (₹ / Quintal)</label>
+          <input id="inquiryOfferPrice" type="number" step="any" placeholder="e.g. 8350">
+        </div>
+        <div class="form-group">
+          <label for="inquiryQuantity">Quantity Required (Quintals)</label>
+          <input id="inquiryQuantity" type="number" step="any" placeholder="e.g. 20">
+        </div>
+        <div class="form-group">
+          <label for="inquiryMessage">Message to Farmer</label>
+          <textarea id="inquiryMessage" rows="3" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-family: inherit;">Hello, I am interested in purchasing this lot. Please confirm pickup location and payment terms.</textarea>
+        </div>
+        <div class="button-group">
+          <button type="submit" class="btn btn-primary" id="sendInquiryBtn">Send Direct Inquiry</button>
+          <a id="modalWhatsAppBtn" class="btn btn-accent" target="_blank" rel="noopener noreferrer">💬 Chat on WhatsApp</a>
+        </div>
+      </form>
+      <p id="inquiryStatus" class="status"></p>
+    </div>
+  </div>
+
   <footer class="site-footer">
     <div class="container footer-content">
-      <p><strong>Farm-to-Market AI</strong> — Bridging Agronomic Suitability and Mandi Profitability</p>
-      <p class="copyright">Built for Indian Farmers & Agribusinesses | College Project Prototype</p>
+      <p><strong>Farm-to-Market AI</strong> — End-to-End Intelligent Agricultural Ecosystem</p>
+      <p class="copyright">Phase 1 (Recommendation) ➔ Phase 2 (Growing Care) ➔ Phase 3 (Direct Selling)</p>
     </div>
   </footer>
 

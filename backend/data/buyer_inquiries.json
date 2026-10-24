@@ -1,0 +1,12 @@
+[
+  {
+    "inquiry_id": "INQ-1",
+    "listing_id": "LOT-1007",
+    "buyer_name": "Sri Balaji Oil Millers",
+    "buyer_phone": "9988776655",
+    "offer_price_per_quintal": 8350.0,
+    "quantity_needed": 30.0,
+    "message": "We want to buy all 30 quintals with immediate payment.",
+    "timestamp": "2026-10-24T13:32:42.318576"
+  }
+]

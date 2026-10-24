@@ -12,10 +12,14 @@ DATA_DIR = BACKEND_DIR / "data"
 
 if str(RULES_DIR) not in sys.path:
     sys.path.insert(0, str(RULES_DIR))
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 from crop_recommender import recommend_crops
 from market_ranker import rank_crops_by_profit_and_market, load_market_data
 from crop_rules import CROP_RULES
+import crop_care_service
+import marketplace_service
 
 app = Flask(__name__)
 CORS(app)
@@ -24,13 +28,20 @@ CORS(app)
 @app.get("/")
 def home():
     return jsonify({
-        "message": "Farm-to-Market-AI Backend is running",
+        "project": "Farm-to-Market-AI: 3-Phase Smart Agricultural Ecosystem",
+        "phases": {
+            "phase_1": "Crop Recommendation (Agronomic Suitability + Profit Ranking)",
+            "phase_2": "Crop Growing Care (Smart Irrigation, Fertilizer Dosage, Weed/Pest Diagnostics)",
+            "phase_3": "Farm-to-Market Direct Marketplace (Produce Listing & Buyer Direct Connect)"
+        },
         "endpoints": {
-            "health": "/api/health",
-            "recommend": "POST /api/recommend",
-            "profit_estimate": "POST /api/profit-estimate",
-            "mandi_prices": "GET /api/mandi-prices?crop=Rice&state=Andhra+Pradesh",
-            "market_summary": "GET /api/market-summary"
+            "phase1_recommend": "POST /api/recommend",
+            "phase2_fertilizer": "POST /api/phase2/fertilizer-plan",
+            "phase2_irrigation": "POST /api/phase2/irrigation-advisory",
+            "phase2_pest_weed": "GET /api/phase2/pest-weed-advisory?crop=Chilli",
+            "phase3_listings": "GET /api/phase3/listings",
+            "phase3_create_listing": "POST /api/phase3/create-listing",
+            "phase3_inquiry": "POST /api/phase3/buyer-inquiry"
         }
     })
 
@@ -40,17 +51,23 @@ def health():
     market_data = load_market_data()
     return jsonify({
         "status": "healthy",
+        "phase_1_engine": "Agronomic Multi-Factor Suitability & Market Economics",
+        "phase_2_engine": "ICAR/ANGRAU Fertilizer Dosage & Smart Irrigation Advisory",
+        "phase_3_engine": "Farmer-to-Buyer Marketplace & Direct Connect",
         "crops_supported": list(CROP_RULES.keys()),
         "crops_count": len(CROP_RULES),
-        "market_dataset_loaded": len(market_data) > 0,
-        "engine": "Agronomic Multi-Factor Suitability & Market Economics Engine"
+        "market_dataset_loaded": len(market_data) > 0
     })
 
+
+# =========================================================================
+# PHASE 1: CROP RECOMMENDATION & PROFIT RANKING
+# =========================================================================
 
 @app.post("/api/recommend")
 def recommend_pipeline():
     """
-    Two-stage recommendation pipeline:
+    Phase 1 Two-stage recommendation pipeline:
     1. Recommends top 5 crops based on Water Availability, Weather (Temperature, Humidity, Rainfall),
        N, P, K, pH, and Soil Type.
     2. Then ranks and recommends top 3 crops based on Market Price and Estimated Net Profit.
@@ -62,7 +79,6 @@ def recommend_pipeline():
             "error": "Expected JSON payload with farm conditions."
         }), 400
 
-    # Extract farm inputs with alias tolerance
     farm = {
         "N_kg_ha": data.get("N_kg_ha") or data.get("N") or data.get("nitrogen"),
         "P_kg_ha": data.get("P_kg_ha") or data.get("P") or data.get("phosphorus"),
@@ -161,35 +177,16 @@ def profit_estimate():
         "estimated_net_profit_rs": net_profit,
         "estimated_profit_per_quintal_rs": profit_per_quintal,
         "roi_pct": roi_pct,
-        "result_type": "Net Profit" if net_profit >= 0 else "Net Loss",
-        "warning": "Estimated returns depend on final realized market yield, transport expenses, and crop grade."
+        "result_type": "Net Profit" if net_profit >= 0 else "Net Loss"
     })
 
 
 @app.get("/api/mandi-prices")
 def get_mandi_prices():
-    """Retrieve market prices for specified crop and state."""
     crop_query = request.args.get("crop", "").strip()
     state_query = request.args.get("state", "Andhra Pradesh").strip()
     district_query = request.args.get("district", "").strip()
 
-    # Try government API if configured
-    api_key = os.getenv("DATA_GOV_IN_API_KEY") or os.getenv("DATA_GOV_API_KEY")
-    if api_key:
-        try:
-            import mandi_service
-            records = mandi_service.get_mandi_prices(crop_query, state=state_query, district=district_query)
-            if records:
-                return jsonify({
-                    "success": True,
-                    "source": "Government data.gov.in Live Mandi API",
-                    "count": len(records),
-                    "records": records
-                })
-        except Exception:
-            pass
-
-    # Seamless fallback to regional market database
     market_db = load_market_data()
     records = []
 
@@ -218,35 +215,90 @@ def get_mandi_prices():
     })
 
 
-@app.get("/api/market-summary")
-def get_market_summary():
-    """Return complete market and profit profiles for all supported crops."""
-    market_db = load_market_data()
-    crops = []
-    for k, v in market_db.items():
-        price = v["price_rs_per_quintal"]
-        yield_val = v["avg_yield_quintals_per_acre"]
-        cost = v["cultivation_cost_per_acre"]
-        revenue = round(price * yield_val, 2)
-        profit = round(revenue - cost, 2)
-        roi = round((profit / cost) * 100, 1) if cost > 0 else 0
-        crops.append({
-            "crop": v["crop"],
-            "market": v["market"],
-            "price_rs_per_quintal": price,
-            "avg_yield_quintals_per_acre": yield_val,
-            "cultivation_cost_per_acre": cost,
-            "gross_revenue_per_acre": revenue,
-            "net_profit_per_acre": profit,
-            "roi_pct": roi,
-            "price_date": v.get("price_date", "")
-        })
+# =========================================================================
+# PHASE 2: CROP GROWING & MONITORING
+# =========================================================================
 
-    crops.sort(key=lambda x: -x["net_profit_per_acre"])
+@app.post("/api/phase2/fertilizer-plan")
+def phase2_fertilizer():
+    """Calculates custom N-P-K fertilizer bags and schedule for the selected crop."""
+    data = request.get_json(silent=True) or {}
+    crop = data.get("crop", "Groundnut")
+    soil_n = float(data.get("soil_n", 40.0))
+    soil_p = float(data.get("soil_p", 25.0))
+    soil_k = float(data.get("soil_k", 35.0))
+    acres = float(data.get("acres", 1.0))
+
+    plan = crop_care_service.calculate_fertilizer_dosage(crop, soil_n, soil_p, soil_k, acres)
+    return jsonify({"success": True, "plan": plan})
+
+
+@app.post("/api/phase2/irrigation-advisory")
+def phase2_irrigation():
+    """Calculates smart irrigation need, water volume, and schedule."""
+    data = request.get_json(silent=True) or {}
+    crop = data.get("crop", "Groundnut")
+    soil_type = data.get("soil_type", "Red")
+    growth_stage = data.get("growth_stage", "Vegetative / Tillering")
+    recent_rain = float(data.get("recent_rain_mm", 0.0))
+    temp_c = float(data.get("temperature", 30.0))
+
+    advisory = crop_care_service.calculate_smart_irrigation(crop, soil_type, growth_stage, recent_rain, temp_c)
+    return jsonify({"success": True, "advisory": advisory})
+
+
+@app.get("/api/phase2/pest-weed-advisory")
+def phase2_pest_weed():
+    """Returns pest, weed, and disease prevention protocol for the crop."""
+    crop = request.args.get("crop", "Groundnut").strip()
+    advisory = crop_care_service.get_pest_weed_advisory(crop)
+    return jsonify({"success": True, "advisory": advisory})
+
+
+# =========================================================================
+# PHASE 3: SELLING & DIRECT FARM-TO-MARKET MARKETPLACE
+# =========================================================================
+
+@app.get("/api/phase3/listings")
+def phase3_get_listings():
+    crop = request.args.get("crop")
+    district = request.args.get("district")
+    listings = marketplace_service.get_all_listings(crop=crop, district=district)
     return jsonify({
         "success": True,
-        "total_crops": len(crops),
-        "crops": crops
+        "count": len(listings),
+        "listings": listings
+    })
+
+
+@app.post("/api/phase3/create-listing")
+def phase3_create_listing():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "Invalid listing data."}), 400
+
+    if not data.get("crop") or not data.get("phone_number"):
+        return jsonify({"success": False, "error": "Crop name and farmer contact number are required."}), 400
+
+    listing = marketplace_service.create_new_listing(data)
+    return jsonify({
+        "success": True,
+        "message": "Harvest lot published successfully to the marketplace!",
+        "listing": listing
+    })
+
+
+@app.post("/api/phase3/buyer-inquiry")
+def phase3_buyer_inquiry():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "Invalid inquiry data."}), 400
+
+    record = marketplace_service.save_buyer_inquiry(data)
+    return jsonify({
+        "success": True,
+        "message": "Inquiry delivered to farmer!",
+        "inquiry": record
     })
 
 

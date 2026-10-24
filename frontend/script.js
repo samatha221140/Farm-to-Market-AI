@@ -2,9 +2,13 @@
 
 const API_BASE = "http://127.0.0.1:5000";
 
-// Global cache for live economic calculations
+// State Management across Phase 1, Phase 2, and Phase 3
+let currentPhase = 1;
+let selectedCrop = "Groundnut";
+let selectedAcreage = 2.0;
+let farmerSoilData = { N: 45, P: 28, K: 38, pH: 6.8, soil_type: "Red", water_availability: "Low", rainfall: 650, temperature: 28.5 };
 let cachedEconomicResult = null;
-let currentAcreage = 2.0;
+let currentLotForInquiry = null;
 
 function getElement(id) {
     return document.getElementById(id);
@@ -50,23 +54,55 @@ async function fetchJSON(url, options = {}) {
 }
 
 /* ==========================================================================
-   1. Weather Module with Auto-Fill Feature
+   GLOBAL PHASE NAVIGATION (1 -> 2 -> 3)
+   ========================================================================== */
+function switchPhase(phaseNum) {
+    currentPhase = Number(phaseNum);
+
+    // Update Nav Buttons
+    const navBtns = [getElement("navPhase1Btn"), getElement("navPhase2Btn"), getElement("navPhase3Btn")];
+    navBtns.forEach((btn, idx) => {
+        if (btn) btn.classList.toggle("active", idx + 1 === currentPhase);
+    });
+
+    // Update Phase Containers
+    const containers = [getElement("phase1Container"), getElement("phase2Container"), getElement("phase3Container")];
+    containers.forEach((c, idx) => {
+        if (c) c.classList.toggle("active", idx + 1 === currentPhase);
+    });
+
+    // Update Active Crop Bar
+    const activeBar = getElement("activeCropBar");
+    if (activeBar) {
+        activeBar.style.display = (currentPhase >= 2 || selectedCrop) ? "block" : "none";
+        if (getElement("activeCropNameDisplay")) getElement("activeCropNameDisplay").textContent = selectedCrop;
+        if (getElement("activeCropAreaDisplay")) getElement("activeCropAreaDisplay").textContent = `${selectedAcreage.toFixed(1)} Acres`;
+    }
+
+    // Phase-specific initializations
+    if (currentPhase === 2) {
+        loadPhase2Data();
+    } else if (currentPhase === 3) {
+        loadMarketplaceListings();
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+getElement("navPhase1Btn")?.addEventListener("click", () => switchPhase(1));
+getElement("navPhase2Btn")?.addEventListener("click", () => switchPhase(2));
+getElement("navPhase3Btn")?.addEventListener("click", () => switchPhase(3));
+
+getElement("quickJumpPhase2Btn")?.addEventListener("click", () => switchPhase(2));
+getElement("quickJumpPhase3Btn")?.addEventListener("click", () => switchPhase(3));
+
+/* ==========================================================================
+   PHASE 1: WEATHER MODULE & AUTO-FILL
    ========================================================================== */
 const weatherCodes = {
-    0: "Clear Sky",
-    1: "Mainly Clear",
-    2: "Partly Cloudy",
-    3: "Overcast",
-    45: "Foggy",
-    48: "Depositing Rime Fog",
-    51: "Light Drizzle",
-    53: "Moderate Drizzle",
-    55: "Dense Drizzle",
-    61: "Slight Rain",
-    63: "Moderate Rain",
-    65: "Heavy Rain",
-    80: "Rain Showers",
-    95: "Thunderstorm"
+    0: "Clear Sky", 1: "Mainly Clear", 2: "Partly Cloudy", 3: "Overcast",
+    45: "Foggy", 51: "Light Drizzle", 61: "Slight Rain", 63: "Moderate Rain",
+    65: "Heavy Rain", 80: "Rain Showers", 95: "Thunderstorm"
 };
 
 let latestFetchedWeather = null;
@@ -78,7 +114,7 @@ async function loadWeather(city) {
     }
 
     setButtonLoading("refreshWeatherButton", true, "Fetching...", "Fetch Weather");
-    setStatus("weatherStatus", "Looking up location coordinates and live forecast...", "loading");
+    setStatus("weatherStatus", "Querying meteorological coordinates...", "loading");
 
     try {
         const geoURL = new URL("https://geocoding-api.open-meteo.com/v1/search");
@@ -91,7 +127,7 @@ async function loadWeather(city) {
         const place = geo.results && geo.results[0];
 
         if (!place) {
-            throw new Error(`Location "${city}" could not be found. Try another major town or district in Andhra Pradesh/India.`);
+            throw new Error(`Location "${city}" could not be found. Try another city in Andhra Pradesh/India.`);
         }
 
         const weatherURL = new URL("https://api.open-meteo.com/v1/forecast");
@@ -104,10 +140,6 @@ async function loadWeather(city) {
 
         const data = await fetchJSON(weatherURL.toString());
         const current = data.current;
-
-        if (!current || !data.daily) {
-            throw new Error("Weather metrics unavailable for this coordinate.");
-        }
 
         latestFetchedWeather = {
             temperature: Math.round(current.temperature_2m * 10) / 10,
@@ -159,11 +191,8 @@ async function loadWeather(city) {
             `).join("");
         }
 
-        // Enable Apply Weather Button
         const applyBtn = getElement("applyWeatherBtn");
-        if (applyBtn) {
-            applyBtn.disabled = false;
-        }
+        if (applyBtn) applyBtn.disabled = false;
 
         setStatus("weatherStatus", `Weather synced for ${place.name}. You can click "Apply Weather to Farm Inputs".`, "success");
     } catch (err) {
@@ -173,20 +202,13 @@ async function loadWeather(city) {
     }
 }
 
-// Apply Weather Button handler
 getElement("applyWeatherBtn")?.addEventListener("click", () => {
     if (!latestFetchedWeather) return;
-
     if (getElement("Temperature_C")) getElement("Temperature_C").value = latestFetchedWeather.temperature;
     if (getElement("humidity")) getElement("humidity").value = latestFetchedWeather.humidity;
-    
-    // Estimate seasonal rainfall based on local climate if rain is low
-    const rainInput = getElement("Rainfall_mm");
-    if (rainInput && Number(rainInput.value) <= 0) {
-        rainInput.value = 650;
-    }
-
-    setStatus("cropStatus", `Applied live weather (${latestFetchedWeather.temperature}°C, ${latestFetchedWeather.humidity}% humidity) to farm form!`, "success");
+    farmerSoilData.temperature = latestFetchedWeather.temperature;
+    farmerSoilData.humidity = latestFetchedWeather.humidity;
+    setStatus("cropStatus", `Applied live weather (${latestFetchedWeather.temperature}°C, ${latestFetchedWeather.humidity}%) to farm inputs!`, "success");
 });
 
 getElement("refreshWeatherButton")?.addEventListener("click", () => {
@@ -194,7 +216,7 @@ getElement("refreshWeatherButton")?.addEventListener("click", () => {
 });
 
 /* ==========================================================================
-   2. Quick Regional Test Presets
+   PHASE 1: PRESETS BAR
    ========================================================================== */
 function applyPreset(preset) {
     if (preset === "dryland") {
@@ -244,40 +266,45 @@ getElement("presetWetland")?.addEventListener("click", () => applyPreset("wetlan
 getElement("presetBlackCommercial")?.addEventListener("click", () => applyPreset("commercial"));
 
 /* ==========================================================================
-   3. Main Recommendation Pipeline (Top 5 Suitable + Top 3 Profitable)
+   PHASE 1: RECOMMENDATION SUBMISSION & RENDERING
    ========================================================================== */
 const farmForm = getElement("farmForm");
 
 farmForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const payload = {
+    selectedAcreage = Number(getElement("land_acres")?.value || 2.0);
+    farmerSoilData = {
         soil_type: getElement("soil_type")?.value,
         water_availability: getElement("water_availability")?.value,
         season: getElement("season")?.value,
-        land_acres: Number(getElement("land_acres")?.value || 2.0),
-        N_kg_ha: Number(getElement("N_kg_ha")?.value),
-        P_kg_ha: Number(getElement("P_kg_ha")?.value),
-        K_kg_ha: Number(getElement("K_kg_ha")?.value),
+        land_acres: selectedAcreage,
+        N: Number(getElement("N_kg_ha")?.value),
+        P: Number(getElement("P_kg_ha")?.value),
+        K: Number(getElement("K_kg_ha")?.value),
         pH: Number(getElement("pH")?.value),
-        Temperature_C: Number(getElement("Temperature_C")?.value),
+        temperature: Number(getElement("Temperature_C")?.value),
         humidity: Number(getElement("humidity")?.value),
-        Rainfall_mm: Number(getElement("Rainfall_mm")?.value),
+        rainfall: Number(getElement("Rainfall_mm")?.value),
     };
 
-    if (!payload.soil_type || !payload.water_availability) {
-        setStatus("cropStatus", "Please select Soil Type and Water Availability.", "error");
-        return;
-    }
-
-    currentAcreage = payload.land_acres;
-    if (getElement("liveAcreSlider")) getElement("liveAcreSlider").value = currentAcreage;
-    if (getElement("liveAcreValue")) getElement("liveAcreValue").textContent = currentAcreage.toFixed(1);
+    if (getElement("liveAcreSlider")) getElement("liveAcreSlider").value = selectedAcreage;
+    if (getElement("liveAcreValue")) getElement("liveAcreValue").textContent = selectedAcreage.toFixed(1);
 
     setButtonLoading("recommendButton", true, "Evaluating Suitability & Profit...", "🌾 Recommend 5 Suitable Crops & Top 3 Profitable Crops");
-    setStatus("cropStatus", "Processing agronomic parameters & calculating mandi market returns...", "loading");
+    setStatus("cropStatus", "Running agronomic engine & mandi profit optimizer...", "loading");
 
     try {
+        const payload = {
+            ...farmerSoilData,
+            N_kg_ha: farmerSoilData.N,
+            P_kg_ha: farmerSoilData.P,
+            K_kg_ha: farmerSoilData.K,
+            Temperature_C: farmerSoilData.temperature,
+            Rainfall_mm: farmerSoilData.rainfall,
+            Humidity_pct: farmerSoilData.humidity
+        };
+
         const data = await fetchJSON(`${API_BASE}/api/recommend`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -290,22 +317,25 @@ farmForm?.addEventListener("submit", async (event) => {
 
         cachedEconomicResult = data;
 
-        // Render Results
-        renderTop5SuitableCrops(data.top_5_suitable_crops || []);
-        renderTop3ProfitableCrops(data.top_3_profitable_crops || [], currentAcreage);
-        renderEconomicsTable(data.all_candidate_economics || [], currentAcreage);
+        // Default active crop to the #1 profitable crop
+        if (data.top_3_profitable_crops && data.top_3_profitable_crops.length > 0) {
+            selectedCrop = data.top_3_profitable_crops[0].crop;
+        }
 
-        // Show Results Section and Scroll Smoothly
+        renderTop5SuitableCrops(data.top_5_suitable_crops || []);
+        renderTop3ProfitableCrops(data.top_3_profitable_crops || [], selectedAcreage);
+        renderEconomicsTable(data.all_candidate_economics || [], selectedAcreage);
+
         const resultsSection = getElement("resultsSection");
         if (resultsSection) {
             resultsSection.style.display = "block";
             resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
         }
 
-        setStatus("cropStatus", "Recommendations generated! 5 Agronomically Suitable crops and 3 Market Profit leaders identified.", "success");
+        setStatus("cropStatus", "Recommendations generated! 5 Suitable crops and 3 Market Profit leaders identified.", "success");
 
     } catch (err) {
-        setStatus("cropStatus", `${err.message}. Make sure Flask backend is running at http://127.0.0.1:5000.`, "error");
+        setStatus("cropStatus", `${err.message}. Ensure Flask backend is running on port 5000.`, "error");
     } finally {
         setButtonLoading("recommendButton", false, "Evaluating Suitability & Profit...", "🌾 Recommend 5 Suitable Crops & Top 3 Profitable Crops");
     }
@@ -318,9 +348,7 @@ getElement("resetButton")?.addEventListener("click", () => {
     if (resultsSection) resultsSection.style.display = "none";
 });
 
-/* ==========================================================================
-   4. Render Step 1: Top 5 Suitable Crops Cards
-   ========================================================================== */
+/* RENDER STEP 1: TOP 5 SUITABLE CROPS */
 function renderTop5SuitableCrops(crops) {
     const grid = getElement("top5CardsGrid");
     if (!grid) return;
@@ -354,50 +382,31 @@ function renderTop5SuitableCrops(crops) {
 
                     <div class="crop-tags">
                         <span class="tag tag-water">💧 Water: ${escapeHTML(item.water_requirement || "Moderate")}</span>
-                        <span class="tag tag-soil">🌱 Suitable: ${escapeHTML((item.suitable_soils || []).join(", "))}</span>
+                        <span class="tag tag-soil">🌱 Soils: ${escapeHTML((item.suitable_soils || []).join(", "))}</span>
                     </div>
 
                     <div class="breakdown-bars">
-                        <div class="breakdown-row">
-                            <span>Soil Compatibility:</span>
-                            <strong>${bd.soil_score ?? 20} / 20</strong>
-                        </div>
-                        <div class="breakdown-row">
-                            <span>Water Availability Match:</span>
-                            <strong>${bd.water_score ?? 20} / 20</strong>
-                        </div>
-                        <div class="breakdown-row">
-                            <span>N-P-K Nutrient Alignment:</span>
-                            <strong>${bd.npk_score ?? 20} / 20</strong>
-                        </div>
-                        <div class="breakdown-row">
-                            <span>Temperature & Weather:</span>
-                            <strong>${bd.temperature_score ?? 10} / 10</strong>
-                        </div>
-                        <div class="breakdown-row">
-                            <span>Soil pH Compatibility:</span>
-                            <strong>${bd.ph_score ?? 10} / 10</strong>
-                        </div>
+                        <div class="breakdown-row"><span>Soil Compatibility:</span><strong>${bd.soil_score ?? 20} / 20</strong></div>
+                        <div class="breakdown-row"><span>Water Availability Match:</span><strong>${bd.water_score ?? 20} / 20</strong></div>
+                        <div class="breakdown-row"><span>N-P-K Nutrients:</span><strong>${bd.npk_score ?? 20} / 20</strong></div>
+                        <div class="breakdown-row"><span>Temperature & Weather:</span><strong>${bd.temperature_score ?? 10} / 10</strong></div>
+                        <div class="breakdown-row"><span>Soil pH Match:</span><strong>${bd.ph_score ?? 10} / 10</strong></div>
                     </div>
 
                     <ul class="reasons-list">
-                        ${(item.reasons || []).slice(0, 4).map(r => `<li>${escapeHTML(r)}</li>`).join("")}
+                        ${(item.reasons || []).slice(0, 3).map(r => `<li>${escapeHTML(r)}</li>`).join("")}
                     </ul>
                 </div>
 
-                <div class="crop-advisory">
-                    <small style="color: var(--text-subtle); display: block; margin-top: 6px;">
-                        📌 ${escapeHTML(item.description || "Thrives in designated agro-climatic conditions.")}
-                    </small>
-                </div>
+                <button type="button" class="btn btn-primary select-crop-btn" onclick="selectCropAndGoToPhase2('${escapeHTML(item.crop)}')">
+                    🌱 Plant ${escapeHTML(item.crop)} & Enter Phase 2 ➔
+                </button>
             </div>
         `;
     }).join("");
 }
 
-/* ==========================================================================
-   5. Render Step 2: Top 3 Profitable Crops Cards
-   ========================================================================== */
+/* RENDER STEP 2: TOP 3 PROFITABLE CROPS */
 function renderTop3ProfitableCrops(crops, acres = 1.0) {
     const grid = getElement("top3CardsGrid");
     if (!grid) return;
@@ -413,9 +422,7 @@ function renderTop3ProfitableCrops(crops, acres = 1.0) {
         const netProfitPerAcre = Number(item.net_profit_per_acre) || 0;
         const totalProfit = netProfitPerAcre * acres;
         const grossRevenuePerAcre = Number(item.gross_revenue_per_acre) || 0;
-        const totalRevenue = grossRevenuePerAcre * acres;
         const costPerAcre = Number(item.cultivation_cost_per_acre) || 0;
-        const totalCost = costPerAcre * acres;
         const yieldVal = Number(item.avg_yield_quintals_per_acre) || 0;
         const price = Number(item.price_rs_per_quintal) || 0;
 
@@ -425,7 +432,7 @@ function renderTop3ProfitableCrops(crops, acres = 1.0) {
                 
                 <div class="profit-card-header">
                     <h3 class="profit-crop-title">${escapeHTML(item.crop)}</h3>
-                    <div class="profit-market-loc">🏛️ Market: ${escapeHTML(item.market || "Regional AP Mandi")}</div>
+                    <div class="profit-market-loc">🏛️ Mandi: ${escapeHTML(item.market || "Regional AP Market")}</div>
                 </div>
 
                 <div class="profit-highlight-box">
@@ -437,39 +444,21 @@ function renderTop3ProfitableCrops(crops, acres = 1.0) {
                 </div>
 
                 <ul class="finance-metrics-list">
-                    <li>
-                        <span class="metric-name">Market Price:</span>
-                        <span class="metric-num">${formatRupees(price)} / quintal</span>
-                    </li>
-                    <li>
-                        <span class="metric-name">Average Yield:</span>
-                        <span class="metric-num">${yieldVal} q / acre (${(yieldVal * acres).toFixed(1)} q total)</span>
-                    </li>
-                    <li>
-                        <span class="metric-name">Cultivation Cost:</span>
-                        <span class="metric-num">${formatRupees(costPerAcre)} / acre (${formatRupees(totalCost)} total)</span>
-                    </li>
-                    <li>
-                        <span class="metric-name">Gross Revenue:</span>
-                        <span class="metric-num">${formatRupees(grossRevenuePerAcre)} / acre (${formatRupees(totalRevenue)} total)</span>
-                    </li>
-                    <li>
-                        <span class="metric-name">Return on Investment:</span>
-                        <span class="metric-num" style="color: var(--primary);">${item.roi_pct ?? 0}% ROI</span>
-                    </li>
+                    <li><span class="metric-name">Market Price:</span><span class="metric-num">${formatRupees(price)} / quintal</span></li>
+                    <li><span class="metric-name">Average Yield:</span><span class="metric-num">${yieldVal} q / acre (${(yieldVal * acres).toFixed(1)} q total)</span></li>
+                    <li><span class="metric-name">Cultivation Cost:</span><span class="metric-num">${formatRupees(costPerAcre)} / acre</span></li>
+                    <li><span class="metric-name">Gross Revenue:</span><span class="metric-num">${formatRupees(grossRevenuePerAcre)} / acre</span></li>
+                    <li><span class="metric-name">Profit Margin:</span><span class="metric-num" style="color: var(--primary);">${item.roi_pct ?? 0}% ROI</span></li>
                 </ul>
 
-                <button type="button" class="btn btn-secondary btn-sm" onclick="prefillProfitCalculator('${escapeHTML(item.crop)}', ${price}, ${yieldVal}, ${costPerAcre})">
-                    🧮 Use in Custom Profit Calculator
+                <button type="button" class="btn btn-primary select-crop-btn" onclick="selectCropAndGoToPhase2('${escapeHTML(item.crop)}')">
+                    🌱 Choose ${escapeHTML(item.crop)} & Start Phase 2 Growing ➔
                 </button>
             </div>
         `;
     }).join("");
 }
 
-/* ==========================================================================
-   6. Render Candidate Economics Table
-   ========================================================================== */
 function renderEconomicsTable(candidates, acres = 1.0) {
     const tbody = getElement("candidateEconomicsBody");
     if (!tbody) return;
@@ -477,12 +466,7 @@ function renderEconomicsTable(candidates, acres = 1.0) {
     const acresLabels = document.querySelectorAll(".table-acres-label");
     acresLabels.forEach(el => el.textContent = acres.toFixed(1));
 
-    if (!candidates || candidates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8">No candidate records available.</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = candidates.map((item, idx) => {
+    tbody.innerHTML = (candidates || []).map((item, idx) => {
         const profitPerAcre = Number(item.net_profit_per_acre) || 0;
         const totalProfit = profitPerAcre * acres;
 
@@ -495,19 +479,20 @@ function renderEconomicsTable(candidates, acres = 1.0) {
                 <td>${formatRupees(item.gross_revenue_per_acre)}</td>
                 <td><strong style="color: #15803d;">${formatRupees(profitPerAcre)}</strong></td>
                 <td><strong style="color: #15803d;">${formatRupees(totalProfit)}</strong></td>
-                <td><span class="badge badge-success">${item.roi_pct}% ROI</span></td>
+                <td>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="selectCropAndGoToPhase2('${escapeHTML(item.crop)}')">
+                        Plant Crop ➔
+                    </button>
+                </td>
             </tr>
         `;
     }).join("");
 }
 
-/* ==========================================================================
-   7. Interactive Dynamic Land Acreage Slider
-   ========================================================================== */
-const liveAcreSlider = getElement("liveAcreSlider");
-liveAcreSlider?.addEventListener("input", (event) => {
+/* INTERACTIVE LIVE ACRE SLIDER */
+getElement("liveAcreSlider")?.addEventListener("input", (event) => {
     const acres = Number(event.target.value);
-    currentAcreage = acres;
+    selectedAcreage = acres;
     if (getElement("liveAcreValue")) getElement("liveAcreValue").textContent = acres.toFixed(1);
 
     if (cachedEconomicResult && cachedEconomicResult.top_3_profitable_crops) {
@@ -516,199 +501,432 @@ liveAcreSlider?.addEventListener("input", (event) => {
     }
 });
 
-/* ==========================================================================
-   8. Tabs Switcher
-   ========================================================================== */
-const tabTop5Btn = getElement("tabTop5Btn");
-const tabTop3Btn = getElement("tabTop3Btn");
-const viewTop5 = getElement("viewTop5");
-const viewTop3 = getElement("viewTop3");
-
-tabTop5Btn?.addEventListener("click", () => {
-    tabTop5Btn.classList.add("active");
-    tabTop3Btn?.classList.remove("active");
-    viewTop5?.classList.add("active");
-    viewTop3?.classList.remove("active");
+/* TABS SWITCHER (TOP 5 vs TOP 3) */
+getElement("tabTop5Btn")?.addEventListener("click", () => {
+    getElement("tabTop5Btn")?.classList.add("active");
+    getElement("tabTop3Btn")?.classList.remove("active");
+    getElement("viewTop5")?.classList.add("active");
+    getElement("viewTop3")?.classList.remove("active");
 });
 
-tabTop3Btn?.addEventListener("click", () => {
-    tabTop3Btn.classList.add("active");
-    tabTop5Btn?.classList.remove("active");
-    viewTop3?.classList.add("active");
-    viewTop5?.classList.remove("active");
+getElement("tabTop3Btn")?.addEventListener("click", () => {
+    getElement("tabTop3Btn")?.classList.add("active");
+    getElement("tabTop5Btn")?.classList.remove("active");
+    getElement("viewTop3")?.classList.add("active");
+    getElement("viewTop5")?.classList.remove("active");
 });
 
-/* ==========================================================================
-   9. Government & Regional Mandi Prices Lookup
-   ========================================================================== */
-const mandiForm = getElement("mandiForm");
-
-mandiForm?.addEventListener("submit", async (event) => {
+/* MANDI PRICES LOOKUP */
+getElement("mandiForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
-
     const crop = getElement("mandiCrop")?.value.trim() || "";
     const state = getElement("mandiState")?.value.trim() || "Andhra Pradesh";
     const district = getElement("mandiDistrict")?.value.trim() || "";
 
-    setButtonLoading("searchMandiButton", true, "Searching Mandis...", "Search Mandi Rates");
-    setStatus("mandiStatus", "Querying agricultural mandi records...", "loading");
+    setButtonLoading("searchMandiButton", true, "Searching...", "Search Mandi Rates");
+    setStatus("mandiStatus", "Loading mandi arrivals...", "loading");
 
     try {
-        const queryParams = new URLSearchParams({ crop, state });
-        if (district) queryParams.set("district", district);
-
-        const data = await fetchJSON(`${API_BASE}/api/mandi-prices?${queryParams.toString()}`);
-
-        const resultsContainer = getElement("mandiResults");
-        if (!resultsContainer) return;
+        const q = new URLSearchParams({ crop, state });
+        if (district) q.set("district", district);
+        const data = await fetchJSON(`${API_BASE}/api/mandi-prices?${q.toString()}`);
+        const container = getElement("mandiResults");
+        if (!container) return;
 
         if (!data.records || data.records.length === 0) {
-            resultsContainer.innerHTML = `<p class="status">No matching mandi records found for "${escapeHTML(crop || 'all crops')}".</p>`;
-            setStatus("mandiStatus", "Search finished with 0 records.", "error");
+            container.innerHTML = `<p class="status">No matching records found.</p>`;
+            setStatus("mandiStatus", "Zero records found.", "error");
             return;
         }
 
-        resultsContainer.innerHTML = data.records.map(record => {
-            const price = Number(record.modal_price_rs_per_quintal) || 0;
-            const cropName = record.commodity_reported || record.crop;
+        container.innerHTML = data.records.map(record => `
+            <div class="mandi-record-card">
+                <div class="mandi-card-header">
+                    <div>
+                        <div class="mandi-crop-name">${escapeHTML(record.crop)}</div>
+                        <div class="mandi-market-name">🏛️ ${escapeHTML(record.market)}, ${escapeHTML(record.district || record.state)}</div>
+                    </div>
+                    <span class="badge badge-market">Mandi Price</span>
+                </div>
+                <div class="mandi-price-box">
+                    <div class="mandi-modal-price">${formatRupees(record.modal_price_rs_per_quintal)} / qtl</div>
+                    <div class="mandi-range">Range: ${formatRupees(record.min_price_rs_per_quintal)} – ${formatRupees(record.max_price_rs_per_quintal)}</div>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-subtle);">
+                    📅 Date: ${escapeHTML(record.arrival_date || "Recent")}
+                </div>
+            </div>
+        `).join("");
+
+        setStatus("mandiStatus", `Loaded ${data.records.length} mandi records.`, "success");
+    } catch (err) {
+        setStatus("mandiStatus", err.message, "error");
+    } finally {
+        setButtonLoading("searchMandiButton", false, "Searching...", "Search Mandi Rates");
+    }
+});
+
+
+/* ==========================================================================
+   TRANSITION TO PHASE 2 (CROP SELECTED)
+   ========================================================================== */
+window.selectCropAndGoToPhase2 = function(cropName) {
+    selectedCrop = cropName;
+    if (getElement("careCropSelector")) getElement("careCropSelector").value = cropName;
+    if (getElement("postCrop")) getElement("postCrop").value = cropName;
+    switchPhase(2);
+};
+
+
+/* ==========================================================================
+   PHASE 2: CROP GROWING CARE (IRRIGATION, FERTILIZER, PESTS)
+   ========================================================================== */
+async function loadPhase2Data() {
+    const crop = selectedCrop || "Groundnut";
+    if (getElement("phase2CropTitle")) getElement("phase2CropTitle").textContent = `Active Cultivation Care: ${crop}`;
+    if (getElement("careCropSelector")) getElement("careCropSelector").value = crop;
+
+    const stage = getElement("careGrowthStage")?.value || "Flowering & Pegging / Tasseling (35-65 DAS)";
+
+    // 1. Fetch Fertilizer Plan
+    try {
+        const fertData = await fetchJSON(`${API_BASE}/api/phase2/fertilizer-plan`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                crop: crop,
+                soil_n: farmerSoilData.N || 45,
+                soil_p: farmerSoilData.P || 28,
+                soil_k: farmerSoilData.K || 38,
+                acres: selectedAcreage
+            })
+        });
+
+        if (fertData.success && fertData.plan) {
+            const p = fertData.plan;
+            const bags = p.total_farm_bags_50kg;
+            const kg = p.per_acre_requirements;
+
+            if (getElement("dapBagsDisplay")) getElement("dapBagsDisplay").textContent = `${bags.dap_bags} Bags`;
+            if (getElement("dapKgDisplay")) getElement("dapKgDisplay").textContent = `${(kg.dap_kg * selectedAcreage).toFixed(1)} kg total (${kg.dap_kg} kg/acre)`;
+
+            if (getElement("ureaBagsDisplay")) getElement("ureaBagsDisplay").textContent = `${bags.urea_bags} Bags`;
+            if (getElement("ureaKgDisplay")) getElement("ureaKgDisplay").textContent = `${(kg.urea_kg * selectedAcreage).toFixed(1)} kg total (${kg.urea_kg} kg/acre)`;
+
+            if (getElement("mopBagsDisplay")) getElement("mopBagsDisplay").textContent = `${bags.mop_bags} Bags`;
+            if (getElement("mopKgDisplay")) getElement("mopKgDisplay").textContent = `${(kg.mop_kg * selectedAcreage).toFixed(1)} kg total (${kg.mop_kg} kg/acre)`;
+
+            if (getElement("gypsumBagsDisplay")) getElement("gypsumBagsDisplay").textContent = `${bags.gypsum_bags} Bags`;
+            if (getElement("gypsumKgDisplay")) getElement("gypsumKgDisplay").textContent = `${(kg.gypsum_kg * selectedAcreage).toFixed(1)} kg total (${kg.gypsum_kg} kg/acre)`;
+
+            const scheduleList = getElement("fertScheduleList");
+            if (scheduleList) {
+                scheduleList.innerHTML = p.application_schedule.map(st => `<li><strong>${escapeHTML(st)}:</strong> Follow split dose guidelines.</li>`).join("");
+            }
+        }
+    } catch (e) {
+        console.error("Fertilizer error:", e);
+    }
+
+    // 2. Fetch Smart Irrigation Advisory
+    try {
+        const irrData = await fetchJSON(`${API_BASE}/api/phase2/irrigation-advisory`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                crop: crop,
+                soil_type: farmerSoilData.soil_type || "Red",
+                growth_stage: stage,
+                recent_rain_mm: 0.0,
+                temperature: farmerSoilData.temperature || 29.5
+            })
+        });
+
+        if (irrData.success && irrData.advisory) {
+            const adv = irrData.advisory;
+            if (getElement("dailyWaterLiters")) getElement("dailyWaterLiters").textContent = `${adv.daily_water_need_liters_per_acre.toLocaleString("en-IN")} L`;
+            if (getElement("dailyWaterMm")) getElement("dailyWaterMm").textContent = `${adv.daily_water_need_mm} mm/day per acre`;
+
+            if (getElement("soilMoistureStatus")) getElement("soilMoistureStatus").textContent = adv.moisture_status;
+            if (getElement("soilRetentionInfo")) getElement("soilRetentionInfo").textContent = `Retention interval: ${adv.soil_retention_interval_days} days (${farmerSoilData.soil_type || 'Red'} Soil)`;
+
+            if (getElement("nextIrrigationDays")) getElement("nextIrrigationDays").textContent = adv.next_irrigation_in_days === 1 ? "Due Today" : `In ${adv.next_irrigation_in_days} Days`;
+            if (getElement("irrigationActionText")) getElement("irrigationActionText").textContent = adv.action_advisory;
+            if (getElement("irrigationTipText")) getElement("irrigationTipText").textContent = adv.irrigation_method_tip;
+        }
+    } catch (e) {
+        console.error("Irrigation error:", e);
+    }
+
+    // 3. Fetch Pest & Weed Advisory
+    try {
+        const pestData = await fetchJSON(`${API_BASE}/api/phase2/pest-weed-advisory?crop=${encodeURIComponent(crop)}`);
+        const pGrid = getElement("pestDiagnosticsGrid");
+        if (pGrid && pestData.success && pestData.advisory) {
+            pGrid.innerHTML = pestData.advisory.diagnostics.map(item => `
+                <div class="diagnostic-card">
+                    <div class="diag-header">
+                        <div class="diag-title">${escapeHTML(item.name)}</div>
+                        <span class="badge ${item.category === 'Pest' ? 'badge-warning' : (item.category === 'Disease' ? 'badge-soil' : 'badge-market')}">
+                            ${escapeHTML(item.category)}
+                        </span>
+                    </div>
+                    <div class="diag-symptoms">
+                        <strong>Symptoms:</strong> ${escapeHTML(item.symptoms)}
+                    </div>
+                    <div class="solution-box organic">
+                        <strong>🌿 Organic / Bio Solution:</strong><br>
+                        ${escapeHTML(item.organic_remedy)}
+                    </div>
+                    <div class="solution-box chemical">
+                        <strong>🧪 Targeted Chemical Control:</strong><br>
+                        ${escapeHTML(item.chemical_control)}
+                    </div>
+                </div>
+            `).join("");
+        }
+    } catch (e) {
+        console.error("Pest error:", e);
+    }
+}
+
+getElement("careCropSelector")?.addEventListener("change", (e) => {
+    selectedCrop = e.target.value;
+    loadPhase2Data();
+});
+
+getElement("updateCareBtn")?.addEventListener("click", () => {
+    loadPhase2Data();
+});
+
+getElement("changeCropBtn")?.addEventListener("click", () => {
+    switchPhase(1);
+});
+
+getElement("markHarvestedBtn")?.addEventListener("click", () => {
+    switchPhase(3);
+    showMarketTab("list");
+});
+
+getElement("harvestReadyBannerBtn")?.addEventListener("click", () => {
+    switchPhase(3);
+    showMarketTab("list");
+});
+
+
+/* ==========================================================================
+   PHASE 3: DIRECT SELLING & BUYER MARKETPLACE
+   ========================================================================= */
+function showMarketTab(tab) {
+    if (tab === "browse") {
+        getElement("tabBrowseLotsBtn")?.classList.add("active");
+        getElement("tabListProduceBtn")?.classList.remove("active");
+        getElement("viewBrowseLots")?.classList.add("active");
+        getElement("viewListProduce")?.classList.remove("active");
+        loadMarketplaceListings();
+    } else {
+        getElement("tabListProduceBtn")?.classList.add("active");
+        getElement("tabBrowseLotsBtn")?.classList.remove("active");
+        getElement("viewListProduce")?.classList.add("active");
+        getElement("viewBrowseLots")?.classList.remove("active");
+
+        // Pre-fill harvest form with current crop and default date
+        if (getElement("postCrop")) getElement("postCrop").value = selectedCrop;
+        if (getElement("postHarvestDate")) getElement("postHarvestDate").value = new Date().toISOString().slice(0, 10);
+    }
+}
+
+getElement("tabBrowseLotsBtn")?.addEventListener("click", () => showMarketTab("browse"));
+getElement("tabListProduceBtn")?.addEventListener("click", () => showMarketTab("list"));
+getElement("openPostHarvestModalBtn")?.addEventListener("click", () => showMarketTab("list"));
+
+async function loadMarketplaceListings() {
+    const cropFilter = getElement("marketSearchCrop")?.value.trim() || "";
+    const distFilter = getElement("marketSearchDistrict")?.value.trim() || "";
+    const q = new URLSearchParams();
+    if (cropFilter) q.set("crop", cropFilter);
+    if (distFilter) q.set("district", distFilter);
+
+    try {
+        const data = await fetchJSON(`${API_BASE}/api/phase3/listings?${q.toString()}`);
+        const grid = getElement("marketplaceLotsGrid");
+        if (!grid) return;
+
+        if (!data.listings || data.listings.length === 0) {
+            grid.innerHTML = `<p class="status">No active harvest listings found matching the criteria.</p>`;
+            return;
+        }
+
+        grid.innerHTML = data.listings.map(lot => {
+            const price = Number(lot.asking_price_per_quintal) || 0;
+            const safeLot = JSON.stringify(lot).replace(/"/g, '&quot;');
 
             return `
-                <div class="mandi-record-card">
-                    <div class="mandi-card-header">
+                <div class="lot-card">
+                    <div class="lot-image-wrap">
+                        <img src="${escapeHTML(lot.photo_url)}" alt="${escapeHTML(lot.crop)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'">
+                        <span class="lot-grade-badge">${escapeHTML(lot.quality_grade)}</span>
+                    </div>
+
+                    <div class="lot-content">
                         <div>
-                            <div class="mandi-crop-name">${escapeHTML(cropName)}</div>
-                            <div class="mandi-market-name">🏛️ ${escapeHTML(record.market)}, ${escapeHTML(record.district || record.state)}</div>
+                            <div class="lot-top">
+                                <div>
+                                    <h3 class="lot-crop-name">${escapeHTML(lot.crop)}</h3>
+                                    <div class="lot-variety">${escapeHTML(lot.variety || "Standard Hybrid")}</div>
+                                </div>
+                                <div class="lot-price-box">
+                                    <div class="lot-price-amount">${formatRupees(price)}</div>
+                                    <span class="lot-price-unit">per quintal</span>
+                                </div>
+                            </div>
+
+                            <ul class="lot-specs-list">
+                                <li><span>Available Lot Size:</span><strong>${lot.quantity_quintals} Quintals</strong></li>
+                                <li><span>Harvest Date:</span><strong>${escapeHTML(lot.harvest_date)}</strong></li>
+                                <li><span>Condition:</span><span style="font-size: 0.78rem;">${escapeHTML(lot.notes || "Sun dried & ready for dispatch")}</span></li>
+                            </ul>
+
+                            <div class="lot-farmer-box">
+                                <div class="lot-farmer-name">👨‍🌾 ${escapeHTML(lot.farmer_name)}</div>
+                                <div class="lot-farmer-loc">📍 ${escapeHTML(lot.village)}, ${escapeHTML(lot.district)}, ${escapeHTML(lot.state)}</div>
+                            </div>
                         </div>
-                        <span class="badge badge-market">Mandi Price</span>
-                    </div>
 
-                    <div class="mandi-price-box">
-                        <div class="mandi-modal-price">${formatRupees(price)} / qtl</div>
-                        <div class="mandi-range">Range: ${formatRupees(record.min_price_rs_per_quintal)} – ${formatRupees(record.max_price_rs_per_quintal)}</div>
+                        <div class="lot-actions">
+                            <button type="button" class="btn btn-primary btn-sm" onclick='openInquiryModal(${safeLot})'>
+                                📩 Contact Farmer
+                            </button>
+                            <a href="https://wa.me/91${lot.phone_number}?text=Hello%20${encodeURIComponent(lot.farmer_name)},%20I%20am%20interested%20in%20your%20listing%20of%20${lot.quantity_quintals}%20quintals%20of%20${encodeURIComponent(lot.crop)}%20at%20Rs.${price}/qtl%20on%20Farm-to-Market%20AI." target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-sm">
+                                💬 WhatsApp
+                            </a>
+                        </div>
                     </div>
-
-                    <div style="font-size: 0.8rem; color: var(--text-subtle); margin-bottom: 10px;">
-                        📅 Arrival Date: ${escapeHTML(record.arrival_date || "Recent")}
-                    </div>
-
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="prefillProfitCalculator('${escapeHTML(cropName)}', ${price}, 10, 25000)">
-                        Use in Profit Calculator
-                    </button>
                 </div>
             `;
         }).join("");
-
-        setStatus("mandiStatus", `Retrieved ${data.records.length} mandi records from ${data.source || 'Agricultural Database'}.`, "success");
-
     } catch (err) {
-        setStatus("mandiStatus", `Error fetching mandi prices: ${err.message}`, "error");
-    } finally {
-        setButtonLoading("searchMandiButton", false, "Searching Mandis...", "Search Mandi Rates");
+        console.error("Marketplace fetch error:", err);
     }
+}
+
+getElement("applyMarketFilterBtn")?.addEventListener("click", loadMarketplaceListings);
+getElement("clearMarketFilterBtn")?.addEventListener("click", () => {
+    if (getElement("marketSearchCrop")) getElement("marketSearchCrop").value = "";
+    if (getElement("marketSearchDistrict")) getElement("marketSearchDistrict").value = "";
+    loadMarketplaceListings();
 });
 
-/* ==========================================================================
-   10. Custom Farm Profit Calculator
-   ========================================================================== */
-window.prefillProfitCalculator = function(crop, price, yieldVal, costVal) {
-    if (getElement("calcCropName")) getElement("calcCropName").value = crop;
-    if (getElement("calcModalPrice")) getElement("calcModalPrice").value = price;
-    if (getElement("calcYield")) getElement("calcYield").value = yieldVal;
-    if (getElement("calcCultivationCost")) getElement("calcCultivationCost").value = costVal;
-    if (getElement("calcLandAcres")) getElement("calcLandAcres").value = currentAcreage;
-
-    const calcSection = getElement("profitCalculatorSection");
-    if (calcSection) {
-        calcSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    // Auto calculate
-    getElement("calculateProfitBtn")?.click();
-};
-
-const customProfitForm = getElement("customProfitForm");
-
-customProfitForm?.addEventListener("submit", async (event) => {
+/* POST HARVEST FORM SUBMIT (FARMER PORTAL) */
+getElement("postHarvestForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    setButtonLoading("publishLotBtn", true, "Publishing...", "📢 Publish Harvest Lot to Marketplace");
+    setStatus("postStatus", "Registering lot in marketplace...", "loading");
 
-    const price = Number(getElement("calcModalPrice")?.value || 0);
-    const yieldVal = Number(getElement("calcYield")?.value || 0);
-    const acres = Number(getElement("calcLandAcres")?.value || 1.0);
-    const costPerAcre = Number(getElement("calcCultivationCost")?.value || 0);
-    const transportTotal = Number(getElement("calcTransportCost")?.value || 0);
-    const otherTotal = Number(getElement("calcOtherExpenses")?.value || 0);
-
-    const totalYield = yieldVal * acres;
-    const cultivationTotal = costPerAcre * acres;
-
-    const body = {
-        modal_price: price,
-        expected_yield_quintals: totalYield,
-        cultivation_cost: cultivationTotal,
-        transport_cost: transportTotal,
-        other_costs: otherTotal,
-        land_acres: acres
+    const payload = {
+        crop: getElement("postCrop")?.value,
+        variety: getElement("postVariety")?.value,
+        quantity_quintals: Number(getElement("postQuantity")?.value),
+        quality_grade: getElement("postGrade")?.value,
+        asking_price_per_quintal: Number(getElement("postAskingPrice")?.value),
+        harvest_date: getElement("postHarvestDate")?.value,
+        photo_url: getElement("postPhotoUrl")?.value,
+        notes: getElement("postNotes")?.value,
+        farmer_name: getElement("postFarmerName")?.value,
+        phone_number: getElement("postPhone")?.value,
+        village: getElement("postVillage")?.value,
+        district: getElement("postDistrict")?.value,
+        state: "Andhra Pradesh"
     };
 
-    setButtonLoading("calculateProfitBtn", true, "Calculating...", "Calculate Net Return");
-
     try {
-        const data = await fetchJSON(`${API_BASE}/api/profit-estimate`, {
+        const data = await fetchJSON(`${API_BASE}/api/phase3/create-listing`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
+            body: JSON.stringify(payload)
         });
 
-        if (!data.success) {
-            throw new Error(data.error || "Profit calculation failed.");
-        }
+        if (!data.success) throw new Error(data.error || "Failed to post listing.");
 
-        const outContainer = getElement("customProfitResult");
-        if (!outContainer) return;
-
-        const netProfit = data.estimated_net_profit_rs;
-        const profitPerAcre = netProfit / acres;
-
-        outContainer.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <h4 style="font-size: 1.2rem; color: var(--primary-dark);">
-                    📊 Financial Projection: ${escapeHTML(getElement("calcCropName")?.value || "Selected Crop")} (${acres} Acres)
-                </h4>
-                <span class="badge ${netProfit >= 0 ? 'badge-success' : 'badge-warning'}">${escapeHTML(data.result_type)}</span>
-            </div>
-
-            <div class="outcome-grid">
-                <div class="outcome-tile profit">
-                    <div class="outcome-label">Total Net Profit / Return</div>
-                    <div class="outcome-value">${formatRupees(netProfit)}</div>
-                    <small>(${formatRupees(profitPerAcre)} / acre)</small>
-                </div>
-                <div class="outcome-tile">
-                    <div class="outcome-label">Gross Revenue</div>
-                    <div class="outcome-value">${formatRupees(data.gross_revenue_rs)}</div>
-                    <small>${totalYield.toFixed(1)} quintals @ ${formatRupees(price)}</small>
-                </div>
-                <div class="outcome-tile">
-                    <div class="outcome-label">Total Production Costs</div>
-                    <div class="outcome-value">${formatRupees(data.total_cost_rs)}</div>
-                    <small>Cultivation + Transport + Other</small>
-                </div>
-                <div class="outcome-tile">
-                    <div class="outcome-label">Return on Investment (ROI)</div>
-                    <div class="outcome-value" style="color: #15803d;">${data.roi_pct}%</div>
-                    <small>${formatRupees(data.estimated_profit_per_quintal_rs)} profit/quintal</small>
-                </div>
-            </div>
-        `;
+        setStatus("postStatus", `Published successfully as Lot #${data.listing.id}! Redirecting to Marketplace...`, "success");
+        setTimeout(() => {
+            showMarketTab("browse");
+            setStatus("postStatus", "");
+        }, 1200);
 
     } catch (err) {
-        alert(err.message);
+        setStatus("postStatus", err.message, "error");
     } finally {
-        setButtonLoading("calculateProfitBtn", false, "Calculating...", "Calculate Net Return");
+        setButtonLoading("publishLotBtn", false, "Publishing...", "📢 Publish Harvest Lot to Marketplace");
     }
 });
 
-// Auto-fetch default Vijayawada weather on startup
+/* INQUIRY MODAL (BUYER CONNECT) */
+window.openInquiryModal = function(lot) {
+    currentLotForInquiry = lot;
+    if (getElement("modalLotTitle")) getElement("modalLotTitle").textContent = `Contact Farmer for ${lot.crop} (${lot.quantity_quintals} qtl)`;
+    if (getElement("inquiryLotId")) getElement("inquiryLotId").value = lot.id;
+    if (getElement("inquiryOfferPrice")) getElement("inquiryOfferPrice").value = lot.asking_price_per_quintal;
+    if (getElement("inquiryQuantity")) getElement("inquiryQuantity").value = lot.quantity_quintals;
+
+    if (getElement("modalFarmerDetails")) {
+        getElement("modalFarmerDetails").innerHTML = `
+            ${escapeHTML(lot.farmer_name)} &bull; 📞 ${escapeHTML(lot.phone_number)} &bull; 📍 ${escapeHTML(lot.village)}, ${escapeHTML(lot.district)}
+        `;
+    }
+
+    const waBtn = getElement("modalWhatsAppBtn");
+    if (waBtn) {
+        waBtn.href = `https://wa.me/91${lot.phone_number}?text=Hello%20${encodeURIComponent(lot.farmer_name)},%20I%20am%20interested%20in%20purchasing%20your%20harvested%20${encodeURIComponent(lot.crop)}%20lot%20(${lot.id})%20on%20Farm-to-Market%20AI.`;
+    }
+
+    const modal = getElement("buyerInquiryModal");
+    if (modal) modal.style.display = "flex";
+};
+
+getElement("closeInquiryModalBtn")?.addEventListener("click", () => {
+    const modal = getElement("buyerInquiryModal");
+    if (modal) modal.style.display = "none";
+});
+
+getElement("buyerInquiryForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    setButtonLoading("sendInquiryBtn", true, "Sending...", "Send Direct Inquiry");
+
+    const payload = {
+        listing_id: getElement("inquiryLotId")?.value,
+        buyer_name: getElement("inquiryBuyerName")?.value,
+        buyer_phone: getElement("inquiryBuyerPhone")?.value,
+        offer_price: Number(getElement("inquiryOfferPrice")?.value),
+        quantity_needed: Number(getElement("inquiryQuantity")?.value),
+        message: getElement("inquiryMessage")?.value
+    };
+
+    try {
+        const data = await fetchJSON(`${API_BASE}/api/phase3/buyer-inquiry`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!data.success) throw new Error(data.error || "Failed to send inquiry.");
+
+        setStatus("inquiryStatus", "Inquiry sent to farmer! You can also click 'Chat on WhatsApp'.", "success");
+        setTimeout(() => {
+            const modal = getElement("buyerInquiryModal");
+            if (modal) modal.style.display = "none";
+            setStatus("inquiryStatus", "");
+        }, 1500);
+
+    } catch (err) {
+        setStatus("inquiryStatus", err.message, "error");
+    } finally {
+        setButtonLoading("sendInquiryBtn", false, "Sending...", "Send Direct Inquiry");
+    }
+});
+
+// Default Startup
 window.addEventListener("DOMContentLoaded", () => {
     loadWeather("Vijayawada");
+    loadMarketplaceListings();
 });
