@@ -930,3 +930,485 @@ window.addEventListener("DOMContentLoaded", () => {
     loadWeather("Vijayawada");
     loadMarketplaceListings();
 });
+
+
+/* ==========================================================================
+   PHASE 2: AI CROP PHOTO SCANNER (DISEASE, PEST & WEED DETECTION)
+   ========================================================================== */
+let currentUploadedImageBase64 = null;
+
+const cropPhotoInput = getElement("cropPhotoInput");
+const cropDropzone = getElement("cropDropzone");
+const cropImagePreview = getElement("cropImagePreview");
+const imagePreviewContainer = getElement("imagePreviewContainer");
+const removeImageBtn = getElement("removeImageBtn");
+
+// Click on dropzone opens file dialog
+cropDropzone?.addEventListener("click", (e) => {
+    if (e.target.id !== "removeImageBtn" && !e.target.closest("#removeImageBtn")) {
+        cropPhotoInput?.click();
+    }
+});
+
+// Drag and drop handlers
+cropDropzone?.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    cropDropzone.classList.add("dragover");
+});
+
+cropDropzone?.addEventListener("dragleave", () => {
+    cropDropzone.classList.remove("dragover");
+});
+
+cropDropzone?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    cropDropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleImageFile(e.dataTransfer.files[0]);
+    }
+});
+
+cropPhotoInput?.addEventListener("change", (e) => {
+    if (e.target.files && e.target.files[0]) {
+        handleImageFile(e.target.files[0]);
+    }
+});
+
+function handleImageFile(file) {
+    if (!file.type.startsWith("image/")) {
+        setStatus("visionStatus", "Please select a valid image file (JPG, PNG, WEBP).", "error");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        currentUploadedImageBase64 = event.target.result;
+        if (cropImagePreview) cropImagePreview.src = currentUploadedImageBase64;
+        if (imagePreviewContainer) imagePreviewContainer.style.display = "block";
+        const dropContent = cropDropzone?.querySelector(".dropzone-content");
+        if (dropContent) dropContent.style.display = "none";
+        setStatus("visionStatus", `Photo loaded (${(file.size / 1024).toFixed(1)} KB). Click "Scan & Diagnose Crop Photo".`, "success");
+    };
+    reader.readAsDataURL(file);
+}
+
+removeImageBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    currentUploadedImageBase64 = null;
+    if (cropPhotoInput) cropPhotoInput.value = "";
+    if (imagePreviewContainer) imagePreviewContainer.style.display = "none";
+    const dropContent = cropDropzone?.querySelector(".dropzone-content");
+    if (dropContent) dropContent.style.display = "block";
+    const resContainer = getElement("visionResultContainer");
+    if (resContainer) resContainer.style.display = "none";
+    setStatus("visionStatus", "Photo removed.");
+});
+
+// Helper to create synthetic demo canvas images for 1-click test buttons
+function generateDemoImage(type) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+
+    if (type === "chilli_rot") {
+        // Red chilli with brown rot spots
+        ctx.fillStyle = "#1e6b2c"; // green background
+        ctx.fillRect(0, 0, 256, 256);
+        ctx.fillStyle = "#b91c1c"; // red fruit
+        ctx.beginPath();
+        ctx.ellipse(128, 128, 60, 100, Math.PI / 6, 0, 2 * Math.PI);
+        ctx.fill();
+        // Necrotic brown sunken lesions
+        ctx.fillStyle = "#451a03";
+        ctx.beginPath();
+        ctx.arc(110, 100, 22, 0, 2 * Math.PI);
+        ctx.arc(140, 140, 28, 0, 2 * Math.PI);
+        ctx.arc(120, 180, 18, 0, 2 * Math.PI);
+        ctx.fill();
+    } else if (type === "groundnut_tikka") {
+        // Groundnut green leaf with dark circular spots & yellow halo
+        ctx.fillStyle = "#22c55e"; // bright leaf green
+        ctx.fillRect(0, 0, 256, 256);
+        // Yellow halos
+        ctx.fillStyle = "#eab308";
+        ctx.beginPath();
+        ctx.arc(70, 80, 32, 0, 2 * Math.PI);
+        ctx.arc(170, 130, 38, 0, 2 * Math.PI);
+        ctx.arc(100, 190, 30, 0, 2 * Math.PI);
+        ctx.fill();
+        // Dark brown necrotic centers
+        ctx.fillStyle = "#291505";
+        ctx.beginPath();
+        ctx.arc(70, 80, 20, 0, 2 * Math.PI);
+        ctx.arc(170, 130, 24, 0, 2 * Math.PI);
+        ctx.arc(100, 190, 18, 0, 2 * Math.PI);
+        ctx.fill();
+    } else if (type === "pest_curl") {
+        // Curled yellow chlorotic leaf with sucking pest sheen
+        ctx.fillStyle = "#ca8a04"; // yellow chlorosis
+        ctx.fillRect(0, 0, 256, 256);
+        ctx.fillStyle = "#65a30d";
+        ctx.beginPath();
+        ctx.ellipse(128, 128, 90, 50, Math.PI / 4, 0, 2 * Math.PI);
+        ctx.fill();
+        // Pest speckles
+        ctx.fillStyle = "#1e293b";
+        for (let i = 0; i < 60; i++) {
+            ctx.fillRect(50 + Math.random() * 150, 50 + Math.random() * 150, 3, 3);
+        }
+    } else if (type === "rice_blast") {
+        ctx.fillStyle = "#15803d"; // paddy leaf blade
+        ctx.fillRect(0, 0, 256, 256);
+        // Spindle shaped diamond lesions
+        ctx.fillStyle = "#78350f";
+        ctx.beginPath();
+        ctx.ellipse(128, 128, 40, 15, Math.PI / 4, 0, 2 * Math.PI);
+        ctx.ellipse(80, 70, 30, 12, Math.PI / 4, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = "#e2e8f0"; // gray center
+        ctx.beginPath();
+        ctx.ellipse(128, 128, 24, 8, Math.PI / 4, 0, 2 * Math.PI);
+        ctx.ellipse(80, 70, 18, 6, Math.PI / 4, 0, 2 * Math.PI);
+        ctx.fill();
+    } else if (type === "weed_overgrowth") {
+        ctx.fillStyle = "#166534";
+        ctx.fillRect(0, 0, 256, 256);
+        // Random wild weed blades and flowering heads
+        ctx.fillStyle = "#84cc16";
+        for (let i = 0; i < 20; i++) {
+            ctx.beginPath();
+            ctx.moveTo(10 + i * 12, 250);
+            ctx.lineTo(20 + i * 12, 30 + Math.random() * 40);
+            ctx.lineTo(30 + i * 12, 250);
+            ctx.fill();
+        }
+    } else {
+        // Healthy lush green leaf
+        ctx.fillStyle = "#15803d";
+        ctx.fillRect(0, 0, 256, 256);
+        ctx.fillStyle = "#22c55e";
+        ctx.beginPath();
+        ctx.ellipse(128, 128, 85, 55, Math.PI / 6, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    return canvas.toDataURL("image/jpeg", 0.9);
+}
+
+// Wire up Demo Sample Photo Buttons
+function loadSamplePhoto(type, crop, notes) {
+    const dataUrl = generateDemoImage(type);
+    currentUploadedImageBase64 = dataUrl;
+    if (cropImagePreview) cropImagePreview.src = dataUrl;
+    if (imagePreviewContainer) imagePreviewContainer.style.display = "block";
+    const dropContent = cropDropzone?.querySelector(".dropzone-content");
+    if (dropContent) dropContent.style.display = "none";
+    if (getElement("visionCropSelect")) getElement("visionCropSelect").value = crop;
+    if (getElement("visionFarmerNotes")) getElement("visionFarmerNotes").value = notes;
+    setStatus("visionStatus", `Loaded sample photo for ${crop} (${notes}). Click "Scan & Diagnose Crop Photo" below.`, "success");
+}
+
+getElement("sampleChilliAnthracnose")?.addEventListener("click", () => loadSamplePhoto("chilli_rot", "Chilli", "dark necrotic lesions & dieback"));
+getElement("sampleGroundnutTikka")?.addEventListener("click", () => loadSamplePhoto("groundnut_tikka", "Groundnut", "brown spots with yellow halo"));
+getElement("samplePestCurl")?.addEventListener("click", () => loadSamplePhoto("pest_curl", "Chilli", "upward curled leaves & thrips damage"));
+getElement("sampleRiceBlast")?.addEventListener("click", () => loadSamplePhoto("rice_blast", "Rice", "spindle shaped diamond lesions on leaf blades"));
+getElement("sampleWeedInfest")?.addEventListener("click", () => loadSamplePhoto("weed_overgrowth", "Cotton", "invasive grass and broadleaf weeds in field"));
+getElement("sampleHealthyCrop")?.addEventListener("click", () => loadSamplePhoto("healthy", "Groundnut", "vigorous green foliage"));
+
+// Scan & Diagnose Button Handler
+getElement("scanCropPhotoBtn")?.addEventListener("click", async () => {
+    if (!currentUploadedImageBase64) {
+        setStatus("visionStatus", "Please upload a photo of your crop or click one of the sample test photos above.", "error");
+        return;
+    }
+
+    const crop = getElement("visionCropSelect")?.value || "Chilli";
+    const notes = getElement("visionFarmerNotes")?.value || "";
+
+    setButtonLoading("scanCropPhotoBtn", true, "Scanning Image Pixels & Lesions...", "🔍 Scan & Diagnose Crop Photo");
+    setStatus("visionStatus", "Running computer vision feature extraction & disease matching...", "loading");
+
+    try {
+        const data = await fetchJSON(`${API_BASE}/api/phase2/diagnose-image`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                image_base64: currentUploadedImageBase64,
+                crop: crop,
+                notes: notes
+            })
+        });
+
+        if (!data.success) {
+            throw new Error(data.error || "Image diagnosis failed.");
+        }
+
+        renderVisionDiagnosis(data);
+        setStatus("visionStatus", "Diagnosis completed! Review organic and chemical remedies below.", "success");
+
+    } catch (err) {
+        setStatus("visionStatus", `Error: ${err.message}`, "error");
+    } finally {
+        setButtonLoading("scanCropPhotoBtn", false, "Scanning Image Pixels & Lesions...", "🔍 Scan & Diagnose Crop Photo");
+    }
+});
+
+function renderVisionDiagnosis(data) {
+    const card = getElement("visionResultContainer");
+    if (!card) return;
+
+    if (getElement("diagTitle")) getElement("diagTitle").textContent = data.diagnosis_name;
+    if (getElement("diagPathogen")) getElement("diagPathogen").textContent = `Pathogen / Species: ${data.pathogen_species}`;
+    if (getElement("diagConfidence")) getElement("diagConfidence").textContent = `${data.confidence_pct}%`;
+    if (getElement("diagSummary")) getElement("diagSummary").textContent = data.summary;
+
+    const catBadge = getElement("diagCategoryBadge");
+    if (catBadge) {
+        catBadge.textContent = data.category;
+        catBadge.className = "badge " + (data.category === "Disease" ? "badge-warning" : (data.category === "Pest" ? "badge-market" : (data.category === "Weed" ? "badge-soil" : "badge-success")));
+    }
+
+    const sevBadge = getElement("diagSeverityBadge");
+    if (sevBadge) {
+        sevBadge.textContent = `Severity: ${data.severity}`;
+        sevBadge.className = "badge " + (data.severity === "Severe" ? "badge-warning" : "badge-soil");
+    }
+
+    const vm = data.visual_metrics || {};
+    if (getElement("metricGreen")) getElement("metricGreen").textContent = `${vm.healthy_green_pct ?? 0}%`;
+    if (getElement("metricNecrotic")) getElement("metricNecrotic").textContent = `${vm.necrotic_lesion_pct ?? 0}%`;
+    if (getElement("metricYellow")) getElement("metricYellow").textContent = `${vm.chlorotic_yellowing_pct ?? 0}%`;
+
+    if (getElement("solOrganicText")) getElement("solOrganicText").textContent = data.organic_solution;
+    if (getElement("solChemicalText")) getElement("solChemicalText").textContent = data.chemical_solution;
+    if (getElement("solCulturalText")) getElement("solCulturalText").textContent = data.preventive_advisory;
+
+    card.style.display = "block";
+    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// Solution Tabs (Organic vs Chemical)
+getElement("tabOrganicSolBtn")?.addEventListener("click", () => {
+    getElement("tabOrganicSolBtn")?.classList.add("active");
+    getElement("tabChemicalSolBtn")?.classList.remove("active");
+    getElement("viewOrganicSol")?.classList.add("active");
+    getElement("viewChemicalSol")?.classList.remove("active");
+});
+
+getElement("tabChemicalSolBtn")?.addEventListener("click", () => {
+    getElement("tabChemicalSolBtn")?.classList.add("active");
+    getElement("tabOrganicSolBtn")?.classList.remove("active");
+    getElement("viewChemicalSol")?.classList.add("active");
+    getElement("viewOrganicSol")?.classList.remove("active");
+});
+
+
+/* ==========================================================================
+   PHASE 2: SOIL HEALTH CARD TEST RESULTS & DUAL FERTILIZER RECOMMENDER
+   ========================================================================== */
+function applySoilPreset(type) {
+    if (type === "red") {
+        getElement("soilN").value = 24;
+        getElement("soilP").value = 16;
+        getElement("soilK").value = 32;
+        getElement("soilPH").value = 5.8; // slightly acidic
+        getElement("soilOC").value = 0.42; // low organic carbon
+        getElement("soilEC").value = 0.4;
+        getElement("soilZinc").value = 0.45; // deficient zinc
+        getElement("soilCropTarget").value = "Groundnut";
+        setStatus("soilAnalysisStatus", "Loaded AP Red Soil test card values (Deficient Nitrogen, Low Zinc, Acidic).", "success");
+    } else if (type === "black") {
+        getElement("soilN").value = 42;
+        getElement("soilP").value = 28;
+        getElement("soilK").value = 65; // high potassium
+        getElement("soilPH").value = 8.3; // alkaline
+        getElement("soilOC").value = 0.58;
+        getElement("soilEC").value = 0.8;
+        getElement("soilZinc").value = 0.50; // low zinc
+        getElement("soilCropTarget").value = "Cotton";
+        setStatus("soilAnalysisStatus", "Loaded Black Cotton Soil test card values (Alkaline, High K, Needs Zinc).", "success");
+    } else if (type === "delta") {
+        getElement("soilN").value = 55;
+        getElement("soilP").value = 35;
+        getElement("soilK").value = 45;
+        getElement("soilPH").value = 7.1; // neutral
+        getElement("soilOC").value = 0.72; // good organic carbon
+        getElement("soilEC").value = 0.5;
+        getElement("soilZinc").value = 0.75; // sufficient
+        getElement("soilCropTarget").value = "Rice";
+        setStatus("soilAnalysisStatus", "Loaded Delta Alluvial Soil test card values (Balanced N-P-K, Optimal pH).", "success");
+    }
+}
+
+getElement("presetSoilRed")?.addEventListener("click", () => applySoilPreset("red"));
+getElement("presetSoilBlack")?.addEventListener("click", () => applySoilPreset("black"));
+getElement("presetSoilDelta")?.addEventListener("click", () => applySoilPreset("delta"));
+
+const soilAnalysisForm = getElement("soilAnalysisForm");
+
+soilAnalysisForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const acres = Number(getElement("soilAcres")?.value || 2.0);
+    const crop = getElement("soilCropTarget")?.value || "Chilli";
+
+    const payload = {
+        crop: crop,
+        acres: acres,
+        N: Number(getElement("soilN")?.value),
+        P: Number(getElement("soilP")?.value),
+        K: Number(getElement("soilK")?.value),
+        pH: Number(getElement("soilPH")?.value),
+        organic_carbon: Number(getElement("soilOC")?.value),
+        ec: Number(getElement("soilEC")?.value),
+        zinc: Number(getElement("soilZinc")?.value)
+    };
+
+    setButtonLoading("analyzeSoilBtn", true, "Analyzing Soil & Calculating Dosages...", "🧪 Analyze Soil & Recommend Dual Fertilizers");
+    setStatus("soilAnalysisStatus", "Evaluating nutritional status against ICAR crop targets...", "loading");
+
+    try {
+        const data = await fetchJSON(`${API_BASE}/api/phase2/analyze-soil-fertilizer`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!data.success) {
+            throw new Error(data.error || "Soil analysis failed.");
+        }
+
+        renderSoilAndFertilizerResults(data, acres);
+        setStatus("soilAnalysisStatus", "Soil health evaluated! Dual Organic and Chemical packages generated.", "success");
+
+    } catch (err) {
+        setStatus("soilAnalysisStatus", `Error: ${err.message}`, "error");
+    } finally {
+        setButtonLoading("analyzeSoilBtn", false, "Analyzing Soil & Calculating Dosages...", "🧪 Analyze Soil & Recommend Dual Fertilizers");
+    }
+});
+
+function renderSoilAndFertilizerResults(data, acres) {
+    const outcomeWrap = getElement("soilOutcomeContainer");
+    if (!outcomeWrap) return;
+
+    // Update acres labels
+    document.querySelectorAll(".soil-acres-label").forEach(el => el.textContent = acres.toFixed(1));
+
+    // 1. Render Soil Ratings Grid
+    const ratingsGrid = getElement("soilRatingsGrid");
+    if (ratingsGrid && data.soil_health_ratings) {
+        ratingsGrid.innerHTML = Object.entries(data.soil_health_ratings).map(([elem, info]) => `
+            <div class="rating-chip ${info.color}">
+                <div class="rating-chip-label">${escapeHTML(elem.replace('_', ' '))}</div>
+                <div class="rating-chip-value">${escapeHTML(info.rating)}</div>
+                <small style="font-size: 0.74rem; color: var(--text-muted); display: block;">${escapeHTML(info.note)}</small>
+            </div>
+        `).join("");
+    }
+
+    // Soil Conditioner Alert (Lime / Gypsum)
+    const alertBox = getElement("soilConditionerAlert");
+    if (alertBox) {
+        if (data.soil_conditioner_advisory) {
+            alertBox.style.display = "block";
+            alertBox.textContent = data.soil_conditioner_advisory;
+        } else {
+            alertBox.style.display = "none";
+        }
+    }
+
+    // 2. Render Organic Components Table
+    const orgBody = getElement("organicComponentsBody");
+    if (orgBody && data.organic_package && data.organic_package.components) {
+        orgBody.innerHTML = data.organic_package.components.map(c => `
+            <tr>
+                <td><strong>${escapeHTML(c.input)}</strong></td>
+                <td>${escapeHTML(c.per_acre)}</td>
+                <td><strong style="color: #15803d;">${escapeHTML(c.total_farm)}</strong></td>
+                <td>${escapeHTML(c.timing)}</td>
+            </tr>
+        `).join("");
+    }
+
+    // 3. Render Chemical Components & Bag Summary
+    const chemBagsGrid = getElement("chemicalBagsGrid");
+    if (chemBagsGrid && data.chemical_package && data.chemical_package.bag_summary) {
+        const bs = data.chemical_package.bag_summary;
+        chemBagsGrid.innerHTML = `
+            <div class="fert-bag-card">
+                <div class="bag-icon">🧪</div>
+                <div class="bag-name">DAP (18-46-0)</div>
+                <div class="bag-count">${bs.dap_50kg_bags} Bags</div>
+                <small>50 kg bags</small>
+            </div>
+            <div class="fert-bag-card">
+                <div class="bag-icon">⚪</div>
+                <div class="bag-name">Urea (46% N)</div>
+                <div class="bag-count">${bs.urea_50kg_bags} Bags</div>
+                <small>50 kg bags</small>
+            </div>
+            <div class="fert-bag-card">
+                <div class="bag-icon">🔴</div>
+                <div class="bag-name">MOP / Potash (60%)</div>
+                <div class="bag-count">${bs.mop_50kg_bags} Bags</div>
+                <small>50 kg bags</small>
+            </div>
+            <div class="fert-bag-card">
+                <div class="bag-icon">⚡</div>
+                <div class="bag-name">Zinc Sulfate (ZnSO₄)</div>
+                <div class="bag-count">${bs.zinc_sulfate_kg} kg</div>
+                <small>Micronutrient</small>
+            </div>
+        `;
+    }
+
+    const chemBody = getElement("chemicalComponentsBody");
+    if (chemBody && data.chemical_package && data.chemical_package.components) {
+        chemBody.innerHTML = data.chemical_package.components.map(c => `
+            <tr>
+                <td><strong>${escapeHTML(c.fertilizer)}</strong></td>
+                <td><strong style="color: #0369a1;">${escapeHTML(c.quantity)}</strong></td>
+                <td>${escapeHTML(c.dose_rate)}</td>
+                <td>${escapeHTML(c.stage)}</td>
+            </tr>
+        `).join("");
+    }
+
+    // 4. Render INM summary
+    if (getElement("inmText")) {
+        getElement("inmText").textContent = data.integrated_nutrient_management || "";
+    }
+
+    outcomeWrap.style.display = "block";
+    outcomeWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// Soil Tabs (Organic vs Chemical vs INM)
+getElement("tabOrganicFertBtn")?.addEventListener("click", () => {
+    getElement("tabOrganicFertBtn")?.classList.add("active");
+    getElement("tabChemicalFertBtn")?.classList.remove("active");
+    getElement("tabInmFertBtn")?.classList.remove("active");
+    getElement("viewOrganicFert")?.classList.add("active");
+    getElement("viewChemicalFert")?.classList.remove("active");
+    getElement("viewInmFert")?.classList.remove("active");
+});
+
+getElement("tabChemicalFertBtn")?.addEventListener("click", () => {
+    getElement("tabChemicalFertBtn")?.classList.add("active");
+    getElement("tabOrganicFertBtn")?.classList.remove("active");
+    getElement("tabInmFertBtn")?.classList.remove("active");
+    getElement("viewChemicalFert")?.classList.add("active");
+    getElement("viewOrganicFert")?.classList.remove("active");
+    getElement("viewInmFert")?.classList.remove("active");
+});
+
+getElement("tabInmFertBtn")?.addEventListener("click", () => {
+    getElement("tabInmFertBtn")?.classList.add("active");
+    getElement("tabOrganicFertBtn")?.classList.remove("active");
+    getElement("tabChemicalFertBtn")?.classList.remove("active");
+    getElement("viewInmFert")?.classList.add("active");
+    getElement("viewOrganicFert")?.classList.remove("active");
+    getElement("viewChemicalFert")?.classList.remove("active");
+});

@@ -421,7 +421,347 @@
         <button type="button" class="btn btn-primary" id="updateCareBtn">Refresh Growing Advisory</button>
       </div>
 
-      <!-- Module 1: Smart Irrigation Advisory -->
+      <!-- =============================================================
+           MODULE 1: AI CROP PHOTO SCANNER (DISEASE, PEST & WEED DIAGNOSIS)
+           ============================================================= -->
+      <section class="card vision-scanner-section" id="visionScannerSection">
+        <div class="card-header">
+          <div>
+            <h3>📸 AI Crop Photo Scanner: Disease, Pest & Weed Detection</h3>
+            <p class="section-desc">
+              Upload a photo of your crop leaf, plant, insect pest, or field weed. 
+              The AI analyzes visual symptoms and provides dual <strong>Organic</strong> and <strong>Chemical</strong> treatments.
+            </p>
+          </div>
+          <span class="badge badge-warning">AI Vision Diagnosis</span>
+        </div>
+
+        <div class="scanner-container">
+          <!-- Upload Box -->
+          <div class="upload-dropzone" id="cropDropzone">
+            <input type="file" id="cropPhotoInput" accept="image/*" class="sr-only">
+            <div class="dropzone-content">
+              <span class="dropzone-icon">📷</span>
+              <p><strong>Click to Upload Crop Photo</strong> or drag and drop image here</p>
+              <small>Supports JPG, PNG, WEBP from mobile camera or phone gallery</small>
+            </div>
+            <div id="imagePreviewContainer" class="image-preview-wrap" style="display: none;">
+              <img id="cropImagePreview" alt="Crop preview" src="">
+              <button type="button" class="btn btn-secondary btn-sm remove-img-btn" id="removeImageBtn">✕ Remove Photo</button>
+            </div>
+          </div>
+
+          <!-- Observation & Sample Selectors -->
+          <div class="scanner-controls-panel">
+            <div class="form-group">
+              <label for="visionCropSelect">Target Crop</label>
+              <select id="visionCropSelect">
+                <option value="Chilli" selected>Chilli (Mirchi)</option>
+                <option value="Groundnut">Groundnut (Verusanaga)</option>
+                <option value="Cotton">Cotton (Patti)</option>
+                <option value="Rice">Rice (Vari / Paddy)</option>
+                <option value="Maize">Maize (Mokka Jonna)</option>
+                <option value="Black Gram">Black Gram (Minumu)</option>
+                <option value="Red Gram">Red Gram (Kandi)</option>
+                <option value="Sugarcane">Sugarcane (Cheruku)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="visionFarmerNotes">What symptoms do you observe? (Optional)</label>
+              <input type="text" id="visionFarmerNotes" placeholder="e.g. dark brown spots on leaves, yellow curled foliage, caterpillars, weeds">
+            </div>
+
+            <!-- Quick Demo Sample Photos -->
+            <div class="sample-photos-bar">
+              <small><strong>Or Test Instantly with Sample Photos:</strong></small>
+              <div class="sample-btn-group">
+                <button type="button" class="sample-chip-btn" id="sampleChilliAnthracnose">🌶️ Chilli Leaf Rot</button>
+                <button type="button" class="sample-chip-btn" id="sampleGroundnutTikka">🥜 Groundnut Tikka Spot</button>
+                <button type="button" class="sample-chip-btn" id="samplePestCurl">🐛 Leaf Curl & Thrips</button>
+                <button type="button" class="sample-chip-btn" id="sampleRiceBlast">🌾 Rice Blast Lesion</button>
+                <button type="button" class="sample-chip-btn" id="sampleWeedInfest">🌿 Weed Overgrowth</button>
+                <button type="button" class="sample-chip-btn" id="sampleHealthyCrop">🍃 Healthy Foliage</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-lg" id="scanCropPhotoBtn" style="width: 100%; margin-top: 14px;">
+              🔍 Scan & Diagnose Crop Photo
+            </button>
+          </div>
+        </div>
+
+        <p id="visionStatus" class="status"></p>
+
+        <!-- Diagnosis Result Container -->
+        <div id="visionResultContainer" class="vision-outcome-card" style="display: none;">
+          <div class="outcome-header">
+            <div>
+              <div class="outcome-badge-row">
+                <span id="diagCategoryBadge" class="badge badge-warning">Disease</span>
+                <span id="diagSeverityBadge" class="badge badge-soil">Severe</span>
+                <span class="badge badge-success">Confidence: <span id="diagConfidence">94.2%</span></span>
+              </div>
+              <h3 id="diagTitle" class="diag-headline">Anthracnose & Fruit Rot (Dieback)</h3>
+              <p id="diagPathogen" class="diag-sub">Pathogen: Colletotrichum capsici</p>
+            </div>
+          </div>
+
+          <p id="diagSummary" class="diag-summary-text"></p>
+
+          <!-- Visual Scan Analysis Bar -->
+          <div class="visual-metrics-bar">
+            <h4>🔬 Image Pixel Analysis:</h4>
+            <div class="metrics-meters-grid">
+              <div class="meter-box">
+                <span>Healthy Green Area</span>
+                <strong id="metricGreen">42.5%</strong>
+              </div>
+              <div class="meter-box">
+                <span>Necrotic Lesion Spots</span>
+                <strong id="metricNecrotic" style="color: #dc2626;">24.8%</strong>
+              </div>
+              <div class="meter-box">
+                <span>Chlorosis / Yellowing</span>
+                <strong id="metricYellow" style="color: #d97706;">18.2%</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual Solutions Tabs: Organic vs Chemical -->
+          <div class="dual-solution-tabs">
+            <button type="button" class="sol-tab-btn active" id="tabOrganicSolBtn">
+              🌿 100% Organic & Bio Remedy
+            </button>
+            <button type="button" class="sol-tab-btn" id="tabChemicalSolBtn">
+              🧪 Targeted Chemical Control
+            </button>
+          </div>
+
+          <!-- Organic Content -->
+          <div id="viewOrganicSol" class="solution-pane active">
+            <div class="solution-content-box organic-box">
+              <h4>🌿 Bio-Friendly & Organic Solution</h4>
+              <p id="solOrganicText"></p>
+              <div class="advisory-pill">
+                💡 <em>Zero chemical residue. Safe for natural pollinators, predators, and export certification.</em>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chemical Content -->
+          <div id="viewChemicalSol" class="solution-pane">
+            <div class="solution-content-box chemical-box">
+              <h4>🧪 Exact Chemical Pesticide / Fungicide Formulation</h4>
+              <p id="solChemicalText"></p>
+              <div class="advisory-pill warning-pill">
+                ⚠️ <em>Wear gloves and protective mask during spraying. Maintain a 10-day pre-harvest interval (PHI).</em>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cultural Preventive Advice -->
+          <div class="cultural-advice-box">
+            <strong>🛡️ Long-Term Preventive Field Strategy:</strong>
+            <p id="solCulturalText"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
+           MODULE 2: SOIL TEST REPORT & DUAL FERTILIZER RECOMMENDER
+           ============================================================= -->
+      <section class="card soil-fertilizer-section" id="soilFertilizerSection">
+        <div class="card-header">
+          <div>
+            <h3>🧪 Soil Test Results & Dual Fertilizer Recommender</h3>
+            <p class="section-desc">
+              Upload your Soil Health Card laboratory values. The system evaluates soil fertility 
+              and calculates dual <strong>100% Organic</strong> and <strong>Chemical</strong> fertilizer packages.
+            </p>
+          </div>
+          <span class="badge badge-success">Soil Health Card Engine</span>
+        </div>
+
+        <!-- Quick Soil Presets -->
+        <div class="presets-bar" style="margin-bottom: 18px; padding: 10px 16px;">
+          <div class="presets-label">
+            <span>⚡ Soil Health Card Presets:</span>
+          </div>
+          <div class="presets-buttons">
+            <button type="button" class="preset-btn" id="presetSoilRed">🔴 AP Red Soil (Low N, Acidic, Low Zinc)</button>
+            <button type="button" class="preset-btn" id="presetSoilBlack">⚫ Black Cotton Soil (Alkaline, High K)</button>
+            <button type="button" class="preset-btn" id="presetSoilDelta">🟡 Delta Alluvial Soil (Balanced NPK)</button>
+          </div>
+        </div>
+
+        <form id="soilAnalysisForm">
+          <div class="form-sections-grid">
+            <!-- Soil Nutrients -->
+            <div class="form-subgroup">
+              <h4 class="subgroup-title">🌱 Primary Nutrients (NPK)</h4>
+              <div class="form-group">
+                <label for="soilN">Available Nitrogen (N, kg/ha) <span class="req">*</span></label>
+                <input id="soilN" type="number" min="0" max="600" step="any" value="28" required>
+                <small class="field-hint">&lt;30 kg/ha: Low | 30-65: Medium | &gt;65: High</small>
+              </div>
+              <div class="form-group">
+                <label for="soilP">Available Phosphorus (P, kg/ha) <span class="req">*</span></label>
+                <input id="soilP" type="number" min="0" max="500" step="any" value="18" required>
+                <small class="field-hint">&lt;20 kg/ha: Low | 20-45: Medium | &gt;45: High</small>
+              </div>
+              <div class="form-group">
+                <label for="soilK">Available Potassium (K, kg/ha) <span class="req">*</span></label>
+                <input id="soilK" type="number" min="0" max="800" step="any" value="38" required>
+                <small class="field-hint">&lt;25 kg/ha: Low | 25-55: Medium | &gt;55: High</small>
+              </div>
+            </div>
+
+            <!-- Chemistry & Organic Carbon -->
+            <div class="form-subgroup">
+              <h4 class="subgroup-title">🧪 Soil Reaction & Organic Matter</h4>
+              <div class="form-group">
+                <label for="soilPH">Soil pH Level <span class="req">*</span></label>
+                <input id="soilPH" type="number" min="0" max="14" step="0.1" value="8.1" required>
+                <small class="field-hint">&lt;6.0: Acidic | 6.0-7.8: Neutral | &gt;8.0: Alkaline</small>
+              </div>
+              <div class="form-group">
+                <label for="soilOC">Organic Carbon (OC %) <span class="req">*</span></label>
+                <input id="soilOC" type="number" min="0" max="10" step="0.05" value="0.45" required>
+                <small class="field-hint">&lt;0.5%: Low | 0.5-0.75%: Medium | &gt;0.75%: High</small>
+              </div>
+              <div class="form-group">
+                <label for="soilEC">Electrical Conductivity (EC, dS/m)</label>
+                <input id="soilEC" type="number" min="0" max="10" step="0.1" value="0.6">
+                <small class="field-hint">&lt;1.0: Normal non-saline soil</small>
+              </div>
+            </div>
+
+            <!-- Micronutrients & Crop Target -->
+            <div class="form-subgroup">
+              <h4 class="subgroup-title">🌾 Crop Target & Micronutrients</h4>
+              <div class="form-group">
+                <label for="soilCropTarget">Target Crop <span class="req">*</span></label>
+                <select id="soilCropTarget">
+                  <option value="Chilli" selected>Chilli (Mirchi)</option>
+                  <option value="Groundnut">Groundnut (Verusanaga)</option>
+                  <option value="Cotton">Cotton (Patti)</option>
+                  <option value="Rice">Rice (Vari / Paddy)</option>
+                  <option value="Maize">Maize (Mokka Jonna)</option>
+                  <option value="Black Gram">Black Gram (Minumu)</option>
+                  <option value="Red Gram">Red Gram (Kandi)</option>
+                  <option value="Sugarcane">Sugarcane (Cheruku)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="soilAcres">Land Holding Area (Acres) <span class="req">*</span></label>
+                <input id="soilAcres" type="number" min="0.1" max="100" step="0.5" value="2.0" required>
+              </div>
+              <div class="form-group">
+                <label for="soilZinc">Available Zinc (Zn, ppm) <span class="req">*</span></label>
+                <input id="soilZinc" type="number" min="0" max="20" step="0.05" value="0.45" required>
+                <small class="field-hint">&lt;0.6 ppm: Deficient (Needs Zinc Sulfate)</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary btn-lg" id="analyzeSoilBtn">
+              🧪 Analyze Soil & Recommend Dual Fertilizers
+            </button>
+          </div>
+        </form>
+
+        <p id="soilAnalysisStatus" class="status"></p>
+
+        <!-- Soil Analysis Outcome -->
+        <div id="soilOutcomeContainer" class="soil-outcome-wrap" style="display: none;">
+          <!-- Soil Fertility Status Card -->
+          <div class="soil-ratings-card">
+            <h4>📋 Soil Fertility Status (Soil Health Card Evaluation)</h4>
+            <div id="soilRatingsGrid" class="soil-ratings-grid"></div>
+            <div id="soilConditionerAlert" class="conditioner-alert" style="display: none;"></div>
+          </div>
+
+          <!-- Dual Fertilizer Tabs -->
+          <div class="results-tabs" style="margin-top: 24px;">
+            <button type="button" class="tab-btn active" id="tabOrganicFertBtn">
+              🌿 Option 1: 100% Organic & Bio-Fertilizer Package
+            </button>
+            <button type="button" class="tab-btn" id="tabChemicalFertBtn">
+              🧪 Option 2: Chemical Fertilizer Precision Package
+            </button>
+            <button type="button" class="tab-btn" id="tabInmFertBtn">
+              🌾 Option 3: Integrated Nutrient Management (INM)
+            </button>
+          </div>
+
+          <!-- View 1: Organic Fertilizer -->
+          <div id="viewOrganicFert" class="tab-view active">
+            <div class="fert-package-card organic">
+              <div class="package-header">
+                <h4 id="organicPackTitle">🌿 Complete 100% Organic & Bio-Fertilizer Package</h4>
+                <p id="organicPackDesc">Restores soil biology, enriches humus, and eliminates chemical residues.</p>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Organic Input</th>
+                      <th>Dose per Acre</th>
+                      <th>Total Quantity (<span class="soil-acres-label">2</span> Acres)</th>
+                      <th>Application Method & Timing</th>
+                    </tr>
+                  </thead>
+                  <tbody id="organicComponentsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 2: Chemical Fertilizer -->
+          <div id="viewChemicalFert" class="tab-view">
+            <div class="fert-package-card chemical">
+              <div class="package-header">
+                <h4 id="chemicalPackTitle">🧪 Chemical Precision Fertilizer Package</h4>
+                <p id="chemicalPackDesc">Exact commercial fertilizer bags calculated to satisfy crop nutrient deficits.</p>
+              </div>
+
+              <!-- Bag Summary Bar -->
+              <div class="fertilizer-bags-grid" id="chemicalBagsGrid"></div>
+
+              <div class="table-wrap" style="margin-top: 14px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Commercial Fertilizer</th>
+                      <th>Total Bags (50kg) / Quantity</th>
+                      <th>Per Acre Rate</th>
+                      <th>Split Application Timing</th>
+                    </tr>
+                  </thead>
+                  <tbody id="chemicalComponentsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 3: INM -->
+          <div id="viewInmFert" class="tab-view">
+            <div class="inm-package-box">
+              <h4>🌾 Integrated Nutrient Management (INM - Balanced Eco-Yield)</h4>
+              <p id="inmText" style="font-size: 0.95rem; line-height: 1.6;"></p>
+              <div class="advisory-pill">
+                ⭐ <em>Recommended by Agricultural Scientists: Yields 15% higher returns than chemical alone while preserving soil humus.</em>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================
+           MODULE 3: SMART IRRIGATION ADVISORY
+           ============================================================= -->
       <section class="card irrigation-section">
         <div class="card-header">
           <div>

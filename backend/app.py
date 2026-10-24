@@ -20,6 +20,8 @@ from market_ranker import rank_crops_by_profit_and_market, load_market_data
 from crop_rules import CROP_RULES
 import crop_care_service
 import marketplace_service
+import vision_diagnostic_service
+import soil_analyzer_service
 
 app = Flask(__name__)
 CORS(app)
@@ -253,6 +255,41 @@ def phase2_pest_weed():
     crop = request.args.get("crop", "Groundnut").strip()
     advisory = crop_care_service.get_pest_weed_advisory(crop)
     return jsonify({"success": True, "advisory": advisory})
+
+
+@app.post("/api/phase2/diagnose-image")
+def phase2_diagnose_image():
+    """Analyzes an uploaded crop photo to identify disease, pest, or weed with dual organic/chemical cures."""
+    data = request.get_json(silent=True) or {}
+    image_data = data.get("image_base64")
+    crop = data.get("crop", "Chilli")
+    notes = data.get("notes", "")
+
+    if not image_data:
+        return jsonify({"success": False, "error": "No image data received."}), 400
+
+    result = vision_diagnostic_service.analyze_crop_image(image_data, crop_name=crop, user_notes=notes)
+    return jsonify(result)
+
+
+@app.post("/api/phase2/analyze-soil-fertilizer")
+def phase2_analyze_soil_fertilizer():
+    """Analyzes soil health test values and generates dual Organic and Chemical fertilizer packages."""
+    data = request.get_json(silent=True) or {}
+    crop = data.get("crop", "Groundnut")
+    acres = float(data.get("acres", 1.0))
+    soil_data = {
+        "N": float(data.get("N", 45.0)),
+        "P": float(data.get("P", 25.0)),
+        "K": float(data.get("K", 35.0)),
+        "pH": float(data.get("pH", 7.0)),
+        "organic_carbon": float(data.get("organic_carbon", 0.55)),
+        "ec": float(data.get("ec", 0.6)),
+        "zinc": float(data.get("zinc", 0.55))
+    }
+
+    result = soil_analyzer_service.generate_fertilizer_recommendation(crop, soil_data, acres=acres)
+    return jsonify(result)
 
 
 # =========================================================================

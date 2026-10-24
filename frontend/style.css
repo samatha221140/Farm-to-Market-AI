@@ -1141,3 +1141,374 @@ tbody tr:hover { background: #f0fdf4; }
   .search-row-three { grid-template-columns: 1fr; }
   .phase-header-card { flex-direction: column; align-items: flex-start; }
 }
+/* Append Styles for Vision Scanner and Soil Analyzer */
+
+/* Vision Scanner Styles */
+.scanner-container {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 22px;
+  margin-top: 10px;
+}
+
+.upload-dropzone {
+  border: 2px dashed #94a3b8;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 230px;
+  position: relative;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.dropzone-icon {
+  font-size: 2.8rem;
+  margin-bottom: 8px;
+}
+
+.dropzone-content p {
+  font-size: 0.95rem;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.dropzone-content small {
+  font-size: 0.78rem;
+  color: var(--text-subtle);
+}
+
+.image-preview-wrap {
+  width: 100%;
+  position: relative;
+}
+
+.image-preview-wrap img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.remove-img-btn {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.scanner-controls-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sample-photos-bar {
+  background: #f1f5f9;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+
+.sample-photos-bar small {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.sample-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sample-chip-btn {
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-main);
+}
+
+.sample-chip-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+/* Vision Outcome Card */
+.vision-outcome-card {
+  margin-top: 24px;
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.outcome-header {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.outcome-badge-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.diag-headline {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.diag-sub {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.diag-summary-text {
+  font-size: 0.95rem;
+  color: var(--text-main);
+  margin-bottom: 16px;
+}
+
+.visual-metrics-bar {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.visual-metrics-bar h4 {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.metrics-meters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.meter-box {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.meter-box span {
+  display: block;
+  font-size: 0.74rem;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.meter-box strong {
+  font-size: 1.15rem;
+  color: var(--primary-dark);
+}
+
+/* Solution Tabs */
+.dual-solution-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid var(--border);
+}
+
+.sol-tab-btn {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.sol-tab-btn.active {
+  color: var(--primary-dark);
+  background: #f0fdf4;
+  border-bottom: 3px solid var(--primary);
+}
+
+.solution-pane {
+  display: none;
+}
+
+.solution-pane.active {
+  display: block;
+}
+
+.solution-content-box {
+  padding: 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.solution-content-box.organic-box {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-left: 5px solid #16a34a;
+}
+
+.solution-content-box.chemical-box {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-left: 5px solid #ea580c;
+}
+
+.solution-content-box h4 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.advisory-pill {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: #166534;
+}
+
+.advisory-pill.warning-pill {
+  color: #c2410c;
+}
+
+.cultural-advice-box {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+/* Soil Analyzer Outcome Styles */
+.soil-outcome-wrap {
+  margin-top: 24px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.soil-ratings-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.soil-ratings-card h4 {
+  font-size: 1.1rem;
+  color: var(--primary-dark);
+  margin-bottom: 14px;
+}
+
+.soil-ratings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.rating-chip {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.rating-chip-label {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  font-weight: 600;
+}
+
+.rating-chip-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 3px 0;
+}
+
+.rating-chip.danger .rating-chip-value { color: var(--danger); }
+.rating-chip.warning .rating-chip-value { color: var(--accent); }
+.rating-chip.success .rating-chip-value { color: var(--primary); }
+.rating-chip.info .rating-chip-value { color: #0284c7; }
+
+.conditioner-alert {
+  margin-top: 14px;
+  background: #fffbeb;
+  border: 1px solid #fde047;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  color: #854d0e;
+  font-weight: 600;
+}
+
+.fert-package-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fert-package-card.organic {
+  border-color: #86efac;
+}
+
+.fert-package-card.chemical {
+  border-color: #93c5fd;
+}
+
+.package-header {
+  margin-bottom: 16px;
+}
+
+.package-header h4 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.inm-package-box {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: var(--radius-lg);
+  padding: 22px;
+}
+
+.inm-package-box h4 {
+  font-size: 1.2rem;
+  color: #15803d;
+  margin-bottom: 10px;
+}
