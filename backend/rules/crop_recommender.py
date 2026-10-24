@@ -33,10 +33,16 @@ CROP_PROFILES = {
 
 
 def nutrient_match(value, target, weight=10.0):
-    """Return similarity score scaled to weight."""
-    tolerance = max(target * 0.75, 12.0)
-    difference = abs(value - target)
-    score = max(0.0, 1.0 - (difference / tolerance))
+    """Return similarity score with agronomic asymmetry: surplus nutrients are penalized much less than deficits."""
+    if value >= target:
+        # Extra fertility is tolerated well by plants
+        tolerance = max(target * 1.5, 40.0)
+        diff = value - target
+    else:
+        # Nutrient deficiency harms crop yield
+        tolerance = max(target * 0.75, 15.0)
+        diff = target - value
+    score = max(0.0, 1.0 - (diff / tolerance))
     return round(score * weight, 2)
 
 
@@ -107,20 +113,21 @@ def recommend_crops(farm, top_n=5):
         # 2. Water Availability (20 points)
         required_water = water_level[rules["water_need"]]
         if actual_water >= required_water:
-            if actual_water == required_water:
-                water_pts = 20.0
-                reasons.append(f"Water Availability Match: {water} availability satisfies the {rules['water_need']} requirement.")
+            # Sensitive to waterlogging: dryland millets suffer in waterlogged soils
+            if actual_water == 3 and crop in ["Bajra"]:
+                water_pts = 8.0
+                reasons.append(f"Waterlogging Risk: {crop} prefers low-rainfall/dryland conditions; canal waterlogging harms root systems.")
             else:
-                water_pts = 18.0
-                reasons.append(f"Adequate Water: {water} availability comfortably covers {crop}'s {rules['water_need']} water need.")
+                water_pts = 20.0
+                reasons.append(f"Water Availability Match: {water} availability comfortably satisfies the {rules['water_need']} requirement.")
         else:
             # Insufficient water
             deficit = required_water - actual_water
             if deficit == 1:
-                water_pts = 8.0
+                water_pts = 7.0
                 reasons.append(f"Water Deficit: {crop} needs {rules['water_need']} water; current {water} water may need irrigation.")
             else:
-                water_pts = 2.0
+                water_pts = 0.0
                 reasons.append(f"Severe Water Limitation: {crop} requires {rules['water_need']} water but farm has {water} availability.")
         breakdown["water_score"] = water_pts
 

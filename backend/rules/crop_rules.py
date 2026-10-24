@@ -13,7 +13,7 @@ CROP_RULES = {
     },
     "Chilli": {
         "water_need": "Medium",
-        "soil_types": ["Black", "Red", "Loamy", "Alluvial"],
+        "soil_types": ["Black", "Red", "Loamy", "Alluvial", "Clay"],
     },
     "Cotton": {
         "water_need": "Medium",
