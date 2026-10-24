@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Farm-to-Market-AI: crop recommendations, weather information, mandi prices, and farm profit estimation.">
+    <title>Farm-to-Market-AI</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-content">
+            <h1>🌱 Farm-to-Market-AI</h1>
+            <p>Smart farming decisions using data, AI, and market information</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Weather Section -->
+        <section id="weatherSection" class="card">
+            <h2>🌦️ Weather Information</h2>
+            <p>Check current weather and forecast information.</p>
+
+            <div id="weatherStatus" role="status" aria-live="polite">
+                Loading weather information...
+            </div>
+
+            <div id="currentWeather"></div>
+            <div id="weatherForecast"></div>
+
+            <button id="refreshWeatherButton" type="button">
+                Refresh Weather
+            </button>
+        </section>
+
+        <!-- Crop Recommendation Section -->
+        <section id="cropRecommendationSection" class="card">
+            <h2>🌾 Crop Recommendation</h2>
+            <p>Enter your farm details to find suitable crops.</p>
+
+            <form id="farmForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="N_kg_ha">Nitrogen (N, kg/ha)</label>
+                        <input id="N_kg_ha" name="N_kg_ha"
+                               type="number" min="0" step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="P_kg_ha">Phosphorus (P, kg/ha)</label>
+                        <input id="P_kg_ha" name="P_kg_ha"
+                               type="number" min="0" step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="K_kg_ha">Potassium (K, kg/ha)</label>
+                        <input id="K_kg_ha" name="K_kg_ha"
+                               type="number" min="0" step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pH">Soil pH</label>
+                        <input id="pH" name="pH"
+                               type="number" min="0" max="14"
+                               step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Temperature_C">Temperature (°C)</label>
+                        <input id="Temperature_C" name="Temperature_C"
+                               type="number" step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Rainfall_mm">Rainfall (mm)</label>
+                        <input id="Rainfall_mm" name="Rainfall_mm"
+                               type="number" min="0" step="any" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soil_type">Soil type</label>
+                        <select id="soil_type" name="soil_type">
+                            <option value="Red">Red soil</option>
+                            <option value="Black">Black soil</option>
+                            <option value="Alluvial">Alluvial soil</option>
+                            <option value="Sandy">Sandy soil</option>
+                            <option value="Loamy">Loamy soil</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="water_availability">Water availability</label>
+                        <select id="water_availability" name="water_availability">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="season">Growing season</label>
+                        <select id="season" name="season">
+                            <option value="Kharif">Kharif</option>
+                            <option value="Rabi">Rabi</option>
+                            <option value="Summer">Summer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="recommendButton" type="submit">
+                        Recommend Crops
+                    </button>
+
+                    <button id="resetButton" type="reset" class="secondary-button">
+                        Reset
+                    </button>
+                </div>
+            </form>
+
+            <div id="result" aria-live="polite"></div>
+        </section>
+
+        <!-- Market Ranking Section -->
+        <section id="marketRankingSection" class="card">
+            <h2>📊 Market-Based Crop Ranking</h2>
+            <p>
+                Compare crop recommendations using the market information
+                available to the application.
+            </p>
+
+            <div id="marketRankingResults"></div>
+        </section>
+
+        <!-- Mandi Prices and Profit Calculator -->
+        <section id="mandiProfitSection" class="card market-ranking-section">
+            <h2>💰 Live Mandi Prices & Farm Profit</h2>
+
+            <p>
+                Search reported government mandi prices, select a market,
+                and estimate your farming profit.
+            </p>
+
+            <form id="mandiForm">
+                <div class="form-group">
+                    <label for="mandiCrop">Crop</label>
+                    <select id="mandiCrop" required>
+                        <option value="Bajra">Bajra</option>
+                        <option value="Bengal Gram">Bengal Gram</option>
+                        <option value="Black Gram" selected>Black Gram</option>
+                        <option value="Chilli">Chilli</option>
+                        <option value="Cotton">Cotton</option>
+                        <option value="Green Gram">Green Gram</option>
+                        <option value="Groundnut">Groundnut</option>
+                        <option value="Jowar">Jowar</option>
+                        <option value="Maize">Maize</option>
+                        <option value="Red Gram">Red Gram</option>
+                        <option value="Rice">Rice</option>
+                        <option value="Sugarcane">Sugarcane</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mandiState">State</label>
+                    <select id="mandiState" required>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Telangana">Telangana</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mandiDistrict">District (optional)</label>
+                    <input id="mandiDistrict" type="text"
+                           placeholder="Enter district name">
+                </div>
+
+                <button id="searchMandiButton" type="submit">
+                    Search Mandi Prices
+                </button>
+            </form>
+
+            <div id="mandiStatus" role="status" aria-live="polite"></div>
+            <div id="mandiResults"></div>
+
+            <hr>
+
+            <h3>Estimate Your Profit</h3>
+            <p>Select a reported mandi price before calculating profit.</p>
+
+            <form id="profitForm">
+                <div class="form-group">
+                    <label for="selectedModalPrice">
+                        Selected modal price (₹/quintal)
+                    </label>
+                    <input id="selectedModalPrice" type="number"
+                           min="0.01" step="any" required readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="expectedYield">Expected yield (quintals)</label>
+                    <input id="expectedYield" type="number"
+                           min="0.01" step="any" required
+                           placeholder="Example: 20">
+                </div>
+
+                <div class="form-group">
+                    <label for="cultivationCost">Cultivation cost (₹)</label>
+                    <input id="cultivationCost" type="number"
+                           min="0" step="any" required
+                           placeholder="Example: 60000">
+                </div>
+
+                <div class="form-group">
+                    <label for="transportCost">Transport cost (₹)</label>
+                    <input id="transportCost" type="number"
+                           min="0" step="any" value="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="otherCosts">Other expenses (₹)</label>
+                    <input id="otherCosts" type="number"
+                           min="0" step="any" value="0" required>
+                </div>
+
+                <button id="calculateProfitButton" type="submit">
+                    Calculate Estimated Profit
+                </button>
+            </form>
+
+            <div id="profitResults" aria-live="polite"></div>
+
+            <p class="prototype-note">
+                Mandi prices are reported market records, not guaranteed
+                selling prices. Actual profit depends on yield, quality,
+                transport, cultivation expenses, and other charges.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>Farm-to-Market-AI | Intelligent Farming Support System</p>
+        <p>Recommendations are decision-support estimates, not guarantees.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

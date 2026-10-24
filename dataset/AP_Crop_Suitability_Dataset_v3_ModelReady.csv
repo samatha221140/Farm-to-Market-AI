@@ -1,0 +1,721 @@
+District,Soil_Type,Soil_Texture,N_kg_ha,P_kg_ha,K_kg_ha,pH,Temperature_C,Humidity_pct,Rainfall_mm,Soil_Moisture_pct,Water_Source,Water_Availability,Crop,Suitable
+Kurnool,Alluvial,Loamy,30.2,9.4,28.9,6.25,15.3,45.4,512.1,74.9,Tank,High,Black Gram,0
+Kurnool,Black,Loamy,29.0,27.4,8.4,6.63,34.8,46.6,977.8,46.5,Rainfed,Low,Red Gram,0
+Guntur,Loamy,Clayey,93.5,34.6,13.5,4.99,23.9,61.3,1705.7,61.3,Tank,High,Rice,0
+Tirupati,Black,Loamy,64.0,28.4,41.7,6.98,32.3,67.7,711.5,63.7,Borewell,Medium,Cotton,1
+Anantapur,Red,Clayey,5.0,36.5,52.9,5.0,25.5,50.0,515.9,59.1,Canal,High,Bengal Gram,0
+West Godavari,Loamy,Sandy Loam,94.0,50.5,54.0,6.68,29.3,82.0,555.1,67.8,Borewell,High,Maize,1
+Prakasam,Loamy,Loamy,104.1,48.0,52.4,6.56,22.6,52.8,716.8,57.6,Tank,Medium,Maize,1
+NTR,Red,Sandy Loam,41.6,39.4,64.3,7.28,25.1,70.6,665.9,44.4,Borewell,Medium,Groundnut,1
+NTR,Alluvial,Clayey,5.8,32.7,55.4,7.34,25.5,62.8,861.2,82.4,Borewell,High,Red Gram,0
+Guntur,Red,Loamy,17.8,32.7,45.8,6.21,20.0,65.9,417.7,23.7,Rainfed,Low,Green Gram,0
+NTR,Alluvial,Sandy,78.2,13.0,74.1,6.79,29.9,61.1,1075.8,76.3,Borewell,High,Chilli,0
+Guntur,Loamy,Loamy,20.6,31.7,52.0,7.65,22.2,56.6,547.5,57.0,Borewell,Medium,Bengal Gram,1
+NTR,Red,Sandy Loam,95.8,53.4,36.8,7.15,18.9,63.7,1990.6,39.9,Tank,Medium,Rice,0
+Krishna,Loamy,Sandy Loam,31.4,57.5,64.0,5.59,15.7,77.4,793.1,69.0,Canal,High,Maize,0
+Krishna,Black,Loamy,17.9,23.8,28.3,7.28,20.1,77.9,450.3,60.4,Tank,Medium,Bengal Gram,1
+Kurnool,Alluvial,Loamy,31.3,30.3,53.9,7.05,27.5,46.0,668.0,42.1,Limited Borewell,Low,Black Gram,1
+Guntur,Loamy,Sandy Loam,77.6,42.0,62.6,7.2,25.5,61.8,590.6,58.8,Borewell,Medium,Maize,1
+West Godavari,Loamy,Loamy,165.4,64.6,105.6,7.03,22.0,72.4,1195.2,73.5,Tank,High,Sugarcane,1
+Krishna,Red,Clayey,32.3,25.9,39.1,6.69,28.7,71.9,772.3,58.8,Canal,High,Red Gram,1
+NTR,Sandy,Loamy,57.3,23.8,12.0,6.23,28.4,62.9,600.4,12.5,Limited Borewell,Low,Cotton,0
+Prakasam,Black,Loamy,17.2,31.8,38.9,7.04,24.9,53.4,483.9,41.3,Rainfed,Low,Bengal Gram,1
+Prakasam,Loamy,Sandy Loam,26.8,32.4,36.1,6.92,28.3,53.7,518.4,53.9,Canal,Medium,Green Gram,1
+Prakasam,Loamy,Clayey,87.1,32.7,46.4,8.71,29.8,54.2,1390.9,32.3,Rainfed,Low,Rice,0
+Anantapur,Black,Loamy,105.1,46.8,82.4,6.78,24.1,59.5,1099.0,83.3,Canal,High,Chilli,1
+NTR,Alluvial,Sandy Loam,22.0,20.7,51.5,7.65,25.5,66.4,205.8,71.1,Canal,High,Bengal Gram,0
+Guntur,Red,Sandy Loam,24.2,41.4,44.4,6.94,27.6,52.6,577.6,37.9,Canal,Medium,Black Gram,1
+NTR,Black,Loamy,17.2,34.5,35.2,6.5,31.3,67.1,743.1,50.5,Rainfed,Low,Red Gram,1
+Kurnool,Sandy,Clayey,87.2,34.4,40.5,6.99,25.5,47.5,730.1,24.9,Rainfed,Low,Cotton,0
+West Godavari,Sandy,Loamy,35.1,35.0,46.5,7.17,24.6,78.9,653.5,14.5,Limited Borewell,Low,Groundnut,1
+Tirupati,Loamy,Loamy,28.3,45.8,37.9,6.31,21.8,61.7,613.1,70.4,Canal,High,Groundnut,1
+Prakasam,Sandy,Sandy Loam,25.2,42.4,39.4,6.92,17.4,51.5,490.5,18.5,Limited Borewell,Low,Green Gram,0
+Kurnool,Loamy,Loamy,18.7,24.2,44.7,6.73,28.8,59.5,500.9,69.1,Tank,High,Green Gram,1
+Krishna,Red,Sandy Loam,26.4,24.9,47.5,5.17,22.1,74.1,1114.3,44.7,Tank,Medium,Black Gram,0
+West Godavari,Alluvial,Sandy Loam,25.9,24.4,43.3,6.39,31.8,72.2,556.8,57.3,Canal,Medium,Green Gram,1
+Anantapur,Loamy,Sandy,10.6,21.4,34.2,6.16,34.2,43.7,461.5,34.8,Limited Borewell,Low,Bajra,0
+Tirupati,Loamy,Loamy,166.2,45.1,86.2,8.53,34.2,52.5,1212.2,35.8,Limited Borewell,Low,Sugarcane,0
+Anantapur,Loamy,Sandy Loam,68.1,37.7,58.1,6.88,23.2,52.9,1480.3,35.7,Limited Borewell,Low,Chilli,0
+NTR,Red,Sandy Loam,46.2,32.1,40.6,7.28,27.3,61.5,335.4,25.2,Limited Borewell,Low,Bajra,1
+Anantapur,Black,Sandy Loam,15.8,34.3,18.1,6.22,27.1,48.1,526.0,42.1,Limited Borewell,Low,Bajra,0
+Tirupati,Black,Clayey,66.0,38.2,42.3,6.41,30.9,57.6,643.2,61.5,Tank,Medium,Jowar,1
+Prakasam,Alluvial,Loamy,21.6,28.1,30.9,7.35,27.7,57.5,538.6,38.2,Rainfed,Low,Black Gram,1
+Krishna,Loamy,Sandy Loam,35.5,34.4,46.0,6.68,25.2,69.8,731.8,57.9,Borewell,Medium,Groundnut,1
+Kurnool,Sandy,Sandy,27.5,35.1,69.1,6.11,22.3,56.7,1959.1,35.3,Borewell,Medium,Rice,0
+NTR,Alluvial,Clayey,66.6,45.5,78.6,6.49,27.4,58.3,863.1,52.7,Rainfed,Low,Chilli,0
+Guntur,Alluvial,Loamy,27.5,32.9,11.7,7.2,34.0,62.9,195.4,57.8,Borewell,Medium,Green Gram,0
+Kurnool,Loamy,Loamy,97.4,51.7,36.4,6.87,19.3,49.9,593.8,46.2,Tank,Medium,Maize,1
+Guntur,Red,Loamy,20.0,41.9,7.3,8.63,23.9,59.5,449.4,51.0,Canal,High,Black Gram,0
+NTR,Alluvial,Sandy Loam,42.6,38.1,5.0,7.11,32.8,66.0,437.6,38.6,Limited Borewell,Low,Bajra,0
+Krishna,Loamy,Clayey,193.8,13.2,87.0,5.56,32.7,67.2,1145.5,70.2,Canal,High,Sugarcane,0
+Kurnool,Black,Sandy Loam,79.7,36.3,46.4,5.83,21.3,66.2,600.4,47.4,Rainfed,Low,Maize,1
+Guntur,Red,Loamy,64.2,29.1,14.7,6.45,18.0,61.9,702.7,52.6,Tank,High,Jowar,0
+NTR,Loamy,Sandy Loam,68.6,37.2,49.1,6.63,25.7,63.4,937.5,50.8,Borewell,Medium,Chilli,1
+West Godavari,Black,Loamy,17.6,30.3,37.8,7.21,21.9,73.7,562.9,65.2,Tank,Medium,Bengal Gram,1
+Krishna,Loamy,Sandy,68.6,7.8,12.9,6.49,27.2,70.6,447.6,62.6,Tank,High,Bajra,0
+Prakasam,Red,Loamy,30.2,41.0,36.7,6.46,29.7,50.4,685.2,19.9,Limited Borewell,Low,Groundnut,1
+West Godavari,Sandy,Loamy,33.2,8.6,49.2,7.49,22.1,79.0,598.9,15.8,Limited Borewell,Low,Black Gram,0
+Prakasam,Black,Loamy,20.2,46.6,53.0,7.67,15.8,62.2,838.3,77.7,Borewell,High,Cotton,0
+Guntur,Loamy,Loamy,81.1,46.4,62.5,8.6,34.2,63.2,306.3,55.4,Tank,Medium,Cotton,0
+Prakasam,Loamy,Loamy,106.8,36.4,36.2,6.55,22.3,54.9,689.3,54.3,Canal,Medium,Maize,1
+Prakasam,Alluvial,Loamy,28.4,25.3,32.5,6.28,26.0,49.6,624.7,39.6,Rainfed,Low,Black Gram,1
+Anantapur,Sandy,Sandy Loam,73.1,23.7,58.1,7.55,26.5,42.8,459.8,10.0,Limited Borewell,Low,Jowar,0
+Krishna,Black,Loamy,85.6,57.0,49.0,5.91,27.2,65.0,1260.1,75.9,Canal,High,Rice,1
+Anantapur,Red,Sandy Loam,99.4,47.7,63.1,7.12,23.7,49.1,564.5,56.5,Borewell,High,Maize,1
+NTR,Red,Sandy Loam,14.8,7.9,29.8,5.86,34.1,67.1,418.0,43.1,Tank,Medium,Green Gram,0
+Anantapur,Red,Loamy,31.0,32.8,44.1,7.03,21.9,54.3,735.7,30.4,Rainfed,Low,Red Gram,1
+Kurnool,Alluvial,Loamy,39.1,11.3,60.5,7.01,25.5,57.4,637.2,74.8,Tank,High,Maize,0
+Guntur,Loamy,Loamy,127.5,18.4,78.9,7.43,22.2,69.3,525.8,47.3,Borewell,Medium,Sugarcane,0
+Krishna,Loamy,Loamy,28.2,10.6,41.6,6.58,28.6,72.3,744.4,29.3,Limited Borewell,Low,Groundnut,0
+Anantapur,Black,Clayey,48.6,11.2,37.3,6.82,17.7,55.7,607.6,57.9,Canal,Medium,Jowar,0
+Guntur,Black,Sandy,49.4,39.9,46.3,6.31,31.5,67.6,210.2,46.0,Limited Borewell,Low,Bajra,0
+West Godavari,Loamy,Loamy,74.7,53.2,79.3,7.01,24.8,74.4,867.3,54.5,Tank,Medium,Chilli,1
+Anantapur,Alluvial,Loamy,9.7,24.0,44.7,8.19,33.9,50.5,396.0,70.0,Canal,High,Green Gram,0
+Prakasam,Red,Sandy Loam,67.8,41.0,58.1,6.19,23.7,53.0,583.2,48.5,Borewell,Medium,Maize,1
+NTR,Alluvial,Loamy,31.7,35.5,36.7,6.43,28.8,71.8,380.7,40.0,Rainfed,Low,Green Gram,1
+NTR,Sandy,Loamy,24.3,41.8,38.3,6.53,27.9,62.0,584.9,52.5,Canal,High,Groundnut,1
+Guntur,Sandy,Clayey,73.7,29.0,35.5,4.82,27.9,64.1,518.9,43.8,Borewell,Medium,Jowar,0
+Prakasam,Loamy,Sandy,59.7,21.8,33.7,8.48,21.2,57.9,382.2,63.9,Canal,High,Bajra,0
+Guntur,Sandy,Loamy,35.0,27.8,8.3,7.21,26.3,62.0,587.1,23.7,Rainfed,Low,Black Gram,0
+Krishna,Black,Loamy,62.2,50.0,55.5,7.05,15.5,72.2,619.8,44.3,Rainfed,Low,Chilli,0
+NTR,Loamy,Loamy,27.5,27.8,40.1,6.8,31.9,59.7,792.2,46.4,Tank,Medium,Red Gram,1
+Kurnool,Red,Clayey,65.8,9.8,55.3,7.87,34.8,51.0,229.0,41.3,Canal,Medium,Jowar,0
+Prakasam,Alluvial,Sandy Loam,20.0,33.9,45.2,6.3,25.7,56.2,663.6,54.0,Tank,Medium,Black Gram,1
+Krishna,Black,Clayey,66.3,31.2,38.4,7.51,30.4,74.6,769.8,55.8,Canal,Medium,Cotton,1
+Prakasam,Sandy,Sandy,33.8,20.8,48.1,7.45,27.3,49.3,663.9,12.5,Rainfed,Low,Red Gram,0
+Prakasam,Black,Clayey,23.2,34.7,53.7,5.92,22.0,46.4,746.5,67.5,Tank,Medium,Rice,0
+Anantapur,Red,Loamy,62.7,36.4,45.6,7.21,30.0,48.8,705.1,43.1,Tank,Medium,Jowar,1
+Kurnool,Loamy,Sandy Loam,42.8,26.2,22.9,6.71,26.7,49.6,542.1,29.5,Limited Borewell,Low,Bajra,1
+West Godavari,Black,Clayey,79.4,37.4,47.8,5.66,15.2,77.1,279.7,60.5,Canal,Medium,Cotton,0
+Krishna,Red,Clayey,28.7,20.0,11.7,7.82,15.5,70.3,521.9,52.0,Tank,High,Bengal Gram,0
+Krishna,Black,Sandy Loam,111.7,52.7,75.7,7.12,21.2,74.1,698.8,68.1,Borewell,Medium,Chilli,1
+Kurnool,Sandy,Clayey,87.7,34.7,72.8,8.88,22.3,53.2,853.6,18.5,Rainfed,Low,Cotton,0
+Krishna,Alluvial,Loamy,105.8,7.3,46.3,4.6,26.6,70.5,1145.5,81.5,Canal,High,Rice,0
+Tirupati,Loamy,Clayey,70.5,43.1,43.5,7.65,32.6,51.8,604.8,49.2,Canal,Medium,Cotton,1
+Guntur,Black,Loamy,21.7,28.0,29.4,8.71,25.1,61.0,620.2,42.8,Limited Borewell,Low,Black Gram,0
+NTR,Red,Sandy Loam,21.5,33.2,14.5,6.06,27.7,62.5,531.6,21.7,Limited Borewell,Low,Groundnut,0
+Anantapur,Loamy,Loamy,29.8,42.8,7.5,6.54,33.2,57.0,1309.3,64.1,Canal,High,Black Gram,0
+Tirupati,Black,Sandy Loam,104.6,48.4,45.6,6.94,29.9,55.3,762.5,66.9,Tank,Medium,Maize,1
+Tirupati,Black,Clayey,100.2,48.0,47.5,6.89,30.6,56.1,1191.2,65.6,Borewell,Medium,Rice,1
+Tirupati,Loamy,Sandy,51.0,30.0,43.9,6.75,33.5,56.6,515.6,44.7,Borewell,Medium,Bajra,1
+Guntur,Sandy,Clayey,32.6,37.3,56.2,6.74,19.6,69.4,547.5,36.5,Tank,Medium,Maize,0
+Tirupati,Loamy,Clayey,6.9,38.5,48.4,6.14,22.9,56.5,1150.0,67.7,Borewell,High,Red Gram,0
+West Godavari,Loamy,Loamy,113.4,38.8,8.6,6.53,23.2,79.0,1504.6,69.2,Canal,High,Chilli,0
+Guntur,Loamy,Sandy Loam,22.8,32.1,43.0,7.29,30.5,64.5,541.2,34.4,Limited Borewell,Low,Black Gram,1
+Kurnool,Red,Sandy Loam,31.7,8.5,35.4,7.41,32.9,54.0,1107.2,65.0,Borewell,High,Black Gram,0
+Guntur,Loamy,Clayey,92.0,39.0,50.3,6.7,29.6,64.9,573.9,54.6,Borewell,Medium,Cotton,1
+Prakasam,Sandy,Loamy,29.7,40.0,49.5,7.2,30.0,59.6,215.4,16.7,Limited Borewell,Low,Black Gram,0
+Kurnool,Loamy,Clayey,67.3,39.9,70.2,6.02,23.4,38.3,775.2,67.8,Canal,High,Cotton,1
+West Godavari,Alluvial,Loamy,82.8,21.4,55.0,7.95,29.7,70.3,714.8,43.1,Limited Borewell,Low,Cotton,0
+Anantapur,Sandy,Loamy,75.8,37.6,8.0,7.26,24.4,43.6,776.0,13.1,Limited Borewell,Low,Cotton,0
+Guntur,Loamy,Clayey,151.5,47.6,38.5,6.04,39.2,50.6,1156.8,54.6,Tank,Medium,Sugarcane,0
+Krishna,Black,Sandy Loam,68.6,57.9,18.2,6.99,15.8,61.6,743.5,70.4,Canal,High,Maize,0
+Anantapur,Black,Clayey,18.5,44.0,27.9,4.93,33.7,42.4,414.4,62.7,Borewell,Medium,Bengal Gram,0
+Tirupati,Loamy,Loamy,138.3,52.4,104.8,6.59,26.8,51.1,1338.1,56.8,Tank,Medium,Sugarcane,1
+Prakasam,Black,Sandy Loam,92.0,48.9,19.6,5.55,38.2,50.7,777.6,77.4,Borewell,High,Maize,0
+Prakasam,Loamy,Clayey,68.2,12.9,32.2,7.23,21.5,48.0,457.8,62.1,Canal,High,Jowar,0
+NTR,Alluvial,Loamy,28.7,36.6,50.3,6.74,27.2,57.3,553.2,41.3,Limited Borewell,Low,Black Gram,1
+Guntur,Loamy,Loamy,25.6,21.9,34.3,6.9,27.0,52.9,453.4,30.0,Rainfed,Low,Green Gram,1
+Prakasam,Red,Loamy,100.4,35.3,57.3,5.88,21.8,50.3,676.4,56.1,Tank,High,Maize,1
+NTR,Red,Sandy Loam,14.8,19.0,6.7,6.15,25.6,69.1,307.5,46.2,Canal,Medium,Bajra,0
+Anantapur,Loamy,Clayey,99.4,40.7,10.9,6.3,35.0,52.6,1653.7,37.8,Rainfed,Low,Rice,0
+NTR,Loamy,Loamy,113.7,38.1,55.5,6.12,28.5,64.3,663.8,52.5,Canal,Medium,Maize,1
+Prakasam,Red,Loamy,5.1,20.7,44.9,6.37,26.7,43.8,433.4,24.5,Rainfed,Low,Green Gram,0
+Kurnool,Alluvial,Clayey,182.7,71.1,68.8,6.18,29.6,58.2,1455.3,79.8,Borewell,High,Sugarcane,1
+West Godavari,Red,Clayey,108.9,33.4,28.7,6.6,18.6,79.7,1685.8,30.6,Rainfed,Low,Rice,0
+West Godavari,Red,Loamy,5.5,42.8,51.0,8.17,24.9,82.9,848.3,57.3,Borewell,High,Red Gram,0
+Tirupati,Loamy,Loamy,66.8,55.1,41.3,5.94,23.6,66.5,653.3,39.5,Rainfed,Low,Maize,1
+West Godavari,Loamy,Sandy Loam,20.7,34.7,42.6,7.1,28.7,65.9,513.9,30.8,Rainfed,Low,Green Gram,1
+Anantapur,Red,Clayey,115.8,59.2,92.1,7.71,14.8,46.9,1078.7,22.4,Limited Borewell,Low,Sugarcane,0
+Kurnool,Black,Sandy,66.5,38.2,29.5,6.76,30.0,49.7,1033.7,39.9,Rainfed,Low,Bajra,0
+Prakasam,Red,Loamy,27.0,43.1,47.5,6.7,36.4,54.8,402.2,26.8,Limited Borewell,Low,Bengal Gram,0
+NTR,Black,Sandy Loam,82.9,40.1,52.7,6.53,28.7,66.0,812.9,77.1,Canal,High,Chilli,1
+Prakasam,Loamy,Clayey,20.4,33.3,46.5,6.42,20.2,57.4,407.5,29.1,Rainfed,Low,Bengal Gram,1
+NTR,Alluvial,Clayey,53.9,24.3,8.2,5.84,26.5,69.3,823.8,69.1,Tank,High,Cotton,0
+NTR,Loamy,Sandy Loam,42.2,22.6,36.8,7.2,26.7,71.4,512.5,51.9,Canal,Medium,Bajra,1
+NTR,Sandy,Sandy,8.9,36.4,31.1,6.59,28.5,73.1,531.2,49.5,Canal,Medium,Black Gram,0
+Tirupati,Black,Loamy,81.2,50.8,20.2,4.9,26.6,59.2,616.2,78.5,Tank,High,Chilli,0
+Kurnool,Sandy,Loamy,40.1,31.5,57.0,6.98,21.9,55.6,714.8,23.7,Rainfed,Low,Groundnut,1
+NTR,Alluvial,Clayey,94.0,35.7,46.7,6.05,28.1,60.3,1802.2,74.8,Borewell,High,Rice,1
+NTR,Alluvial,Sandy,40.8,35.5,53.6,6.43,31.5,74.6,1118.1,55.4,Canal,Medium,Cotton,0
+NTR,Red,Sandy Loam,23.2,47.2,17.1,6.93,20.3,60.3,1304.9,42.1,Canal,Medium,Groundnut,0
+Krishna,Red,Sandy Loam,6.2,5.0,55.2,6.86,29.7,60.9,615.2,60.9,Borewell,High,Groundnut,0
+Krishna,Red,Loamy,80.0,31.9,53.0,6.66,27.4,79.1,801.2,58.4,Borewell,High,Cotton,1
+NTR,Red,Loamy,32.0,46.0,37.5,6.84,23.6,70.1,625.4,42.6,Borewell,Medium,Groundnut,1
+Guntur,Loamy,Clayey,47.3,33.0,30.8,7.83,30.1,53.5,470.1,56.2,Tank,Medium,Jowar,1
+Guntur,Red,Loamy,19.6,12.0,54.7,6.9,30.4,57.2,491.3,28.1,Limited Borewell,Low,Green Gram,0
+West Godavari,Alluvial,Clayey,73.8,36.5,10.9,5.88,30.1,69.3,1814.4,38.3,Rainfed,Low,Rice,0
+Anantapur,Sandy,Sandy Loam,99.4,40.8,62.1,5.8,18.2,44.8,799.1,10.0,Rainfed,Low,Maize,0
+Prakasam,Red,Clayey,35.2,69.3,77.6,7.21,27.6,47.7,1195.2,41.3,Canal,Medium,Sugarcane,0
+Krishna,Loamy,Clayey,68.0,56.8,15.1,5.11,32.9,67.8,1106.8,58.6,Tank,Medium,Rice,0
+Krishna,Black,Sandy Loam,31.7,30.7,55.3,6.34,28.2,72.5,299.3,44.2,Limited Borewell,Low,Groundnut,0
+Krishna,Alluvial,Clayey,20.9,42.3,47.6,7.77,26.7,71.6,224.3,47.1,Limited Borewell,Low,Bengal Gram,0
+Anantapur,Alluvial,Loamy,31.8,32.0,33.8,6.76,23.3,48.6,670.7,67.9,Canal,Medium,Black Gram,1
+Anantapur,Alluvial,Clayey,55.7,38.6,34.4,7.94,40.0,41.6,693.2,41.0,Limited Borewell,Low,Jowar,0
+NTR,Alluvial,Clayey,71.9,36.2,45.1,6.35,25.2,69.0,1631.4,70.3,Borewell,High,Rice,1
+Kurnool,Sandy,Sandy Loam,43.5,26.2,35.8,6.15,33.1,60.4,398.0,18.9,Limited Borewell,Low,Bajra,1
+Guntur,Black,Loamy,21.5,25.5,52.6,7.33,27.0,79.3,647.6,63.2,Canal,Medium,Red Gram,1
+Guntur,Loamy,Sandy,64.2,29.3,33.3,7.07,27.6,62.0,498.2,39.1,Limited Borewell,Low,Bajra,1
+Tirupati,Alluvial,Loamy,31.0,42.3,29.4,6.19,26.3,55.3,609.0,53.5,Tank,Medium,Black Gram,1
+West Godavari,Black,Loamy,18.5,41.8,49.6,7.12,22.2,76.5,539.1,61.7,Borewell,Medium,Bengal Gram,1
+Prakasam,Sandy,Clayey,106.6,33.7,41.3,6.34,36.9,54.5,725.3,33.8,Borewell,Medium,Maize,0
+Guntur,Alluvial,Loamy,87.1,45.3,41.9,6.36,26.2,66.3,584.3,74.8,Canal,High,Maize,1
+NTR,Red,Loamy,27.6,57.5,33.7,6.15,33.0,57.5,1925.7,19.5,Limited Borewell,Low,Rice,0
+Tirupati,Black,Loamy,106.4,48.9,67.7,6.35,23.3,59.3,658.7,73.3,Tank,High,Chilli,1
+Tirupati,Sandy,Sandy,40.6,25.1,8.4,8.58,28.0,61.5,390.7,29.9,Tank,Medium,Bajra,0
+West Godavari,Sandy,Sandy Loam,35.3,5.8,43.1,6.29,38.9,67.4,572.5,34.8,Canal,Medium,Bajra,0
+Krishna,Alluvial,Sandy,36.6,37.5,44.1,7.19,20.8,79.1,793.1,39.7,Rainfed,Low,Red Gram,0
+Prakasam,Black,Clayey,31.8,30.7,54.3,6.54,32.0,48.9,831.8,65.2,Tank,Medium,Red Gram,1
+Krishna,Black,Clayey,152.6,71.9,132.5,7.08,27.3,69.4,1774.1,43.5,Limited Borewell,Low,Sugarcane,0
+NTR,Alluvial,Loamy,28.1,30.7,44.2,6.49,28.7,70.4,631.4,54.9,Canal,Medium,Black Gram,1
+NTR,Alluvial,Loamy,85.8,47.7,70.1,6.97,30.7,63.3,1390.8,73.3,Tank,High,Rice,1
+Prakasam,Red,Clayey,17.8,37.3,28.2,6.53,31.4,49.8,704.9,50.4,Tank,Medium,Red Gram,1
+Kurnool,Red,Loamy,8.9,44.7,33.0,6.79,25.7,41.8,1084.1,55.6,Tank,High,Green Gram,0
+Anantapur,Black,Loamy,186.6,46.9,121.7,6.73,23.2,49.6,1461.0,67.9,Canal,Medium,Sugarcane,1
+Prakasam,Black,Loamy,65.9,31.4,55.2,6.32,26.6,52.6,470.5,68.3,Canal,Medium,Jowar,1
+Tirupati,Red,Loamy,99.3,50.8,56.4,7.0,30.4,63.4,742.8,62.7,Borewell,High,Maize,1
+Kurnool,Loamy,Clayey,86.3,22.7,58.8,6.37,31.9,59.6,756.8,33.7,Limited Borewell,Low,Cotton,1
+West Godavari,Loamy,Clayey,70.7,33.4,39.3,6.91,27.4,75.8,453.4,56.5,Borewell,Medium,Jowar,1
+Tirupati,Alluvial,Loamy,95.6,56.0,69.4,6.01,32.4,72.3,1780.6,40.0,Rainfed,Low,Rice,1
+Kurnool,Black,Clayey,72.3,25.2,42.4,7.65,33.6,55.4,554.1,64.3,Borewell,Medium,Cotton,1
+Guntur,Red,Sandy Loam,98.8,9.7,54.6,8.4,27.4,55.7,1049.2,44.1,Canal,Medium,Chilli,0
+Tirupati,Red,Loamy,22.4,22.3,36.1,6.33,26.6,64.3,947.0,60.2,Canal,High,Red Gram,1
+Anantapur,Alluvial,Sandy Loam,29.9,25.7,8.4,5.22,30.6,40.7,525.9,74.6,Tank,High,Black Gram,0
+NTR,Black,Clayey,25.6,27.6,11.5,6.66,28.2,76.0,820.8,84.6,Canal,High,Bengal Gram,0
+West Godavari,Red,Sandy Loam,98.4,52.8,55.6,7.16,24.9,69.9,786.5,62.3,Borewell,High,Chilli,1
+Guntur,Red,Clayey,24.6,27.2,31.2,6.8,26.3,64.1,470.2,58.0,Canal,High,Bengal Gram,1
+Prakasam,Loamy,Loamy,35.0,31.0,47.2,7.16,28.2,64.0,538.5,43.7,Tank,Medium,Bengal Gram,1
+Kurnool,Loamy,Loamy,119.6,57.9,111.1,7.42,29.8,52.5,1352.5,53.9,Tank,Medium,Sugarcane,1
+Anantapur,Loamy,Clayey,37.1,43.0,43.1,6.86,31.8,47.4,795.4,35.9,Rainfed,Low,Red Gram,1
+Kurnool,Alluvial,Sandy Loam,26.8,11.5,44.1,7.41,29.7,50.4,484.4,34.9,Rainfed,Low,Black Gram,0
+Tirupati,Red,Loamy,18.4,30.6,30.9,7.73,25.3,58.5,490.8,29.9,Limited Borewell,Low,Bengal Gram,1
+Kurnool,Red,Sandy Loam,25.1,9.6,16.8,6.69,21.7,44.9,580.0,58.8,Borewell,High,Groundnut,0
+Krishna,Red,Clayey,54.2,5.1,43.5,8.66,24.0,80.7,818.9,56.9,Borewell,High,Cotton,0
+Kurnool,Black,Clayey,30.7,41.9,33.5,6.26,21.6,55.4,573.4,63.8,Canal,Medium,Bengal Gram,1
+Guntur,Red,Loamy,33.2,32.1,40.3,6.61,29.1,68.9,703.9,20.9,Limited Borewell,Low,Groundnut,1
+Guntur,Loamy,Loamy,84.6,28.7,69.1,7.64,30.3,66.7,751.6,53.4,Canal,Medium,Cotton,1
+Anantapur,Loamy,Loamy,92.6,42.0,58.5,6.77,28.5,59.0,1043.6,53.0,Borewell,Medium,Chilli,1
+Prakasam,Black,Sandy Loam,38.3,48.2,41.4,8.09,22.0,50.0,731.7,41.1,Rainfed,Low,Groundnut,0
+Krishna,Red,Sandy Loam,11.5,41.8,13.9,6.9,29.0,76.2,420.5,38.7,Tank,Medium,Black Gram,0
+West Godavari,Black,Clayey,105.9,58.2,36.4,6.53,15.2,68.5,1409.5,71.6,Canal,High,Sugarcane,0
+Kurnool,Black,Loamy,33.8,13.6,38.8,6.78,27.6,53.4,1007.5,66.7,Canal,Medium,Bengal Gram,0
+Krishna,Loamy,Sandy,17.8,32.7,25.3,6.82,19.3,64.9,371.5,50.4,Canal,Medium,Bajra,0
+Krishna,Alluvial,Clayey,16.5,40.0,45.7,6.79,36.5,69.6,484.7,40.8,Rainfed,Low,Bengal Gram,0
+Prakasam,Red,Loamy,22.5,40.4,49.1,7.11,31.9,56.4,529.6,43.3,Tank,Medium,Black Gram,1
+West Godavari,Alluvial,Sandy Loam,17.0,39.5,53.0,7.26,29.9,77.4,716.4,57.3,Canal,Medium,Jowar,0
+Guntur,Sandy,Sandy Loam,26.3,40.0,48.7,6.27,23.6,70.9,527.0,35.0,Canal,Medium,Maize,0
+Krishna,Sandy,Loamy,94.7,56.3,15.3,6.78,28.4,69.2,545.2,16.8,Limited Borewell,Low,Maize,0
+NTR,Red,Loamy,96.5,41.3,61.0,7.17,20.8,67.9,853.7,40.6,Canal,Medium,Chilli,1
+Prakasam,Black,Clayey,15.0,5.1,50.8,5.68,26.8,58.4,879.9,61.0,Canal,Medium,Cotton,0
+Prakasam,Sandy,Clayey,101.3,68.2,91.5,7.95,40.0,57.5,1068.2,13.5,Limited Borewell,Low,Sugarcane,0
+Prakasam,Loamy,Loamy,22.7,35.8,33.9,6.57,32.4,55.3,356.7,49.3,Canal,Medium,Green Gram,1
+Guntur,Sandy,Loamy,94.9,50.9,33.8,7.49,29.2,63.2,533.4,17.7,Rainfed,Low,Maize,0
+Guntur,Black,Loamy,107.5,32.4,57.8,5.94,23.5,61.5,1193.2,73.2,Canal,High,Rice,1
+Kurnool,Alluvial,Sandy Loam,97.0,47.3,37.5,6.85,26.9,55.4,552.8,39.6,Rainfed,Low,Maize,1
+Krishna,Red,Sandy Loam,34.6,29.6,41.1,7.35,33.1,72.1,337.3,58.2,Borewell,High,Bajra,1
+Guntur,Black,Sandy Loam,103.9,43.9,58.9,6.22,27.5,57.9,696.6,57.8,Tank,Medium,Chilli,1
+Anantapur,Red,Clayey,21.4,40.2,38.6,5.09,25.8,50.7,526.1,47.8,Tank,High,Jowar,0
+Krishna,Sandy,Sandy,41.1,22.8,29.0,6.6,27.9,68.0,569.9,35.1,Tank,Medium,Bajra,1
+Guntur,Alluvial,Sandy Loam,42.0,6.7,37.8,7.18,28.7,66.6,524.6,63.5,Canal,Medium,Bajra,0
+Krishna,Loamy,Sandy Loam,113.1,58.4,63.2,5.59,27.2,69.2,1469.3,49.2,Canal,Medium,Chilli,0
+Prakasam,Red,Sandy Loam,41.9,39.9,55.6,7.23,22.4,56.1,571.2,44.4,Tank,Medium,Groundnut,1
+Prakasam,Alluvial,Clayey,106.9,30.1,60.9,7.02,27.9,54.9,1671.0,72.2,Borewell,High,Rice,1
+Anantapur,Red,Sandy,97.2,13.5,39.0,7.2,34.6,52.7,1959.8,55.5,Canal,High,Rice,0
+Anantapur,Loamy,Clayey,28.1,51.9,53.2,4.62,34.6,47.9,1726.6,66.9,Canal,High,Rice,0
+NTR,Loamy,Loamy,88.0,49.4,51.0,6.6,29.2,68.2,680.9,53.7,Borewell,Medium,Maize,1
+Prakasam,Red,Sandy Loam,41.4,47.9,65.1,6.78,23.8,54.0,974.1,24.0,Rainfed,Low,Groundnut,0
+Prakasam,Sandy,Sandy Loam,63.2,32.0,36.7,6.57,31.0,56.1,454.6,35.0,Borewell,Medium,Bajra,1
+Krishna,Loamy,Loamy,121.2,51.8,96.1,7.06,22.2,63.9,1216.5,67.3,Borewell,High,Sugarcane,1
+Krishna,Loamy,Sandy Loam,71.5,56.1,35.2,7.1,19.0,76.6,769.5,57.0,Borewell,Medium,Maize,1
+NTR,Loamy,Clayey,67.9,50.3,43.3,6.5,29.4,68.8,1547.8,55.2,Canal,Medium,Rice,1
+Krishna,Alluvial,Sandy Loam,33.5,32.1,45.5,7.09,26.5,75.9,648.2,55.7,Borewell,Medium,Black Gram,1
+Anantapur,Red,Sandy,33.1,19.5,31.2,7.12,33.5,44.7,197.7,23.4,Limited Borewell,Low,Bajra,0
+West Godavari,Sandy,Loamy,21.2,27.0,35.6,8.83,27.6,72.1,746.6,22.7,Limited Borewell,Low,Groundnut,0
+West Godavari,Red,Loamy,25.8,43.3,24.7,7.21,37.7,79.9,638.7,24.9,Rainfed,Low,Red Gram,0
+West Godavari,Sandy,Sandy Loam,33.1,36.9,31.0,7.01,31.2,75.8,338.1,47.0,Canal,High,Bajra,1
+Krishna,Red,Loamy,21.6,40.7,50.7,7.8,20.4,73.9,402.1,39.8,Canal,Medium,Bengal Gram,1
+Anantapur,Black,Loamy,71.9,47.2,60.7,6.67,24.7,48.6,973.2,79.1,Canal,High,Chilli,1
+Guntur,Alluvial,Loamy,25.2,43.2,53.4,7.68,19.1,68.8,531.5,34.7,Rainfed,Low,Bengal Gram,0
+Kurnool,Alluvial,Sandy Loam,25.1,10.5,36.5,6.79,28.6,49.8,603.5,35.1,Limited Borewell,Low,Groundnut,0
+Anantapur,Sandy,Loamy,19.3,22.1,27.9,7.97,29.3,51.1,710.9,13.7,Rainfed,Low,Jowar,0
+Anantapur,Alluvial,Clayey,30.3,74.8,112.0,8.83,25.3,54.1,1400.9,72.3,Borewell,High,Sugarcane,0
+Prakasam,Red,Sandy Loam,68.1,53.7,47.7,5.96,23.8,67.3,669.3,62.0,Tank,High,Maize,1
+Kurnool,Sandy,Sandy,51.4,11.6,46.2,7.97,27.1,51.7,616.9,54.4,Borewell,High,Cotton,0
+Prakasam,Loamy,Loamy,50.6,37.0,53.1,8.18,32.0,54.4,457.9,51.8,Borewell,Medium,Jowar,1
+Guntur,Black,Loamy,56.4,29.8,31.4,7.33,31.6,63.3,480.5,42.3,Limited Borewell,Low,Jowar,1
+West Godavari,Red,Loamy,8.6,25.8,28.0,7.41,34.3,82.9,568.0,42.1,Tank,Medium,Bengal Gram,0
+Prakasam,Loamy,Clayey,179.4,48.3,108.1,7.38,23.3,46.2,1101.4,50.3,Canal,Medium,Sugarcane,1
+West Godavari,Sandy,Clayey,193.9,43.8,136.0,6.63,39.8,74.1,1394.2,12.8,Rainfed,Low,Sugarcane,0
+Tirupati,Loamy,Loamy,31.3,30.3,50.5,7.05,19.9,57.6,371.4,30.3,Limited Borewell,Low,Bengal Gram,1
+Prakasam,Black,Sandy Loam,78.1,36.8,42.2,5.8,30.2,56.4,766.5,57.9,Borewell,Medium,Maize,1
+Anantapur,Alluvial,Clayey,77.7,27.4,72.7,5.85,33.8,39.1,1593.5,58.9,Tank,Medium,Rice,1
+Kurnool,Black,Clayey,93.1,50.7,55.0,6.32,29.0,56.0,1620.7,78.2,Canal,High,Rice,1
+Prakasam,Black,Sandy Loam,22.8,30.6,14.6,6.85,27.9,56.5,399.6,81.9,Canal,High,Green Gram,0
+Anantapur,Black,Loamy,19.6,43.9,34.5,6.66,25.7,48.3,540.2,66.3,Borewell,Medium,Bengal Gram,1
+Kurnool,Alluvial,Sandy,9.5,31.5,54.4,6.44,29.2,46.1,896.7,50.5,Canal,Medium,Red Gram,0
+Kurnool,Loamy,Loamy,33.0,28.7,43.9,6.53,27.0,57.0,856.7,69.1,Borewell,High,Red Gram,1
+Anantapur,Loamy,Loamy,18.9,21.8,41.1,5.13,27.2,47.9,445.5,46.5,Tank,Medium,Red Gram,0
+Tirupati,Loamy,Clayey,18.4,37.9,46.9,6.84,26.5,65.0,523.6,34.2,Limited Borewell,Low,Jowar,0
+West Godavari,Loamy,Loamy,47.9,33.0,33.6,7.8,30.0,77.9,707.6,34.5,Limited Borewell,Low,Jowar,1
+Tirupati,Red,Clayey,20.6,41.0,32.8,6.92,27.1,60.3,897.6,32.2,Rainfed,Low,Red Gram,1
+Prakasam,Loamy,Sandy Loam,29.3,39.4,50.1,6.34,30.1,46.5,469.8,35.9,Rainfed,Low,Green Gram,1
+West Godavari,Red,Sandy Loam,19.1,23.0,49.5,7.41,15.4,72.5,252.2,55.5,Canal,High,Black Gram,0
+Anantapur,Sandy,Sandy Loam,20.7,44.4,48.6,6.3,34.1,50.1,633.1,16.9,Limited Borewell,Low,Black Gram,0
+West Godavari,Loamy,Loamy,28.4,32.8,34.3,7.32,28.3,88.1,551.4,51.3,Tank,Medium,Bengal Gram,1
+Krishna,Loamy,Clayey,96.0,53.3,76.3,5.98,31.8,67.5,1325.7,57.1,Tank,Medium,Rice,1
+Tirupati,Loamy,Clayey,23.7,24.1,44.0,6.7,21.2,54.2,857.2,52.9,Borewell,Medium,Red Gram,1
+Kurnool,Alluvial,Clayey,74.1,48.2,41.3,6.84,23.9,50.8,1549.4,70.6,Tank,High,Rice,1
+West Godavari,Black,Clayey,91.6,49.9,11.5,7.66,32.1,75.5,528.0,44.9,Limited Borewell,Low,Cotton,0
+NTR,Loamy,Loamy,156.5,71.1,125.6,6.68,32.9,67.9,1223.4,75.6,Tank,High,Sugarcane,1
+Tirupati,Sandy,Sandy Loam,91.3,11.8,80.5,7.04,28.9,63.0,770.6,22.1,Rainfed,Low,Chilli,0
+Prakasam,Red,Sandy Loam,27.1,44.5,42.5,6.69,26.4,51.7,388.1,57.5,Canal,High,Green Gram,1
+Kurnool,Loamy,Clayey,165.4,55.5,101.1,6.91,31.6,48.0,1227.3,61.6,Canal,High,Sugarcane,1
+Krishna,Loamy,Clayey,62.0,43.3,55.2,7.34,27.2,68.0,701.9,32.8,Limited Borewell,Low,Cotton,1
+Kurnool,Loamy,Clayey,31.0,29.3,39.0,6.5,22.4,53.1,564.4,30.7,Rainfed,Low,Bengal Gram,1
+Anantapur,Sandy,Sandy Loam,66.4,38.2,9.3,6.83,31.0,47.8,757.3,18.0,Limited Borewell,Low,Maize,0
+Anantapur,Loamy,Sandy Loam,41.3,29.6,36.1,6.41,31.0,53.1,423.8,47.6,Tank,Medium,Bajra,1
+West Godavari,Black,Loamy,9.4,7.8,38.6,6.7,33.2,71.0,605.1,73.7,Tank,High,Red Gram,0
+Anantapur,Sandy,Sandy Loam,31.9,38.5,12.9,6.73,25.5,46.8,605.5,36.8,Borewell,Medium,Green Gram,0
+Krishna,Loamy,Loamy,69.9,44.6,60.9,6.18,24.7,73.2,676.5,64.3,Tank,High,Cotton,1
+Guntur,Sandy,Sandy,36.5,37.4,42.3,6.32,25.3,65.4,1193.9,17.2,Limited Borewell,Low,Bajra,0
+Krishna,Alluvial,Sandy Loam,18.2,27.1,49.6,6.92,25.1,81.8,535.4,80.1,Tank,High,Black Gram,1
+NTR,Red,Sandy Loam,36.0,27.5,14.6,8.25,28.7,64.7,518.9,50.0,Tank,Medium,Groundnut,0
+Anantapur,Alluvial,Sandy Loam,89.9,43.5,37.9,6.57,29.9,46.0,745.7,55.7,Borewell,Medium,Maize,1
+West Godavari,Loamy,Loamy,23.8,25.5,49.9,6.61,31.6,68.9,463.2,35.0,Limited Borewell,Low,Green Gram,1
+West Godavari,Alluvial,Clayey,36.0,25.9,54.3,7.31,37.4,78.1,659.0,63.2,Canal,Medium,Red Gram,0
+Krishna,Alluvial,Loamy,77.6,41.7,59.5,5.81,23.0,72.9,655.0,47.3,Rainfed,Low,Maize,1
+Anantapur,Alluvial,Sandy Loam,30.8,13.3,50.7,6.31,18.7,50.6,453.6,56.7,Canal,Medium,Green Gram,0
+Kurnool,Red,Clayey,88.3,43.2,57.5,7.67,25.0,65.7,704.7,38.5,Borewell,Medium,Cotton,1
+NTR,Alluvial,Clayey,29.1,38.0,13.8,6.09,23.6,64.0,699.7,60.8,Canal,Medium,Red Gram,0
+Krishna,Sandy,Loamy,98.1,27.1,39.4,4.71,28.5,73.7,622.0,18.4,Rainfed,Low,Cotton,0
+Tirupati,Red,Sandy Loam,83.8,46.2,65.9,7.06,28.9,61.0,551.5,41.6,Borewell,Medium,Maize,1
+Tirupati,Alluvial,Clayey,177.0,66.5,81.4,7.48,28.1,65.4,1338.9,67.6,Canal,High,Sugarcane,1
+NTR,Alluvial,Sandy Loam,29.1,44.7,30.8,5.84,23.7,62.1,564.9,41.0,Rainfed,Low,Maize,0
+West Godavari,Red,Loamy,46.7,43.0,47.1,6.6,26.5,77.5,660.5,38.9,Tank,Medium,Groundnut,1
+Tirupati,Alluvial,Loamy,32.2,11.0,30.6,6.84,32.4,56.6,473.9,52.0,Borewell,Medium,Bajra,0
+Krishna,Red,Clayey,40.8,31.0,34.4,7.83,18.1,66.6,860.5,52.6,Borewell,High,Red Gram,0
+Krishna,Loamy,Loamy,12.7,7.5,38.4,5.97,32.7,64.3,848.4,68.6,Tank,High,Cotton,0
+NTR,Black,Loamy,83.7,36.2,61.9,7.22,26.4,69.1,1632.4,79.7,Tank,High,Rice,1
+NTR,Loamy,Loamy,19.8,20.7,86.7,6.96,25.8,63.5,902.0,40.7,Canal,Medium,Chilli,0
+NTR,Black,Sandy Loam,24.2,32.1,8.0,6.84,28.2,66.6,435.9,48.2,Limited Borewell,Low,Black Gram,0
+West Godavari,Alluvial,Sandy,75.0,12.7,41.1,7.26,34.7,82.6,541.3,77.2,Borewell,High,Jowar,0
+Kurnool,Loamy,Sandy Loam,27.9,36.8,43.8,6.95,31.3,45.9,438.0,62.2,Canal,High,Green Gram,1
+Tirupati,Red,Loamy,22.6,25.7,11.6,6.72,38.8,52.3,756.4,42.8,Borewell,Medium,Red Gram,0
+Tirupati,Black,Sandy Loam,28.4,8.1,57.0,6.31,29.2,58.1,687.6,72.7,Tank,High,Maize,0
+Kurnool,Red,Loamy,15.5,43.9,8.8,7.25,28.1,53.8,697.7,56.0,Canal,High,Cotton,0
+Anantapur,Alluvial,Loamy,18.0,27.3,54.5,8.48,23.7,51.5,640.7,43.9,Rainfed,Low,Black Gram,0
+West Godavari,Red,Sandy Loam,17.5,27.2,44.5,6.46,16.0,78.4,538.3,24.5,Limited Borewell,Low,Black Gram,0
+Guntur,Sandy,Loamy,31.1,44.8,40.6,7.48,39.6,55.1,789.9,18.3,Limited Borewell,Low,Red Gram,0
+Kurnool,Black,Loamy,91.4,33.9,48.8,6.39,23.1,51.5,1075.6,60.6,Borewell,Medium,Chilli,1
+Prakasam,Loamy,Sandy Loam,22.3,47.6,38.2,6.61,27.6,48.5,618.4,55.5,Tank,Medium,Groundnut,1
+Tirupati,Red,Sandy Loam,21.3,12.7,41.8,6.93,29.0,69.0,588.0,26.3,Limited Borewell,Low,Green Gram,0
+NTR,Alluvial,Loamy,10.7,35.4,52.5,7.13,34.1,66.1,203.2,71.0,Tank,High,Green Gram,0
+Kurnool,Red,Loamy,126.2,64.2,93.8,7.37,30.3,55.3,1249.4,29.7,Rainfed,Low,Sugarcane,0
+Anantapur,Black,Clayey,65.8,36.4,42.8,6.23,25.3,61.4,928.5,39.0,Rainfed,Low,Jowar,0
+Kurnool,Loamy,Clayey,26.5,25.8,32.6,6.8,31.2,53.5,675.9,61.8,Tank,High,Red Gram,1
+Guntur,Loamy,Loamy,49.0,38.9,37.4,7.99,32.9,67.3,484.2,37.9,Rainfed,Low,Jowar,1
+Tirupati,Red,Loamy,32.3,25.1,43.6,6.88,27.1,66.0,582.6,43.8,Borewell,Medium,Black Gram,1
+Kurnool,Alluvial,Sandy Loam,30.6,34.6,28.3,6.74,26.6,54.1,557.1,60.9,Canal,Medium,Black Gram,1
+Anantapur,Loamy,Clayey,103.4,15.4,41.2,5.74,37.8,44.0,1454.3,52.5,Borewell,Medium,Rice,0
+Krishna,Loamy,Clayey,22.8,35.3,53.7,6.18,23.9,70.2,896.2,54.7,Tank,Medium,Red Gram,1
+West Godavari,Black,Loamy,58.2,33.6,49.8,7.26,31.9,79.7,624.5,40.4,Limited Borewell,Low,Cotton,1
+Anantapur,Black,Sandy Loam,119.3,48.8,64.3,6.99,15.8,48.0,318.0,64.8,Canal,Medium,Chilli,0
+Krishna,Black,Clayey,142.2,57.6,85.9,7.72,24.3,74.3,1067.9,76.4,Borewell,High,Sugarcane,1
+Tirupati,Alluvial,Loamy,105.0,33.1,14.1,7.16,15.6,57.7,671.9,81.4,Tank,High,Maize,0
+Tirupati,Red,Loamy,48.8,36.4,29.3,7.61,32.7,55.7,604.6,30.2,Rainfed,Low,Jowar,1
+Anantapur,Black,Loamy,55.1,10.0,41.0,6.46,34.3,48.5,639.9,48.0,Limited Borewell,Low,Jowar,0
+Kurnool,Alluvial,Loamy,18.9,11.2,45.5,6.53,21.9,53.9,641.2,41.0,Limited Borewell,Low,Black Gram,0
+Prakasam,Alluvial,Sandy Loam,90.6,15.6,10.0,5.8,25.6,53.3,779.1,68.7,Borewell,High,Maize,0
+Krishna,Loamy,Loamy,23.2,42.6,47.8,8.15,30.1,65.3,512.9,30.2,Rainfed,Low,Green Gram,0
+Kurnool,Sandy,Sandy Loam,43.6,63.9,142.1,7.12,25.8,40.5,1011.6,46.8,Canal,High,Sugarcane,0
+Anantapur,Loamy,Loamy,24.5,19.9,7.3,6.83,34.4,39.8,677.0,51.1,Canal,Medium,Jowar,0
+Kurnool,Red,Loamy,29.5,33.8,50.4,6.59,32.6,60.8,529.0,61.0,Borewell,High,Green Gram,1
+West Godavari,Black,Sandy Loam,5.0,34.6,63.8,7.48,24.5,80.9,543.7,72.3,Borewell,High,Groundnut,0
+Guntur,Red,Loamy,17.3,34.3,40.7,6.47,26.3,63.4,543.8,40.3,Tank,Medium,Black Gram,1
+Tirupati,Black,Loamy,154.6,45.6,93.9,6.82,30.5,68.2,1344.7,75.1,Borewell,High,Sugarcane,1
+West Godavari,Loamy,Loamy,26.8,37.6,46.6,8.36,28.1,77.1,1024.0,56.7,Borewell,Medium,Chilli,0
+NTR,Red,Sandy Loam,21.3,31.4,37.6,6.95,22.5,66.1,481.9,43.4,Borewell,Medium,Groundnut,1
+NTR,Sandy,Sandy Loam,22.4,47.1,47.8,7.11,30.2,68.3,549.7,40.9,Borewell,Medium,Groundnut,1
+Kurnool,Red,Sandy,51.4,21.8,44.8,6.52,30.6,62.4,381.7,67.7,Canal,High,Bajra,1
+West Godavari,Black,Loamy,170.0,62.8,85.4,7.27,26.4,69.7,1136.4,77.3,Tank,High,Sugarcane,1
+Prakasam,Red,Clayey,93.0,25.9,69.8,6.79,26.8,45.2,580.6,22.1,Rainfed,Low,Cotton,1
+Prakasam,Red,Loamy,74.2,58.0,20.0,5.03,25.8,55.9,1136.9,44.6,Canal,Medium,Chilli,0
+Anantapur,Black,Loamy,23.0,27.0,31.3,7.73,20.2,45.2,435.1,44.5,Rainfed,Low,Bengal Gram,1
+Krishna,Red,Loamy,23.1,28.4,49.9,6.4,26.9,70.8,544.1,14.4,Rainfed,Low,Green Gram,1
+Kurnool,Black,Loamy,78.3,14.0,78.7,7.83,20.8,49.1,717.3,56.0,Tank,Medium,Chilli,0
+Prakasam,Alluvial,Loamy,77.0,40.3,32.9,8.01,34.1,57.5,235.8,75.4,Tank,High,Jowar,0
+Guntur,Loamy,Loamy,20.6,29.1,42.3,7.17,30.1,58.4,532.2,37.0,Rainfed,Low,Black Gram,1
+Prakasam,Sandy,Loamy,27.4,52.1,58.8,6.58,27.5,54.0,1007.6,19.6,Rainfed,Low,Chilli,0
+West Godavari,Loamy,Sandy Loam,26.1,36.3,56.7,6.68,28.9,79.3,657.4,50.4,Borewell,Medium,Groundnut,1
+NTR,Sandy,Loamy,41.9,37.2,56.3,6.57,28.9,75.1,485.5,51.4,Borewell,High,Groundnut,1
+NTR,Red,Loamy,24.5,28.3,43.6,6.33,19.8,65.0,415.8,53.9,Tank,High,Bengal Gram,1
+Prakasam,Loamy,Sandy Loam,18.2,40.9,41.0,7.38,29.4,58.1,627.6,55.0,Borewell,Medium,Black Gram,1
+Anantapur,Alluvial,Clayey,90.7,56.6,39.6,7.17,25.5,41.0,1439.8,74.4,Borewell,High,Rice,1
+Prakasam,Alluvial,Loamy,49.7,46.4,47.0,6.52,22.7,46.5,1239.6,42.8,Rainfed,Low,Groundnut,0
+West Godavari,Sandy,Sandy Loam,51.8,21.5,6.5,6.2,30.5,84.3,1259.4,51.3,Borewell,High,Bajra,0
+Krishna,Loamy,Sandy Loam,30.7,29.8,29.6,7.03,28.1,78.9,461.4,41.9,Rainfed,Low,Black Gram,1
+Tirupati,Loamy,Loamy,71.2,41.9,55.3,7.06,23.4,60.3,883.6,50.7,Canal,Medium,Chilli,1
+Anantapur,Alluvial,Loamy,105.4,41.8,69.9,6.69,23.3,51.5,1571.4,76.9,Canal,High,Rice,1
+West Godavari,Red,Loamy,22.1,29.0,45.7,7.06,28.7,82.0,461.7,45.0,Borewell,Medium,Black Gram,1
+Anantapur,Sandy,Sandy Loam,28.3,39.1,35.1,8.56,31.4,44.8,479.4,13.5,Rainfed,Low,Black Gram,0
+Anantapur,Loamy,Loamy,66.6,38.8,69.8,6.98,24.7,51.4,1752.8,63.5,Tank,High,Rice,1
+NTR,Red,Loamy,54.9,30.7,44.2,7.42,18.2,61.2,1326.8,47.1,Borewell,Medium,Jowar,0
+NTR,Red,Loamy,27.0,36.1,48.4,6.45,39.9,57.0,297.0,61.2,Canal,High,Groundnut,0
+Krishna,Black,Loamy,70.9,49.9,35.1,5.71,29.8,70.9,595.7,48.5,Rainfed,Low,Rice,0
+Prakasam,Red,Sandy,37.7,5.0,29.7,7.44,38.9,49.0,530.2,42.9,Tank,Medium,Bajra,0
+Prakasam,Loamy,Clayey,24.9,26.2,33.5,6.26,24.3,51.5,823.0,58.3,Borewell,High,Red Gram,1
+West Godavari,Sandy,Sandy,5.1,27.6,57.2,6.54,26.3,76.7,607.8,42.0,Tank,Medium,Red Gram,0
+Anantapur,Alluvial,Clayey,21.2,40.9,32.3,6.35,33.0,35.0,417.2,46.6,Limited Borewell,Low,Bengal Gram,0
+Prakasam,Red,Clayey,5.0,44.3,14.1,6.37,31.7,59.2,948.9,64.1,Borewell,High,Red Gram,0
+Krishna,Black,Loamy,51.2,9.9,56.7,6.38,21.8,66.8,707.7,41.7,Rainfed,Low,Groundnut,0
+Guntur,Red,Loamy,25.6,27.3,41.3,6.85,29.6,58.7,540.4,63.1,Borewell,High,Groundnut,1
+NTR,Red,Loamy,115.4,43.2,70.8,6.84,27.2,55.8,954.5,47.9,Tank,Medium,Chilli,1
+Tirupati,Sandy,Sandy Loam,24.4,40.3,10.6,6.9,24.7,71.7,671.1,17.4,Limited Borewell,Low,Black Gram,0
+NTR,Black,Clayey,23.7,7.2,56.1,6.03,34.1,66.8,1191.8,62.3,Tank,Medium,Red Gram,0
+NTR,Alluvial,Loamy,87.0,54.3,54.1,7.03,28.7,69.2,929.4,47.2,Rainfed,Low,Maize,0
+Prakasam,Loamy,Loamy,5.6,22.6,51.0,7.13,27.4,53.2,209.1,52.2,Tank,Medium,Green Gram,0
+Guntur,Sandy,Loamy,22.7,34.6,31.9,8.17,21.3,57.9,568.6,18.3,Rainfed,Low,Groundnut,0
+Krishna,Red,Clayey,42.9,37.7,17.4,7.68,30.9,61.5,923.1,50.8,Tank,High,Jowar,0
+Kurnool,Alluvial,Sandy Loam,60.0,12.5,84.8,6.98,26.5,40.9,1143.2,41.3,Limited Borewell,Low,Chilli,0
+West Godavari,Sandy,Loamy,68.9,53.9,65.6,5.98,29.1,84.2,1489.3,15.6,Rainfed,Low,Rice,0
+Krishna,Loamy,Clayey,167.4,60.0,129.4,7.53,38.1,68.1,1431.9,28.6,Rainfed,Low,Sugarcane,0
+Kurnool,Black,Loamy,83.1,10.3,61.3,7.35,38.3,52.9,537.1,70.9,Canal,Medium,Cotton,0
+Kurnool,Sandy,Clayey,15.8,20.6,46.3,6.28,24.8,51.6,951.7,16.8,Rainfed,Low,Red Gram,0
+West Godavari,Alluvial,Clayey,112.7,52.7,38.2,6.01,25.1,73.7,1757.5,58.7,Tank,Medium,Rice,1
+Prakasam,Loamy,Sandy Loam,90.6,50.9,81.1,6.7,33.1,63.3,1025.9,33.6,Limited Borewell,Low,Chilli,0
+West Godavari,Alluvial,Loamy,25.6,34.6,33.1,6.75,30.8,71.8,487.3,42.9,Rainfed,Low,Black Gram,1
+Anantapur,Loamy,Loamy,28.6,39.8,41.1,6.74,21.8,56.2,767.2,38.7,Rainfed,Low,Red Gram,1
+NTR,Red,Clayey,19.1,31.8,35.5,7.64,28.5,63.5,533.0,37.6,Canal,Medium,Bengal Gram,1
+Kurnool,Red,Loamy,73.7,46.7,85.5,6.15,21.5,49.7,946.0,62.5,Canal,High,Chilli,1
+NTR,Black,Clayey,82.1,44.0,61.2,7.11,26.0,64.9,601.3,74.6,Borewell,High,Cotton,1
+Tirupati,Loamy,Sandy Loam,31.9,37.3,38.2,8.13,33.9,65.2,604.3,36.6,Limited Borewell,Low,Bajra,0
+Prakasam,Loamy,Clayey,58.7,67.8,22.0,7.21,31.9,52.9,1057.9,63.6,Borewell,High,Sugarcane,0
+Prakasam,Red,Clayey,33.4,26.1,51.7,7.51,25.7,58.2,569.9,59.3,Tank,High,Bengal Gram,1
+West Godavari,Red,Sandy Loam,100.6,14.8,45.4,7.16,24.0,75.7,1035.2,55.1,Borewell,High,Maize,0
+Krishna,Black,Clayey,84.7,39.1,71.9,5.86,26.7,66.1,710.0,42.0,Rainfed,Low,Cotton,1
+Kurnool,Loamy,Sandy Loam,28.9,27.7,48.1,6.25,32.4,62.5,639.6,49.4,Borewell,Medium,Black Gram,1
+West Godavari,Loamy,Loamy,70.1,11.2,49.4,7.92,25.5,66.7,974.0,60.0,Canal,High,Chilli,0
+Kurnool,Alluvial,Clayey,61.7,44.2,48.1,6.89,19.1,47.8,517.7,41.2,Limited Borewell,Low,Jowar,0
+Guntur,Black,Clayey,68.6,40.4,48.7,6.42,27.0,56.0,579.0,47.9,Rainfed,Low,Jowar,1
+Krishna,Loamy,Loamy,49.7,32.9,48.6,7.45,30.4,74.4,661.1,47.3,Tank,Medium,Jowar,1
+Prakasam,Red,Loamy,133.6,47.3,145.8,9.08,22.5,54.7,1360.4,21.1,Limited Borewell,Low,Sugarcane,0
+NTR,Sandy,Sandy Loam,65.6,5.9,48.5,5.48,29.4,72.0,555.8,36.6,Tank,Medium,Bajra,0
+West Godavari,Black,Clayey,78.1,55.3,36.5,6.0,29.5,71.2,1225.6,81.7,Tank,High,Rice,1
+NTR,Alluvial,Loamy,63.3,31.2,74.3,6.27,33.3,72.2,896.0,38.5,Rainfed,Low,Chilli,0
+NTR,Black,Clayey,22.5,58.9,42.9,8.31,25.6,67.2,1619.5,69.3,Tank,Medium,Rice,0
+Kurnool,Black,Clayey,27.2,33.2,43.5,7.25,21.0,57.8,387.3,38.0,Rainfed,Low,Bengal Gram,1
+Krishna,Sandy,Sandy,49.3,21.4,47.1,7.11,33.6,69.5,437.6,17.6,Limited Borewell,Low,Bajra,1
+West Godavari,Black,Sandy,28.9,45.9,57.7,6.28,28.1,74.4,1055.3,59.3,Canal,Medium,Groundnut,0
+Krishna,Alluvial,Clayey,81.0,33.3,69.5,6.43,25.8,74.8,1411.3,69.8,Tank,High,Rice,1
+Guntur,Sandy,Loamy,106.8,48.7,10.3,6.81,34.1,65.2,1266.7,17.8,Rainfed,Low,Rice,0
+Tirupati,Alluvial,Sandy Loam,104.4,40.8,67.1,5.13,22.3,63.2,967.4,45.7,Limited Borewell,Low,Chilli,0
+Krishna,Alluvial,Clayey,58.0,46.4,69.6,7.74,26.8,78.1,583.1,56.1,Borewell,Medium,Sugarcane,0
+Prakasam,Alluvial,Clayey,72.0,28.9,65.5,5.83,25.8,56.1,1736.8,70.2,Borewell,High,Rice,1
+Anantapur,Black,Loamy,65.1,40.6,39.5,6.47,28.3,52.5,546.7,59.7,Borewell,Medium,Jowar,1
+West Godavari,Black,Clayey,28.6,29.9,55.4,7.6,21.7,74.2,460.0,39.9,Rainfed,Low,Bengal Gram,1
+West Godavari,Loamy,Loamy,29.8,36.1,49.0,7.11,26.6,71.4,609.7,51.6,Tank,Medium,Black Gram,1
+West Godavari,Loamy,Loamy,86.9,54.8,79.1,6.94,27.6,83.0,831.2,37.1,Limited Borewell,Low,Chilli,1
+Anantapur,Loamy,Loamy,31.3,35.5,8.5,8.66,31.8,48.1,640.7,67.7,Borewell,High,Red Gram,0
+Krishna,Loamy,Loamy,95.1,14.9,57.0,6.75,31.4,73.9,653.4,26.3,Rainfed,Low,Maize,0
+Tirupati,Alluvial,Loamy,32.4,17.4,39.3,6.2,26.0,66.4,1639.9,40.1,Rainfed,Low,Red Gram,0
+Prakasam,Red,Loamy,17.9,27.1,54.0,6.92,25.0,52.6,505.3,37.1,Borewell,Medium,Bengal Gram,1
+Kurnool,Sandy,Loamy,79.7,7.7,78.6,7.22,24.6,53.4,552.1,14.4,Rainfed,Low,Cotton,0
+Prakasam,Alluvial,Loamy,96.8,35.5,69.2,6.83,25.4,55.3,1275.1,58.7,Tank,Medium,Rice,1
+Krishna,Black,Loamy,101.4,38.2,59.2,7.33,28.6,72.5,757.7,44.4,Rainfed,Low,Chilli,1
+Kurnool,Loamy,Loamy,21.7,32.8,37.0,6.45,22.7,54.8,817.2,36.7,Rainfed,Low,Red Gram,1
+Tirupati,Loamy,Clayey,117.9,7.2,62.3,6.63,23.8,58.2,2540.2,65.4,Borewell,High,Rice,0
+NTR,Alluvial,Loamy,25.6,28.4,27.9,6.89,31.7,57.0,450.0,58.1,Borewell,Medium,Green Gram,1
+Kurnool,Black,Clayey,87.8,33.1,44.1,4.88,31.7,57.7,293.4,74.0,Canal,High,Cotton,0
+Prakasam,Red,Sandy Loam,88.3,56.0,53.8,6.02,16.2,51.8,1737.4,57.0,Tank,High,Rice,0
+NTR,Red,Loamy,23.2,45.0,44.2,5.57,31.8,57.5,722.2,22.8,Limited Borewell,Low,Groundnut,0
+Tirupati,Black,Clayey,17.3,45.1,39.7,5.54,21.5,56.8,670.4,45.9,Rainfed,Low,Cotton,0
+Anantapur,Loamy,Loamy,112.0,11.1,53.3,6.18,28.4,52.2,874.5,33.5,Rainfed,Low,Chilli,0
+Kurnool,Red,Loamy,25.7,40.1,33.7,6.36,26.0,58.2,392.4,45.3,Canal,Medium,Green Gram,1
+Prakasam,Red,Sandy Loam,21.5,37.4,36.9,6.5,28.4,54.7,403.8,30.0,Rainfed,Low,Green Gram,1
+Anantapur,Alluvial,Clayey,30.1,40.9,34.7,7.08,29.6,46.2,610.2,40.1,Rainfed,Low,Groundnut,0
+Guntur,Alluvial,Clayey,136.2,63.1,106.7,6.44,28.0,66.7,1093.0,70.8,Tank,High,Sugarcane,1
+Krishna,Red,Loamy,41.9,33.0,62.5,7.3,23.6,64.7,569.2,43.8,Tank,Medium,Groundnut,1
+Guntur,Alluvial,Clayey,50.2,21.3,52.1,4.79,30.4,65.3,474.7,65.0,Borewell,Medium,Jowar,0
+Prakasam,Red,Loamy,73.2,35.5,38.6,6.06,31.7,62.9,722.5,44.0,Borewell,Medium,Cotton,1
+Tirupati,Black,Clayey,171.1,46.0,90.2,6.61,25.6,60.9,1234.5,75.0,Borewell,High,Sugarcane,1
+Anantapur,Alluvial,Loamy,172.2,56.4,120.9,6.55,30.1,50.9,1220.2,68.9,Borewell,High,Sugarcane,1
+Kurnool,Loamy,Clayey,31.7,8.1,13.2,6.32,23.3,55.9,528.4,49.2,Borewell,Medium,Bengal Gram,0
+Krishna,Black,Loamy,81.8,38.0,69.1,6.58,27.0,71.4,1107.4,63.9,Borewell,Medium,Chilli,1
+Prakasam,Loamy,Loamy,51.3,39.2,48.3,7.27,26.8,48.6,519.0,29.5,Limited Borewell,Low,Jowar,1
+Krishna,Alluvial,Loamy,115.4,36.4,21.6,7.34,27.7,67.8,1181.1,73.6,Canal,High,Chilli,0
+West Godavari,Sandy,Sandy Loam,66.0,26.9,38.9,6.81,34.9,76.6,1125.0,19.2,Rainfed,Low,Bajra,0
+Krishna,Black,Clayey,133.6,47.8,130.6,7.24,29.4,70.8,1155.6,76.6,Borewell,High,Sugarcane,1
+West Godavari,Red,Loamy,100.5,41.2,43.9,6.65,22.3,78.1,734.8,39.4,Borewell,Medium,Maize,1
+West Godavari,Sandy,Clayey,35.3,23.2,42.9,7.05,28.4,78.7,364.1,14.5,Limited Borewell,Low,Bengal Gram,0
+Prakasam,Black,Loamy,27.9,26.9,12.8,7.01,26.6,46.3,480.8,47.2,Limited Borewell,Low,Groundnut,0
+NTR,Black,Clayey,24.1,24.3,45.5,6.86,28.2,68.4,444.9,47.8,Limited Borewell,Low,Bengal Gram,1
+Kurnool,Black,Loamy,14.8,24.1,32.0,7.72,38.2,43.1,1173.6,59.0,Canal,Medium,Bengal Gram,0
+Kurnool,Red,Sandy Loam,5.3,35.4,39.8,6.22,28.1,53.4,208.5,63.7,Canal,High,Groundnut,0
+West Godavari,Red,Loamy,28.6,33.5,35.4,6.19,29.4,74.2,502.6,39.3,Tank,Medium,Black Gram,1
+Prakasam,Red,Clayey,69.3,43.9,46.3,6.8,30.5,54.7,774.5,39.9,Tank,Medium,Cotton,1
+Anantapur,Red,Clayey,69.6,26.6,13.5,6.22,32.9,39.9,709.0,21.9,Limited Borewell,Low,Jowar,0
+Anantapur,Loamy,Loamy,23.0,38.9,50.4,6.45,32.2,41.6,514.9,55.1,Canal,Medium,Green Gram,1
+Kurnool,Loamy,Loamy,18.9,21.9,48.6,6.77,27.3,61.0,508.6,49.8,Borewell,Medium,Green Gram,1
+Prakasam,Loamy,Loamy,118.1,12.6,139.7,6.23,17.6,61.2,1060.8,54.2,Canal,Medium,Sugarcane,0
+Guntur,Loamy,Clayey,75.2,32.5,48.9,5.37,34.2,66.1,1368.3,69.1,Tank,High,Jowar,0
+Krishna,Sandy,Sandy Loam,48.3,43.0,13.3,6.46,23.3,70.6,193.1,33.3,Borewell,Medium,Groundnut,0
+Prakasam,Black,Clayey,73.2,39.2,48.2,7.35,32.6,53.4,648.0,44.0,Limited Borewell,Low,Jowar,1
+Kurnool,Red,Loamy,59.7,43.6,33.0,7.84,26.0,43.6,471.3,25.2,Rainfed,Low,Jowar,1
+West Godavari,Loamy,Clayey,16.7,29.3,17.8,8.01,31.5,76.9,655.2,53.7,Tank,Medium,Cotton,0
+Prakasam,Loamy,Loamy,135.4,47.1,77.3,7.32,22.3,56.7,1404.5,70.3,Borewell,High,Sugarcane,1
+Krishna,Loamy,Sandy Loam,48.9,7.5,35.0,6.55,26.0,59.8,583.5,32.6,Rainfed,Low,Bajra,0
+Prakasam,Alluvial,Loamy,36.5,36.4,43.5,7.23,28.2,56.8,747.0,39.8,Rainfed,Low,Maize,0
+Anantapur,Black,Loamy,18.0,29.0,27.2,7.3,23.3,47.8,465.3,69.1,Canal,High,Bengal Gram,1
+Anantapur,Red,Sandy Loam,24.4,34.2,37.0,6.68,37.9,52.4,453.7,16.4,Rainfed,Low,Green Gram,0
+Prakasam,Sandy,Loamy,152.5,11.2,61.1,7.52,20.4,51.0,1437.1,21.9,Rainfed,Low,Sugarcane,0
+Kurnool,Red,Sandy,55.6,16.3,36.1,6.34,30.8,54.3,548.3,38.0,Tank,Medium,Bajra,1
+Krishna,Alluvial,Sandy Loam,85.9,46.1,55.5,6.05,19.5,70.5,525.0,67.5,Canal,Medium,Maize,1
+NTR,Sandy,Clayey,96.1,49.6,7.6,5.7,26.9,66.6,518.2,36.5,Tank,Medium,Maize,0
+Guntur,Loamy,Loamy,26.0,29.9,35.0,6.49,33.3,60.4,194.0,36.4,Limited Borewell,Low,Green Gram,0
+Tirupati,Loamy,Sandy Loam,84.2,30.7,85.6,7.4,23.1,56.2,422.2,31.3,Limited Borewell,Low,Chilli,0
+Tirupati,Sandy,Clayey,84.9,32.7,52.5,6.47,15.4,66.0,732.0,37.3,Canal,Medium,Maize,0
+NTR,Alluvial,Clayey,91.4,27.8,69.6,4.6,37.1,64.8,1878.4,72.3,Canal,High,Rice,0
+Prakasam,Black,Sandy Loam,27.2,34.5,12.8,6.18,30.5,44.9,607.3,47.5,Limited Borewell,Low,Groundnut,0
+West Godavari,Black,Loamy,32.1,37.8,7.1,7.02,30.1,78.5,559.1,37.2,Rainfed,Low,Green Gram,0
+Krishna,Red,Loamy,101.2,48.1,52.4,6.94,25.7,62.9,784.5,56.1,Canal,High,Chilli,1
+Krishna,Black,Clayey,89.7,42.5,38.3,6.62,28.2,63.8,743.8,84.1,Tank,High,Cotton,1
+Prakasam,Red,Loamy,52.6,38.2,39.6,6.5,30.8,45.9,473.3,41.0,Canal,Medium,Jowar,1
+Krishna,Sandy,Clayey,12.0,24.8,47.7,8.26,31.2,66.5,682.2,13.4,Rainfed,Low,Jowar,0
+Guntur,Red,Clayey,72.0,26.9,51.4,7.47,30.3,55.3,687.8,48.2,Borewell,Medium,Jowar,1
+Anantapur,Loamy,Sandy Loam,64.2,21.0,40.6,6.29,32.5,49.9,519.0,39.3,Rainfed,Low,Bajra,1
+Prakasam,Black,Clayey,88.9,53.6,62.7,6.05,24.4,53.2,1666.6,78.3,Canal,High,Rice,1
+West Godavari,Black,Sandy,45.5,38.0,29.8,7.36,29.9,66.0,191.4,66.7,Canal,Medium,Bajra,0
+Tirupati,Alluvial,Clayey,25.1,34.6,29.4,5.1,27.8,57.3,1607.3,60.2,Borewell,Medium,Rice,0
+Tirupati,Sandy,Loamy,18.9,28.7,10.0,6.79,28.3,53.3,444.4,49.9,Borewell,High,Bengal Gram,0
+Kurnool,Sandy,Loamy,31.7,29.1,42.5,6.51,24.8,53.9,722.5,35.7,Tank,Medium,Groundnut,1
+Tirupati,Black,Clayey,20.9,31.8,33.5,6.79,25.6,61.8,787.7,68.7,Canal,Medium,Red Gram,1
+Anantapur,Alluvial,Sandy Loam,25.0,31.6,49.6,6.75,23.0,44.6,552.7,75.5,Borewell,High,Black Gram,1
+Tirupati,Red,Sandy,38.3,17.0,31.1,4.82,32.7,57.8,211.8,41.8,Borewell,Medium,Bajra,0
+Tirupati,Sandy,Sandy,37.5,33.7,33.9,6.82,31.2,59.5,541.4,21.2,Limited Borewell,Low,Bajra,1
+Tirupati,Red,Sandy Loam,19.7,24.3,33.6,6.55,31.8,61.4,466.6,41.4,Tank,Medium,Green Gram,1
+Tirupati,Red,Clayey,103.9,34.6,17.9,6.15,30.9,66.4,1812.4,25.4,Rainfed,Low,Rice,0
+Kurnool,Sandy,Loamy,86.6,32.1,46.3,7.18,24.1,52.9,760.2,16.7,Rainfed,Low,Maize,0
+Prakasam,Red,Clayey,72.9,10.4,50.9,5.03,30.5,50.9,627.4,64.3,Borewell,High,Jowar,0
+Anantapur,Loamy,Clayey,77.3,7.6,35.3,6.44,25.5,39.7,682.9,33.8,Rainfed,Low,Jowar,0
+Krishna,Sandy,Loamy,130.6,54.1,69.1,6.48,37.4,61.7,1126.3,19.3,Limited Borewell,Low,Sugarcane,0
+Tirupati,Red,Loamy,35.8,33.2,52.8,6.54,21.4,66.5,720.0,22.7,Rainfed,Low,Red Gram,1
+Kurnool,Loamy,Loamy,114.1,70.0,100.1,7.37,22.1,46.4,1139.1,65.6,Borewell,High,Sugarcane,1
+Tirupati,Sandy,Sandy Loam,30.8,43.0,33.8,7.38,25.9,62.5,947.3,18.1,Rainfed,Low,Red Gram,0
+Tirupati,Loamy,Loamy,21.1,28.3,41.6,8.98,27.8,58.8,1117.1,54.1,Borewell,Medium,Bengal Gram,0
+Krishna,Black,Sandy Loam,26.5,21.0,12.9,6.72,33.9,62.9,358.7,37.0,Rainfed,Low,Green Gram,0
+West Godavari,Alluvial,Loamy,42.0,32.9,67.2,7.43,23.1,70.2,1210.5,40.3,Limited Borewell,Low,Groundnut,0
+Guntur,Loamy,Clayey,19.2,34.2,48.6,7.1,20.9,68.1,415.9,65.2,Tank,High,Bengal Gram,1
+Tirupati,Red,Sandy,10.1,26.9,11.7,7.13,25.2,57.1,351.4,45.2,Borewell,Medium,Bajra,0
+NTR,Black,Clayey,26.4,22.1,48.1,7.47,23.1,57.7,462.0,66.7,Canal,Medium,Bengal Gram,1
+West Godavari,Red,Sandy Loam,104.8,47.3,75.3,7.12,23.7,66.3,821.4,60.1,Canal,High,Chilli,1
+Prakasam,Red,Loamy,32.6,25.1,50.5,6.27,31.9,49.3,700.8,41.0,Canal,Medium,Red Gram,1
+Prakasam,Loamy,Loamy,187.1,61.3,107.9,6.3,26.7,42.1,1103.7,68.1,Tank,High,Sugarcane,1
+Krishna,Black,Clayey,9.9,27.1,51.0,6.46,24.2,70.9,685.7,76.1,Tank,High,Black Gram,0
+Guntur,Red,Loamy,105.1,57.9,112.6,6.87,29.5,55.9,1371.6,26.2,Limited Borewell,Low,Sugarcane,0
+NTR,Loamy,Loamy,67.4,26.6,41.6,7.49,28.9,70.0,657.6,65.3,Tank,High,Jowar,1
+Tirupati,Red,Sandy Loam,37.5,43.6,63.7,6.26,24.9,52.0,694.9,39.2,Borewell,Medium,Groundnut,1
+Krishna,Red,Loamy,23.7,38.7,32.8,7.07,26.3,74.3,612.3,39.6,Borewell,Medium,Groundnut,1
+Anantapur,Alluvial,Sandy Loam,56.1,39.2,54.5,6.02,30.4,37.3,740.9,42.8,Limited Borewell,Low,Jowar,0
+Guntur,Red,Sandy Loam,109.0,44.6,54.4,6.75,22.4,61.5,672.8,43.9,Borewell,Medium,Chilli,1
+Krishna,Sandy,Clayey,48.8,44.4,7.5,6.72,28.6,66.9,493.9,17.3,Rainfed,Low,Jowar,0
+Kurnool,Loamy,Sandy Loam,27.4,6.6,37.8,7.26,37.3,55.6,525.5,52.5,Tank,Medium,Black Gram,0
+Guntur,Loamy,Loamy,7.1,25.0,44.1,7.24,28.6,62.3,216.0,63.4,Borewell,High,Bengal Gram,0
+Tirupati,Loamy,Sandy Loam,17.7,26.4,35.6,6.36,27.7,73.3,641.0,52.3,Borewell,Medium,Black Gram,1
+NTR,Red,Clayey,64.9,29.9,50.0,6.8,27.4,62.7,848.9,54.5,Tank,High,Cotton,1
+Kurnool,Loamy,Sandy Loam,23.8,28.1,42.9,6.47,23.3,52.0,618.8,60.8,Tank,Medium,Groundnut,1
+Prakasam,Black,Clayey,113.4,74.8,83.0,7.71,23.1,55.5,1368.4,74.6,Canal,High,Sugarcane,1
+Anantapur,Red,Loamy,22.7,29.8,55.8,7.1,27.1,47.8,519.1,61.3,Canal,High,Groundnut,1
+Tirupati,Black,Sandy Loam,115.3,48.8,75.4,7.34,25.1,60.8,807.0,66.9,Canal,Medium,Chilli,1
+Kurnool,Black,Clayey,49.8,28.7,45.2,6.31,23.3,47.5,640.8,63.0,Borewell,Medium,Cotton,1
+Kurnool,Alluvial,Loamy,29.8,28.0,34.0,6.27,15.5,56.0,618.5,74.8,Canal,High,Red Gram,0
+West Godavari,Loamy,Clayey,7.4,32.0,32.6,6.39,15.4,86.4,721.5,56.5,Canal,Medium,Red Gram,0
+NTR,Black,Sandy Loam,38.4,43.6,46.0,8.04,31.6,62.1,418.7,42.9,Limited Borewell,Low,Green Gram,0
+Guntur,Sandy,Sandy Loam,26.2,36.8,37.6,6.35,22.4,60.2,724.4,16.0,Limited Borewell,Low,Groundnut,1
+Guntur,Loamy,Clayey,66.3,24.3,66.6,6.57,24.8,55.8,764.1,68.6,Borewell,High,Cotton,1
+West Godavari,Black,Clayey,75.0,25.4,44.2,7.63,25.4,79.8,814.0,42.0,Limited Borewell,Low,Cotton,1
+West Godavari,Black,Loamy,27.0,34.0,36.7,6.77,23.4,77.6,498.0,63.7,Canal,Medium,Bengal Gram,1
+Anantapur,Black,Clayey,28.9,39.0,32.3,6.21,30.8,41.9,925.7,61.1,Canal,Medium,Red Gram,1
+Anantapur,Sandy,Clayey,28.0,6.7,34.7,6.65,28.8,50.9,519.1,36.1,Tank,Medium,Green Gram,0
+West Godavari,Red,Clayey,167.3,77.3,21.3,7.58,27.1,79.1,1097.6,26.0,Limited Borewell,Low,Sugarcane,0
+West Godavari,Loamy,Sandy Loam,35.7,46.8,36.9,6.81,22.8,81.8,655.4,62.5,Borewell,High,Groundnut,1
+Prakasam,Red,Sandy Loam,35.4,19.7,35.2,5.5,20.6,61.4,418.0,36.7,Tank,Medium,Green Gram,0
+Kurnool,Red,Sandy Loam,88.6,51.8,60.4,6.58,27.2,49.6,958.2,46.3,Canal,Medium,Chilli,1
+Prakasam,Loamy,Sandy,66.2,24.9,29.7,6.92,27.0,61.1,457.0,54.8,Tank,Medium,Bajra,1
+Krishna,Red,Clayey,61.9,43.3,13.5,7.58,38.8,74.5,886.5,60.8,Borewell,High,Cotton,0
+NTR,Black,Clayey,179.6,19.9,142.5,6.08,32.5,60.9,1394.4,47.6,Rainfed,Low,Sugarcane,0
+Guntur,Alluvial,Loamy,126.6,49.1,136.1,7.34,24.2,65.5,1363.1,57.7,Borewell,Medium,Sugarcane,1
+Tirupati,Black,Loamy,31.3,80.7,115.4,6.46,32.5,63.3,1312.9,48.2,Limited Borewell,Low,Sugarcane,0
+Guntur,Black,Sandy,55.8,37.2,36.3,6.05,30.2,58.9,810.0,44.3,Limited Borewell,Low,Bajra,0
+Prakasam,Loamy,Sandy Loam,21.1,31.4,36.0,6.86,28.2,55.9,452.6,32.1,Limited Borewell,Low,Green Gram,1
+Krishna,Sandy,Loamy,91.1,8.1,47.4,6.32,23.8,72.3,979.8,18.7,Rainfed,Low,Chilli,0
+NTR,Red,Clayey,55.1,27.0,41.3,6.58,33.3,63.7,545.2,45.9,Tank,High,Jowar,1
+Krishna,Black,Loamy,24.5,41.5,45.2,6.6,29.6,68.2,908.8,59.2,Canal,Medium,Red Gram,1
+Guntur,Loamy,Clayey,25.2,25.9,49.3,7.66,22.8,61.2,550.6,49.6,Borewell,Medium,Bengal Gram,1
+Guntur,Black,Loamy,74.2,27.7,51.5,6.38,28.3,63.4,476.3,43.9,Limited Borewell,Low,Jowar,1
+Prakasam,Black,Sandy Loam,67.3,35.6,21.4,6.15,35.2,47.5,598.3,78.2,Canal,High,Maize,0
+Krishna,Black,Clayey,84.7,32.3,16.4,4.5,27.3,76.3,695.4,77.9,Canal,High,Cotton,0
+NTR,Black,Clayey,190.1,46.7,97.6,7.31,29.1,67.6,1128.1,52.8,Limited Borewell,Low,Sugarcane,1
+NTR,Alluvial,Sandy Loam,25.6,27.8,31.8,7.07,27.9,69.1,552.7,50.9,Tank,Medium,Green Gram,1
+Guntur,Alluvial,Sandy,48.3,35.9,77.5,7.42,15.7,61.1,491.8,72.7,Canal,High,Cotton,0
+Tirupati,Sandy,Sandy,63.8,22.2,19.4,6.57,32.0,60.0,544.1,16.2,Limited Borewell,Low,Bajra,1
+West Godavari,Red,Loamy,31.0,36.8,43.7,6.73,28.6,68.4,564.7,54.7,Borewell,High,Black Gram,1
+NTR,Sandy,Sandy Loam,29.8,29.0,50.6,7.01,34.4,60.7,605.9,25.6,Limited Borewell,Low,Green Gram,0
+West Godavari,Red,Clayey,44.8,61.8,117.0,7.6,20.5,75.9,1360.7,59.1,Canal,High,Sugarcane,0
+Guntur,Black,Loamy,32.6,5.0,36.9,7.26,34.7,58.3,554.3,39.3,Rainfed,Low,Black Gram,0
+Anantapur,Loamy,Loamy,28.7,32.0,36.0,6.61,28.8,51.1,672.6,37.3,Limited Borewell,Low,Red Gram,1
+Tirupati,Alluvial,Sandy Loam,38.1,38.4,41.7,7.02,25.6,63.4,650.1,35.7,Rainfed,Low,Red Gram,0
+Krishna,Alluvial,Loamy,26.4,42.0,36.2,6.92,33.3,67.4,381.2,34.5,Rainfed,Low,Green Gram,1
+Krishna,Red,Loamy,31.7,33.7,43.4,6.42,27.2,54.9,460.1,29.8,Rainfed,Low,Green Gram,1
+NTR,Sandy,Sandy,42.1,35.1,8.0,5.57,29.8,60.2,655.1,48.6,Borewell,High,Cotton,0
+Prakasam,Red,Loamy,101.3,32.6,46.6,7.17,23.6,60.9,733.4,39.3,Tank,Medium,Chilli,1
+Krishna,Alluvial,Sandy Loam,65.9,7.0,48.1,6.12,26.5,74.0,591.1,37.8,Limited Borewell,Low,Bajra,0
+Tirupati,Loamy,Clayey,32.7,40.4,12.4,7.32,18.6,64.7,1025.7,64.5,Canal,High,Bengal Gram,0
+Prakasam,Red,Sandy Loam,21.7,11.7,38.5,6.43,35.3,54.5,552.1,24.8,Rainfed,Low,Black Gram,0
+Anantapur,Loamy,Clayey,55.2,27.6,47.0,7.26,30.5,55.8,516.8,49.3,Canal,Medium,Jowar,1
+Prakasam,Black,Loamy,96.1,15.7,14.0,7.17,22.3,54.8,599.0,61.0,Canal,Medium,Chilli,0
+Prakasam,Loamy,Loamy,111.6,52.1,69.3,6.35,21.7,57.3,1027.4,55.1,Borewell,Medium,Chilli,1
+Prakasam,Sandy,Loamy,139.8,77.7,100.6,5.08,29.8,59.9,1290.7,49.7,Borewell,High,Sugarcane,0
+NTR,Black,Loamy,175.1,54.0,128.0,7.06,31.5,65.5,1172.5,64.9,Borewell,Medium,Sugarcane,1
+NTR,Loamy,Clayey,118.1,68.7,95.6,6.7,32.0,69.6,1170.4,69.1,Canal,High,Sugarcane,1
+Guntur,Sandy,Sandy Loam,42.0,24.8,49.5,6.77,32.9,71.5,492.6,24.9,Limited Borewell,Low,Bajra,1
+Kurnool,Loamy,Sandy,13.9,19.7,41.9,6.76,28.7,52.5,1230.9,51.2,Borewell,Medium,Bajra,0
+West Godavari,Red,Loamy,73.5,40.9,46.9,6.02,26.1,74.1,651.3,51.7,Canal,High,Maize,1
+Tirupati,Black,Loamy,30.7,39.0,27.8,6.22,22.0,60.0,743.3,47.2,Limited Borewell,Low,Red Gram,1
+West Godavari,Loamy,Sandy Loam,46.7,36.9,33.9,4.79,23.3,77.4,733.5,26.8,Limited Borewell,Low,Groundnut,0
+Prakasam,Alluvial,Clayey,72.8,32.5,55.3,8.34,33.0,56.8,696.1,38.6,Limited Borewell,Low,Jowar,0
+Anantapur,Black,Loamy,96.3,60.6,17.5,7.31,24.2,46.0,1280.3,39.9,Rainfed,Low,Rice,0
+Anantapur,Loamy,Sandy Loam,53.7,30.1,38.6,6.26,29.2,56.9,495.3,46.6,Borewell,Medium,Bajra,1
+Krishna,Red,Loamy,13.5,43.7,61.9,6.36,21.6,62.6,1122.0,47.2,Borewell,Medium,Groundnut,0
+Prakasam,Alluvial,Clayey,187.8,66.0,133.9,7.48,24.8,56.9,1221.3,67.8,Canal,High,Sugarcane,1
+Kurnool,Alluvial,Clayey,178.0,62.6,73.8,6.5,32.7,49.0,1423.5,81.4,Tank,High,Sugarcane,1
+Guntur,Red,Sandy Loam,81.3,54.8,67.5,7.22,23.4,74.3,774.6,55.1,Borewell,High,Chilli,1
+Kurnool,Black,Loamy,61.8,32.6,6.3,7.37,19.7,64.5,738.9,39.1,Rainfed,Low,Maize,0
+West Godavari,Red,Sandy,61.1,18.4,37.0,6.31,30.5,77.3,325.6,57.3,Tank,High,Bajra,1
+Tirupati,Loamy,Clayey,31.6,29.1,35.4,6.65,29.3,69.0,717.5,48.9,Tank,Medium,Red Gram,1
+Krishna,Black,Sandy,65.2,39.6,36.6,7.49,27.9,77.5,356.8,37.9,Rainfed,Low,Bajra,0
+NTR,Black,Loamy,35.4,26.4,29.1,5.58,15.7,73.4,470.9,73.7,Borewell,High,Bengal Gram,0
+Guntur,Loamy,Sandy,57.8,20.4,30.0,6.54,26.4,60.8,424.3,63.4,Tank,High,Bajra,1
+Tirupati,Red,Sandy Loam,110.2,9.9,84.8,7.33,30.0,57.5,1354.9,57.4,Canal,High,Sugarcane,0
+Guntur,Red,Clayey,89.9,39.4,40.7,7.28,27.4,67.9,678.2,44.8,Tank,Medium,Cotton,1
+Tirupati,Alluvial,Loamy,30.1,20.5,11.3,8.31,34.3,56.4,469.6,54.0,Canal,Medium,Green Gram,0
+Anantapur,Black,Sandy Loam,19.5,43.1,38.8,7.87,27.0,56.4,421.5,43.4,Limited Borewell,Low,Green Gram,0
+Krishna,Black,Clayey,113.8,63.2,110.3,6.68,30.3,69.0,1213.5,66.2,Tank,Medium,Sugarcane,1
+Anantapur,Sandy,Loamy,66.8,22.0,46.8,6.36,33.9,51.7,645.0,21.1,Rainfed,Low,Cotton,0
+Prakasam,Black,Clayey,105.5,29.0,75.8,5.87,24.2,54.2,1651.3,62.5,Tank,Medium,Rice,1
+Kurnool,Sandy,Clayey,167.1,14.3,87.8,7.4,20.5,47.4,1330.1,17.4,Rainfed,Low,Sugarcane,0
+Kurnool,Red,Sandy,51.4,24.9,28.8,7.17,30.1,52.8,449.8,23.1,Limited Borewell,Low,Bajra,1
+Krishna,Sandy,Sandy Loam,112.6,58.7,66.9,8.47,28.6,75.1,713.0,22.0,Rainfed,Low,Maize,0
+Tirupati,Black,Sandy Loam,69.7,21.4,42.1,5.02,26.7,60.2,463.2,37.4,Limited Borewell,Low,Bajra,0
+NTR,Alluvial,Loamy,32.5,20.0,16.8,6.53,33.4,61.6,383.3,35.3,Rainfed,Low,Green Gram,0
+Guntur,Black,Loamy,56.1,41.9,30.2,8.06,31.7,68.0,683.4,68.6,Tank,Medium,Jowar,1
+Tirupati,Alluvial,Loamy,31.1,43.0,44.4,8.8,25.3,60.3,1873.0,65.8,Canal,High,Rice,0
+Tirupati,Loamy,Loamy,81.8,52.5,8.0,6.4,37.3,61.4,1260.5,56.9,Canal,Medium,Rice,0
+Krishna,Black,Loamy,82.1,34.6,49.9,5.82,23.6,70.1,721.3,78.8,Canal,High,Cotton,1
+NTR,Red,Sandy Loam,23.1,34.2,37.8,6.97,26.6,71.0,716.1,45.5,Tank,Medium,Groundnut,1
+Kurnool,Alluvial,Clayey,72.8,29.6,42.5,6.73,23.8,57.7,1879.8,75.5,Borewell,High,Rice,1
+NTR,Sandy,Clayey,147.0,61.2,138.8,7.88,38.8,70.6,1347.6,19.0,Limited Borewell,Low,Sugarcane,0
+Tirupati,Red,Loamy,65.4,31.3,49.5,9.09,17.1,60.8,707.7,51.7,Canal,High,Cotton,0
+West Godavari,Black,Clayey,68.5,35.4,29.0,6.4,28.0,78.6,574.3,47.5,Limited Borewell,Low,Jowar,1
+West Godavari,Loamy,Loamy,30.8,36.0,34.3,6.29,26.6,74.3,402.6,68.1,Borewell,High,Green Gram,1
+Krishna,Loamy,Clayey,7.6,26.6,6.6,6.7,32.2,72.4,958.1,59.4,Borewell,High,Red Gram,0
+Guntur,Black,Loamy,34.1,45.1,41.6,7.08,34.5,66.0,454.8,41.1,Rainfed,Low,Green Gram,0
+Anantapur,Alluvial,Loamy,15.5,13.1,48.6,6.27,39.6,45.6,495.9,56.6,Tank,Medium,Green Gram,0
+NTR,Red,Sandy,17.2,29.3,38.8,5.16,29.4,58.4,344.2,56.6,Tank,High,Bajra,0
+West Godavari,Black,Loamy,58.3,37.6,57.2,6.83,28.0,82.4,634.4,63.2,Tank,Medium,Jowar,1
+Krishna,Loamy,Sandy Loam,27.0,37.8,49.7,6.91,21.9,58.5,755.7,43.6,Tank,Medium,Groundnut,1
+West Godavari,Alluvial,Loamy,77.8,50.9,61.0,6.76,29.1,72.3,616.9,57.7,Canal,Medium,Maize,1
+Kurnool,Loamy,Clayey,24.9,41.2,58.4,5.55,19.7,50.9,453.7,32.8,Rainfed,Low,Bengal Gram,0
+Guntur,Loamy,Sandy Loam,29.8,45.5,62.9,7.04,28.0,73.7,503.5,36.0,Limited Borewell,Low,Groundnut,1
+NTR,Black,Loamy,18.8,57.2,64.2,5.99,20.6,60.7,634.1,43.3,Limited Borewell,Low,Chilli,0
+West Godavari,Alluvial,Clayey,47.9,33.3,56.8,8.0,32.6,71.6,703.0,42.5,Limited Borewell,Low,Jowar,0
+Krishna,Red,Loamy,79.9,33.3,36.4,7.27,28.9,71.0,563.3,45.5,Canal,Medium,Maize,1
+West Godavari,Black,Loamy,68.5,29.7,44.3,5.89,29.6,77.2,1311.6,79.4,Tank,High,Rice,1
+West Godavari,Loamy,Sandy Loam,41.1,31.1,38.3,6.99,15.2,77.5,791.6,29.7,Limited Borewell,Low,Groundnut,0
+Kurnool,Alluvial,Loamy,25.8,52.3,53.5,7.08,28.0,48.2,1941.6,39.1,Limited Borewell,Low,Rice,0
+NTR,Red,Loamy,52.0,31.4,54.9,7.09,30.8,64.2,566.3,64.1,Borewell,High,Jowar,1
+Krishna,Loamy,Sandy Loam,23.7,42.6,49.1,6.96,29.8,70.2,406.6,50.0,Borewell,Medium,Green Gram,1
+Anantapur,Loamy,Loamy,92.6,31.3,43.0,5.82,25.9,47.9,702.8,48.6,Tank,Medium,Cotton,1
+West Godavari,Sandy,Loamy,57.0,10.5,44.4,7.56,25.6,68.1,679.3,36.5,Tank,Medium,Cotton,0
+Krishna,Alluvial,Loamy,116.7,48.5,70.0,7.53,16.6,67.8,1669.5,40.4,Rainfed,Low,Rice,0
+NTR,Alluvial,Sandy Loam,28.4,20.1,8.3,6.55,20.9,75.7,540.6,39.6,Limited Borewell,Low,Black Gram,0
+West Godavari,Black,Loamy,29.8,6.8,49.4,7.32,21.9,80.6,1640.0,60.6,Canal,Medium,Red Gram,0
+West Godavari,Black,Loamy,17.7,28.0,29.5,7.32,26.0,76.8,811.5,69.0,Borewell,Medium,Red Gram,1
+Tirupati,Black,Loamy,7.1,7.0,43.9,6.8,28.2,57.9,463.7,67.8,Tank,Medium,Bengal Gram,0
+Anantapur,Alluvial,Sandy,34.3,21.7,35.2,6.89,28.7,39.0,216.5,78.1,Tank,High,Bengal Gram,0
+Anantapur,Sandy,Sandy Loam,17.8,56.4,72.4,6.9,24.2,47.4,625.3,21.1,Limited Borewell,Low,Chilli,0
+Kurnool,Red,Clayey,21.3,27.5,38.0,6.99,25.6,48.1,714.3,12.8,Rainfed,Low,Red Gram,1
+Krishna,Loamy,Loamy,55.3,42.0,73.6,7.29,24.3,72.1,600.8,46.8,Borewell,Medium,Cotton,1
+Kurnool,Red,Loamy,6.5,49.8,38.7,6.43,23.9,54.4,486.1,31.2,Rainfed,Low,Groundnut,0
+Guntur,Red,Sandy Loam,62.8,28.5,41.0,6.53,26.9,64.0,553.8,37.7,Canal,Medium,Bajra,1
+Tirupati,Red,Sandy Loam,28.8,43.2,31.8,8.18,29.3,65.4,212.3,39.6,Borewell,Medium,Green Gram,0
+Guntur,Sandy,Clayey,5.0,42.6,42.5,6.83,21.0,62.5,386.8,17.4,Limited Borewell,Low,Bengal Gram,0
+Tirupati,Black,Sandy Loam,91.9,57.2,15.3,5.18,29.5,63.8,521.6,73.5,Tank,High,Maize,0
+West Godavari,Loamy,Sandy Loam,44.8,38.4,43.1,7.05,27.2,72.5,433.4,29.7,Rainfed,Low,Bajra,1
+Kurnool,Red,Sandy Loam,24.6,23.0,52.4,6.65,27.8,58.8,516.2,48.2,Tank,Medium,Green Gram,1
+Prakasam,Alluvial,Loamy,105.6,42.2,38.9,6.62,33.5,58.6,1231.0,75.0,Borewell,High,Rice,1
+Krishna,Loamy,Loamy,113.3,42.4,68.5,7.3,24.2,74.1,761.8,50.4,Borewell,Medium,Chilli,1
+Anantapur,Loamy,Sandy Loam,56.7,36.9,43.0,6.64,31.7,52.8,476.2,27.8,Limited Borewell,Low,Bajra,1
+Krishna,Alluvial,Loamy,78.1,53.4,54.1,7.23,30.1,65.1,727.1,56.6,Canal,Medium,Maize,1
+Prakasam,Black,Clayey,63.2,31.5,60.9,5.72,26.4,51.0,655.0,64.4,Tank,Medium,Cotton,1
+Anantapur,Loamy,Clayey,94.3,33.0,37.0,8.67,16.8,49.3,1014.8,64.1,Canal,High,Rice,0
+Prakasam,Red,Loamy,57.6,39.7,28.6,6.77,28.5,58.1,604.4,49.3,Borewell,Medium,Jowar,1
+Krishna,Black,Loamy,24.2,30.4,32.7,7.47,28.0,63.3,513.2,60.7,Tank,Medium,Bengal Gram,1
+Guntur,Loamy,Clayey,31.3,31.0,60.4,7.13,15.4,60.2,205.4,56.8,Borewell,Medium,Bengal Gram,0
+West Godavari,Red,Loamy,30.9,23.7,38.4,6.76,26.9,82.9,520.1,41.9,Tank,Medium,Green Gram,1
+West Godavari,Black,Loamy,28.0,31.8,46.9,8.35,24.0,79.8,768.2,60.3,Canal,Medium,Maize,0
+NTR,Loamy,Loamy,32.5,43.7,51.4,5.47,15.4,58.9,645.5,51.5,Canal,Medium,Black Gram,0
+West Godavari,Loamy,Sandy Loam,68.7,35.3,37.7,6.76,31.4,77.8,405.5,66.4,Borewell,High,Bajra,1
+NTR,Red,Loamy,13.5,13.5,44.7,6.32,17.3,68.0,709.7,41.2,Canal,Medium,Black Gram,0
+Tirupati,Red,Clayey,31.8,35.4,33.2,6.6,23.7,65.5,840.6,42.2,Tank,Medium,Red Gram,1
+Guntur,Black,Clayey,98.3,32.8,70.6,6.63,29.3,61.5,1284.4,72.2,Borewell,High,Rice,1
+Kurnool,Loamy,Loamy,30.0,27.2,46.6,7.25,30.2,50.4,628.8,39.7,Rainfed,Low,Black Gram,1
+Anantapur,Alluvial,Loamy,117.3,49.9,68.6,6.71,28.3,50.2,1186.5,72.4,Tank,High,Sugarcane,1
+NTR,Alluvial,Loamy,22.1,29.8,44.7,6.75,26.5,53.2,509.0,51.0,Borewell,Medium,Green Gram,1
+Guntur,Loamy,Loamy,21.0,34.2,27.0,5.48,27.2,53.7,807.3,33.6,Limited Borewell,Low,Red Gram,0
+Prakasam,Loamy,Sandy Loam,27.6,35.9,8.6,7.5,16.8,47.9,555.2,52.5,Tank,Medium,Groundnut,0
+Anantapur,Sandy,Sandy,110.8,37.5,61.4,6.89,23.7,45.4,768.4,23.1,Limited Borewell,Low,Chilli,0
+NTR,Sandy,Loamy,101.1,20.8,134.7,7.46,26.4,73.1,1114.4,35.2,Tank,Medium,Sugarcane,0
+Krishna,Loamy,Clayey,77.2,42.7,36.2,6.83,30.4,66.1,531.9,36.8,Rainfed,Low,Jowar,1
+West Godavari,Sandy,Loamy,79.8,35.3,72.3,6.84,23.6,77.4,955.7,22.8,Limited Borewell,Low,Chilli,0
+Krishna,Loamy,Loamy,62.4,26.2,44.6,7.73,31.4,60.7,478.0,53.1,Borewell,Medium,Jowar,1
+Krishna,Black,Loamy,34.3,29.3,50.8,7.25,26.4,74.5,862.5,60.4,Tank,Medium,Red Gram,1
+Anantapur,Red,Sandy Loam,65.2,34.5,36.8,6.81,33.6,37.7,531.3,60.5,Canal,High,Bajra,1
+Anantapur,Loamy,Sandy Loam,54.3,20.1,47.9,6.54,26.3,48.6,351.8,36.8,Limited Borewell,Low,Bajra,1
+Prakasam,Red,Clayey,72.1,25.3,75.8,5.85,33.5,59.1,808.2,47.1,Tank,Medium,Cotton,1
+Kurnool,Sandy,Sandy,23.3,6.2,54.6,7.28,29.0,48.7,411.9,33.8,Tank,Medium,Bengal Gram,0
+Anantapur,Loamy,Sandy Loam,98.0,40.7,51.0,6.2,24.5,53.5,1085.2,66.7,Canal,High,Chilli,1
+Anantapur,Sandy,Sandy Loam,26.2,41.9,36.6,8.27,33.3,43.8,498.0,36.5,Canal,Medium,Jowar,0
+Tirupati,Black,Loamy,80.6,25.4,8.5,8.49,23.1,64.1,1668.5,67.1,Tank,High,Rice,0
+West Godavari,Sandy,Clayey,28.1,7.1,50.2,6.57,24.5,72.0,524.7,32.3,Borewell,Medium,Bengal Gram,0
+Krishna,Red,Sandy,46.2,24.9,24.9,6.29,30.3,69.1,465.6,47.5,Canal,Medium,Bajra,1
+Krishna,Black,Loamy,37.5,41.0,41.0,6.61,28.2,72.5,755.6,75.3,Tank,High,Red Gram,1
+Anantapur,Alluvial,Loamy,74.9,52.4,53.9,6.21,24.5,48.9,1365.0,68.0,Borewell,High,Rice,1
+Tirupati,Red,Sandy Loam,30.8,26.1,26.6,6.6,29.6,56.6,436.1,16.4,Limited Borewell,Low,Black Gram,1
+West Godavari,Loamy,Loamy,7.3,35.6,26.1,6.74,18.9,68.0,1274.0,73.1,Tank,High,Bengal Gram,0
+Guntur,Loamy,Loamy,27.7,46.3,15.6,7.45,28.4,60.8,645.1,31.7,Rainfed,Low,Groundnut,0
+Anantapur,Sandy,Sandy Loam,27.0,33.1,30.2,6.9,18.4,50.0,773.6,32.5,Borewell,Medium,Red Gram,0
+Guntur,Red,Loamy,52.2,28.4,72.2,6.02,28.0,59.6,754.9,42.1,Borewell,Medium,Cotton,1
+Krishna,Loamy,Loamy,29.6,36.2,42.3,6.49,30.5,62.5,568.6,56.6,Borewell,Medium,Green Gram,1
+NTR,Sandy,Loamy,17.9,36.2,7.8,6.83,34.3,64.8,445.4,13.1,Limited Borewell,Low,Green Gram,0
+West Godavari,Red,Clayey,71.8,29.5,40.3,7.6,33.0,86.1,485.6,43.0,Canal,Medium,Jowar,1
+NTR,Sandy,Loamy,29.8,6.9,50.6,6.52,23.5,63.4,574.2,17.6,Limited Borewell,Low,Black Gram,0
+West Godavari,Alluvial,Sandy Loam,22.4,28.6,43.0,6.56,27.6,75.5,493.7,56.8,Borewell,Medium,Black Gram,1
+Guntur,Loamy,Sandy Loam,107.3,36.0,57.2,7.29,27.5,63.9,810.3,30.5,Rainfed,Low,Chilli,1
+Kurnool,Sandy,Sandy Loam,39.0,43.8,49.7,6.76,22.9,48.6,677.1,14.4,Rainfed,Low,Groundnut,1
+Anantapur,Loamy,Sandy Loam,77.8,54.6,47.4,6.42,27.9,40.0,668.8,49.0,Borewell,Medium,Chilli,1
+West Godavari,Red,Sandy Loam,31.8,51.7,54.1,5.75,27.1,81.8,663.7,23.0,Rainfed,Low,Maize,0
+Anantapur,Red,Sandy Loam,18.8,39.9,34.8,6.92,29.5,46.0,422.8,24.5,Limited Borewell,Low,Green Gram,1
+Krishna,Loamy,Loamy,79.7,55.7,54.8,6.02,24.0,67.7,709.4,52.6,Borewell,Medium,Maize,1
+NTR,Alluvial,Sandy Loam,21.9,23.9,51.2,6.38,18.2,53.9,462.5,41.1,Rainfed,Low,Bengal Gram,0
+Kurnool,Loamy,Sandy Loam,19.8,34.3,14.5,7.44,18.0,54.1,605.5,66.3,Borewell,High,Black Gram,0
+West Godavari,Alluvial,Clayey,96.6,25.4,20.0,5.96,29.0,71.6,603.8,40.7,Limited Borewell,Low,Cotton,0
+Krishna,Red,Clayey,16.6,29.9,37.1,7.5,15.4,74.0,193.1,41.7,Tank,Medium,Bengal Gram,0
+Prakasam,Loamy,Loamy,46.4,40.2,58.0,6.91,21.8,61.9,721.4,51.9,Tank,Medium,Groundnut,1
+Anantapur,Alluvial,Loamy,176.9,55.2,127.6,7.25,30.0,48.8,1204.5,71.7,Tank,High,Sugarcane,1
+Guntur,Black,Loamy,87.7,37.9,70.7,6.33,27.1,65.7,1302.4,82.5,Canal,High,Rice,1
+Anantapur,Loamy,Sandy Loam,88.7,12.7,66.7,6.82,27.8,47.6,265.8,70.4,Borewell,High,Chilli,0
+Anantapur,Black,Sandy Loam,76.9,52.6,51.9,5.68,23.9,49.2,691.0,82.7,Tank,High,Maize,1
+Tirupati,Alluvial,Sandy Loam,88.2,53.9,38.9,5.75,18.1,60.8,225.7,44.9,Limited Borewell,Low,Maize,0
+Prakasam,Red,Loamy,9.8,5.4,43.3,7.43,32.8,55.6,821.8,43.8,Borewell,Medium,Red Gram,0
+NTR,Loamy,Loamy,33.6,39.7,50.3,6.37,22.7,64.2,563.0,56.0,Canal,Medium,Bengal Gram,1
+Kurnool,Sandy,Sandy Loam,78.0,56.1,34.2,5.61,39.4,52.6,664.7,14.7,Limited Borewell,Low,Maize,0
