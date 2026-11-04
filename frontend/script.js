@@ -645,6 +645,9 @@ async function loadPhase2Data() {
                             ${escapeHTML(item.category)}
                         </span>
                     </div>
+                    <div style="font-size: 0.78rem; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 3px 8px; border-radius: 4px; margin: 6px 0 8px 0; font-weight: 700;">
+                        🤖 Pretrained MobileNetV2: ${escapeHTML(item.deep_learning_class || item.name)}
+                    </div>
                     <div class="diag-symptoms">
                         <strong>Symptoms:</strong> ${escapeHTML(item.symptoms)}
                     </div>

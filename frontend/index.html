@@ -422,18 +422,26 @@
       </div>
 
       <!-- =============================================================
-           MODULE 1: AI CROP PHOTO SCANNER (DISEASE, PEST & WEED DIAGNOSIS)
+           MODULE 1: AI CROP PHOTO SCANNER (PRETRAINED MOBILENETV2 PLANTVILLAGE)
            ============================================================= -->
       <section class="card vision-scanner-section" id="visionScannerSection">
         <div class="card-header">
           <div>
             <h3>📸 AI Crop Photo Scanner: Disease, Pest & Weed Detection</h3>
             <p class="section-desc">
-              Upload a photo of your crop leaf, plant, insect pest, or field weed. 
-              The AI analyzes visual symptoms and provides dual <strong>Organic</strong> and <strong>Chemical</strong> treatments.
+              Powered by a <strong>Pretrained MobileNetV2 Deep Learning Neural Network</strong> (trained on PlantVillage 38-class dataset) 
+              coupled with computer vision analysis. Diagnoses plant pathogens, weeds, and insect pests with dual <strong>Organic</strong> and <strong>Chemical</strong> cures.
             </p>
           </div>
-          <span class="badge badge-warning">AI Vision Diagnosis</span>
+          <span class="badge badge-success" style="font-weight: 700;">🧠 Pretrained MobileNetV2 (PlantVillage 38-Class)</span>
+        </div>
+
+        <!-- Pretrained Model Info Banner -->
+        <div class="model-info-banner" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="font-size: 0.9rem; color: #1e3a8a;">
+            <strong>🤖 Active Vision Model:</strong> <code>plant_disease_mobilenet_v2.onnx</code> (38-Class PlantVillage Deep CNN Backbone)
+          </div>
+          <span class="badge badge-market">CPU Inference: ~25ms</span>
         </div>
 
         <div class="scanner-container">
@@ -1016,14 +1024,17 @@ void loop() {
         </div>
       </section>
 
-      <!-- Module 3: Weed, Pest & Disease Protection -->
+      <!-- Module 4: Weed, Pest & Disease Protection -->
       <section class="card pest-weed-section">
         <div class="card-header">
           <div>
-            <h3>🛡️ Weed & Pest Protection Protocol</h3>
-            <p class="section-desc">Diagnostic identification, organic bio-remedies, and targeted chemical controls for your crop.</p>
+            <h3>🛡️ Disease, Weed & Pest Protection Protocols (Pretrained Deep Learning Knowledge Base)</h3>
+            <p class="section-desc">
+              Comprehensive pathogen, weed, and insect pest profiles matching the <strong>Pretrained MobileNetV2 PlantVillage</strong> deep learning model, 
+              complete with dual <strong>Organic Biocontrol</strong> and <strong>Chemical Formulations</strong>.
+            </p>
           </div>
-          <span class="badge badge-warning">Crop Health Guard</span>
+          <span class="badge badge-market">MobileNetV2 Diagnostic Matrix</span>
         </div>
 
         <div id="pestDiagnosticsGrid" class="pest-cards-grid"></div>

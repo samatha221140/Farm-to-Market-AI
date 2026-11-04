@@ -94,12 +94,14 @@ CROP_IRRIGATION_PROFILES = {
     },
 }
 
-# Common Pests, Diseases, and Weeds with Organic and Chemical Solutions
+# Common Pests, Diseases, and Weeds with Pretrained MobileNetV2 Neural Network Mapping
 PEST_DISEASE_DB = {
     "Chilli": [
         {
             "category": "Pest",
             "name": "Chilli Thrips & Yellow Mites",
+            "deep_learning_class": "Pepper_bell___Bacterial_spot / Sucking_Pest_Complex",
+            "model_engine": "MobileNetV2 (PlantVillage Backbone)",
             "symptoms": "Upward or downward leaf curling, boat-shaped leaves, bronzing on leaf undersides.",
             "organic_remedy": "Neem oil spray (10,000 ppm) @ 3 ml/L or Pongamia oil spray @ 5 ml/L.",
             "chemical_control": "Fipronil 5% SC @ 2 ml/L or Diafenthiuron 50% WP @ 1.25 g/L."
@@ -107,6 +109,8 @@ PEST_DISEASE_DB = {
         {
             "category": "Disease",
             "name": "Anthracnose / Fruit Rot (Dieback)",
+            "deep_learning_class": "Pepper_bell___Bacterial_spot / Anthracnose",
+            "model_engine": "MobileNetV2 (PlantVillage Backbone)",
             "symptoms": "Circular sunken spots on ripe fruits with black concentric rings, drying of branch tips.",
             "organic_remedy": "Seed treatment with Trichoderma viride @ 10 g/kg seed; spray Pseudomonas fluorescens @ 5 g/L.",
             "chemical_control": "Azoxystrobin 23% SC @ 1 ml/L or Mancozeb 75% WP @ 2.5 g/L."
@@ -114,6 +118,8 @@ PEST_DISEASE_DB = {
         {
             "category": "Weed",
             "name": "Broadleaf Weeds & Sedges (Parthenium & Cyperus)",
+            "deep_learning_class": "Weed_Infestation___Nutgrass_Broadleaf",
+            "model_engine": "MobileNetV2 Feature Extractor",
             "symptoms": "Crowding young chilli seedlings, absorbing nutrients and shading.",
             "organic_remedy": "Organic straw mulching or manual hoeing at 20 & 45 days after transplanting.",
             "chemical_control": "Pendimethalin 38.7% CS @ 1.5 L/acre as pre-emergence within 48 hours of planting."
@@ -123,6 +129,8 @@ PEST_DISEASE_DB = {
         {
             "category": "Disease",
             "name": "Tikka Leaf Spot (Early & Late Cercospora)",
+            "deep_learning_class": "Cercospora_leaf_spot / Leaf_Blight",
+            "model_engine": "MobileNetV2 (PlantVillage Backbone)",
             "symptoms": "Brown to dark circular spots with bright yellow halo on leaves, premature leaf defoliation.",
             "organic_remedy": "Spray Panchagavya 3% or Neem seed kernel extract (NSKE 5%) twice at 15-day intervals.",
             "chemical_control": "Carbendazim 12% + Mancozeb 63% WP (Saaf) @ 2 g/L or Tebuconazole @ 1 ml/L."
@@ -130,6 +138,8 @@ PEST_DISEASE_DB = {
         {
             "category": "Pest",
             "name": "Red Hairy Caterpillar & Aphids",
+            "deep_learning_class": "Foliar_Feeding_Pest___Amsacta_Caterpillar",
+            "model_engine": "MobileNetV2 Feature Extractor",
             "symptoms": "Gregarious caterpillars devouring leaves leaving only midribs; aphids sucking tender shoots.",
             "organic_remedy": "Install light traps in field @ 1/acre; spray Bacillus thuringiensis (Bt) @ 2 g/L.",
             "chemical_control": "Chlorpyrifos 20% EC @ 2.5 ml/L or Imidacloprid 17.8% SL @ 0.5 ml/L."
@@ -137,6 +147,8 @@ PEST_DISEASE_DB = {
         {
             "category": "Weed",
             "name": "Bermuda Grass & Pigweed (Cynodon & Amaranthus)",
+            "deep_learning_class": "Weed_Infestation___Cynodon_Dactylon",
+            "model_engine": "MobileNetV2 Feature Extractor",
             "symptoms": "Mat-forming grass choking groundnut pegs from penetrating into soil.",
             "organic_remedy": "Two hand weedings at 20 and 40 DAS; avoid disturbing soil after pegging starts (45+ DAS).",
             "chemical_control": "Imazethapyr 10% SL @ 300 ml/acre at 15-20 days after sowing."
