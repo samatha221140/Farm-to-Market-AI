@@ -258,66 +258,50 @@ def calculate_fertilizer_dosage(crop, soil_n, soil_p, soil_k, land_acres=1.0):
     }
 
 
-def calculate_smart_irrigation(crop, soil_type, growth_stage, recent_rain_mm=0.0, temp_c=30.0):
+def calculate_smart_irrigation(crop, soil_type, growth_stage, recent_rain_mm=0.0, temp_c=30.0, soil_moisture_pct=22.0, pump_rating="1.0 HP", irrigation_method="Drip Irrigation", forecast_rain_mm=0.0, acres=1.0):
     """
     Calculate smart irrigation water quantity, moisture status, and watering schedule.
+    Uses IoT sensor soil moisture, rainfall deduction, and pump runtime calculation.
     """
-    profile = CROP_IRRIGATION_PROFILES.get(crop, {
-        "daily_water_mm": 4.0,
-        "critical_stages": ["Flowering", "Yield Formation"],
-        "method": "Ensure adequate soil moisture without water stagnation.",
-        "drought_tolerance": "Moderate"
-    })
+    try:
+        import smart_irrigation_service
+        return smart_irrigation_service.compute_smart_irrigation_schedule(
+            crop_name=crop,
+            land_acres=acres,
+            soil_type=soil_type,
+            growth_stage=growth_stage,
+            soil_moisture_pct=soil_moisture_pct,
+            rainfall_today_mm=recent_rain_mm,
+            forecast_rain_24h_mm=forecast_rain_mm,
+            temperature_c=temp_c,
+            pump_rating=pump_rating,
+            irrigation_method=irrigation_method
+        )
+    except Exception as e:
+        # Fallback to base calculation
+        profile = CROP_IRRIGATION_PROFILES.get(crop, {
+            "daily_water_mm": 4.0,
+            "critical_stages": ["Flowering", "Yield Formation"],
+            "method": "Ensure adequate soil moisture without water stagnation.",
+            "drought_tolerance": "Moderate"
+        })
 
-    daily_need_mm = profile["daily_water_mm"]
-    # Temp adjustment: >32°C increases evapotranspiration by ~20%
-    if temp_c > 32:
-        daily_need_mm *= 1.2
-    elif temp_c < 22:
-        daily_need_mm *= 0.85
+        daily_need_mm = profile["daily_water_mm"]
+        if temp_c > 32:
+            daily_need_mm *= 1.2
+        elif temp_c < 22:
+            daily_need_mm *= 0.85
 
-    # 1 mm of water over 1 acre = 4,047 Liters
-    daily_liters_per_acre = round(daily_need_mm * 4047)
-
-    # Soil retention capacity
-    soil_retention_days = {
-        "Black": 8,
-        "Clay": 7,
-        "Loamy": 5,
-        "Alluvial": 6,
-        "Red": 4,
-        "Sandy": 2.5
-    }.get(soil_type, 5)
-
-    # Account for rainfall: if recent rainfall > 25 mm, soil is saturated
-    if recent_rain_mm >= 30.0:
-        moisture_status = "Adequate / Field Saturated"
-        action = "NO IRRIGATION NEEDED NOW. Rain has met soil moisture capacity."
-        next_irrigation_days = round(soil_retention_days * 1.2)
-    elif recent_rain_mm >= 15.0:
-        moisture_status = "Moderate Moisture"
-        action = "Postpone watering by 2-3 days; check root zone depth."
-        next_irrigation_days = round(soil_retention_days * 0.6)
-    else:
-        moisture_status = "Deficit / Dry Root Zone"
-        action = "IRRIGATION RECOMMENDED. Apply water to root zone."
-        next_irrigation_days = 1
-
-    is_critical_stage = any(stage.lower() in growth_stage.lower() for stage in profile["critical_stages"])
-
-    return {
-        "crop": crop,
-        "growth_stage": growth_stage,
-        "is_critical_growth_stage": is_critical_stage,
-        "daily_water_need_liters_per_acre": daily_liters_per_acre,
-        "daily_water_need_mm": round(daily_need_mm, 1),
-        "soil_retention_interval_days": soil_retention_days,
-        "moisture_status": moisture_status,
-        "action_advisory": action,
-        "next_irrigation_in_days": next_irrigation_days,
-        "irrigation_method_tip": profile["method"],
-        "critical_stages_list": profile["critical_stages"]
-    }
+        daily_liters_per_acre = round(daily_need_mm * 4047)
+        return {
+            "crop": crop,
+            "growth_stage": growth_stage,
+            "daily_water_need_liters_per_acre": daily_liters_per_acre,
+            "daily_water_need_mm": round(daily_need_mm, 1),
+            "moisture_status": "Calculated",
+            "action_advisory": "Irrigate root zone as per schedule.",
+            "next_irrigation_in_days": 2
+        }
 
 
 def get_pest_weed_advisory(crop):

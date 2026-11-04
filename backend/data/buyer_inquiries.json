@@ -1,5 +1,25 @@
 [
   {
+    "inquiry_id": "INQ-3",
+    "listing_id": "LOT-1009",
+    "buyer_name": "samatha",
+    "buyer_phone": "6305182537",
+    "offer_price_per_quintal": 8400,
+    "quantity_needed": 25,
+    "message": "Hello, I am interested in purchasing this lot. Please confirm pickup location and payment terms.",
+    "timestamp": "2026-11-01T11:19:41.721517"
+  },
+  {
+    "inquiry_id": "INQ-2",
+    "listing_id": "LOT-1009",
+    "buyer_name": "samatha",
+    "buyer_phone": "9160512799",
+    "offer_price_per_quintal": 8400,
+    "quantity_needed": 25,
+    "message": "Hello, I am interested in purchasing this lot. Please confirm pickup location and payment terms.",
+    "timestamp": "2026-11-01T11:17:44.705494"
+  },
+  {
     "inquiry_id": "INQ-1",
     "listing_id": "LOT-1007",
     "buyer_name": "Sri Balaji Oil Millers",

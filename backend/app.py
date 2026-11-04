@@ -22,6 +22,7 @@ import crop_care_service
 import marketplace_service
 import vision_diagnostic_service
 import soil_analyzer_service
+import smart_irrigation_service
 
 app = Flask(__name__)
 CORS(app)
@@ -237,16 +238,67 @@ def phase2_fertilizer():
 
 @app.post("/api/phase2/irrigation-advisory")
 def phase2_irrigation():
-    """Calculates smart irrigation need, water volume, and schedule."""
+    """Calculates smart irrigation need, water volume, and schedule with IoT moisture sensor."""
     data = request.get_json(silent=True) or {}
     crop = data.get("crop", "Groundnut")
     soil_type = data.get("soil_type", "Red")
-    growth_stage = data.get("growth_stage", "Vegetative / Tillering")
-    recent_rain = float(data.get("recent_rain_mm", 0.0))
-    temp_c = float(data.get("temperature", 30.0))
+    growth_stage = data.get("growth_stage", "Flowering & Pegging / Tasseling (35-65 DAS)")
+    recent_rain = float(data.get("recent_rain_mm") or data.get("rainfall_today_mm") or 0.0)
+    forecast_rain = float(data.get("forecast_rain_mm") or data.get("forecast_rain_24h_mm") or 0.0)
+    temp_c = float(data.get("temperature", 31.0))
+    humidity = float(data.get("humidity", 58.0))
+    soil_moisture = float(data.get("soil_moisture_pct") or data.get("soil_moisture") or 22.0)
+    pump_rating = data.get("pump_rating", "1.0 HP")
+    irrigation_method = data.get("irrigation_method", "Drip Irrigation")
+    acres = float(data.get("acres") or data.get("land_acres") or 2.0)
 
-    advisory = crop_care_service.calculate_smart_irrigation(crop, soil_type, growth_stage, recent_rain, temp_c)
+    advisory = smart_irrigation_service.compute_smart_irrigation_schedule(
+        crop_name=crop,
+        land_acres=acres,
+        soil_type=soil_type,
+        growth_stage=growth_stage,
+        soil_moisture_pct=soil_moisture,
+        rainfall_today_mm=recent_rain,
+        forecast_rain_24h_mm=forecast_rain,
+        temperature_c=temp_c,
+        humidity_pct=humidity,
+        pump_rating=pump_rating,
+        irrigation_method=irrigation_method
+    )
     return jsonify({"success": True, "advisory": advisory})
+
+
+@app.get("/api/sensors/latest")
+def get_sensor_readings():
+    """Returns current live IoT sensor telemetry."""
+    readings = smart_irrigation_service.get_current_sensor_data()
+    return jsonify({"success": True, "sensors": readings})
+
+
+@app.post("/api/sensors/telemetry")
+def post_sensor_telemetry():
+    """Receives sensor telemetry from hardware (ESP32/Arduino) or dashboard simulator."""
+    data = request.get_json(silent=True) or {}
+    updated = smart_irrigation_service.update_live_sensor_data(data)
+    return jsonify({
+        "success": True,
+        "message": "Telemetry received successfully",
+        "sensors": updated
+    })
+
+
+@app.post("/api/irrigation/pump-control")
+def pump_control():
+    """Toggles water pump relay state (ON/OFF)."""
+    data = request.get_json(silent=True) or {}
+    requested_state = str(data.get("state", "OFF")).upper()
+    valid_state = "ON" if requested_state in ["ON", "TRUE", "START", "1"] else "OFF"
+    updated = smart_irrigation_service.update_live_sensor_data({"pump_relay_state": valid_state})
+    return jsonify({
+        "success": True,
+        "pump_relay_state": valid_state,
+        "message": f"Water Pump relay switched to {valid_state}"
+    })
 
 
 @app.get("/api/phase2/pest-weed-advisory")

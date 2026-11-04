@@ -501,9 +501,11 @@
                 <span id="diagCategoryBadge" class="badge badge-warning">Disease</span>
                 <span id="diagSeverityBadge" class="badge badge-soil">Severe</span>
                 <span class="badge badge-success">Confidence: <span id="diagConfidence">94.2%</span></span>
+                <span class="badge badge-market" id="diagModelBadge">🤖 Pretrained MobileNetV2 Neural Network</span>
               </div>
               <h3 id="diagTitle" class="diag-headline">Anthracnose & Fruit Rot (Dieback)</h3>
               <p id="diagPathogen" class="diag-sub">Pathogen: Colletotrichum capsici</p>
+              <div id="diagTopCandidatesWrap" style="margin: 8px 0; font-size: 0.85rem; color: var(--text-subtle);"></div>
             </div>
           </div>
 
@@ -760,41 +762,208 @@
       </section>
 
       <!-- =============================================================
-           MODULE 3: SMART IRRIGATION ADVISORY
+           MODULE 3: SMART IRRIGATION & IOT SENSOR CONTROLLER HUB
            ============================================================= -->
-      <section class="card irrigation-section">
+      <section class="card irrigation-section" id="smartIrrigationSection">
         <div class="card-header">
           <div>
-            <h3>💧 Smart Irrigation Advisory</h3>
-            <p class="section-desc">Calculates precise water volume needed, root zone moisture deficit, and watering schedule.</p>
+            <h3>💧 Smart Irrigation & IoT Sensor Controller Hub</h3>
+            <p class="section-desc">
+              Takes real-time Soil Moisture sensor data, subtracts daily rainfall, and computes 
+              exact water volume in Litres and water pump run-time in minutes with direct relay control.
+            </p>
           </div>
-          <span class="badge badge-soil" id="irrigationStageBadge">Critical Stage</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="badge badge-success" id="iotSensorNodeStatus">📡 IoT Node: Online</span>
+            <span class="badge badge-soil" id="irrigationStageBadge">Critical Growth Stage</span>
+          </div>
         </div>
 
-        <div class="irrigation-dashboard-grid">
+        <!-- IoT Sensor Live Telemetry Bar -->
+        <div class="sensor-telemetry-banner">
+          <div class="telemetry-header">
+            <h4>🌱 Live In-Ground Soil Sensor Readings (RS485 / Capacitive Probe)</h4>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-secondary btn-sm" id="syncSensorBtn">🔄 Read Live Sensors</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="fillFromSensorBtn">📋 Sync to Soil & Irrigation</button>
+            </div>
+          </div>
+          <div class="sensor-chips-grid">
+            <div class="sensor-chip">
+              <span class="sensor-chip-label">Soil Moisture</span>
+              <strong class="sensor-chip-val" id="sensorLiveMoisture">21.5%</strong>
+              <small class="sensor-chip-sub">Root zone probe</small>
+            </div>
+            <div class="sensor-chip">
+              <span class="sensor-chip-label">Nitrogen (N)</span>
+              <strong class="sensor-chip-val" id="sensorLiveN">38 kg/ha</strong>
+              <small class="sensor-chip-sub">Optical / Modbus</small>
+            </div>
+            <div class="sensor-chip">
+              <span class="sensor-chip-label">Phosphorus (P)</span>
+              <strong class="sensor-chip-val" id="sensorLiveP">22 kg/ha</strong>
+              <small class="sensor-chip-sub">Optical / Modbus</small>
+            </div>
+            <div class="sensor-chip">
+              <span class="sensor-chip-label">Potassium (K)</span>
+              <strong class="sensor-chip-val" id="sensorLiveK">34 kg/ha</strong>
+              <small class="sensor-chip-sub">Optical / Modbus</small>
+            </div>
+            <div class="sensor-chip">
+              <span class="sensor-chip-label">Soil pH</span>
+              <strong class="sensor-chip-val" id="sensorLivePH">6.8</strong>
+              <small class="sensor-chip-sub">ISFET probe</small>
+            </div>
+            <div class="sensor-chip">
+              <span class="sensor-chip-label">Today's Rainfall</span>
+              <strong class="sensor-chip-val" id="sensorLiveRain">0.0 mm</strong>
+              <small class="sensor-chip-sub">Weather / Tipping bucket</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart Irrigation Interactive Input Form -->
+        <div class="irrigation-inputs-panel">
+          <div class="inputs-row-four">
+            <div class="field-item">
+              <label for="irrSoilMoisture"><strong>Soil Moisture Level (%):</strong> <span class="req">*</span></label>
+              <input type="number" id="irrSoilMoisture" min="0" max="100" step="0.5" value="21.5">
+              <small class="field-hint">Field capacity: ~28-35%</small>
+            </div>
+
+            <div class="field-item">
+              <label for="irrRainToday"><strong>Rainfall Today (mm):</strong></label>
+              <input type="number" id="irrRainToday" min="0" max="500" step="0.5" value="0.0">
+              <small class="field-hint">Deducted from irrigation need</small>
+            </div>
+
+            <div class="field-item">
+              <label for="irrRainForecast"><strong>Forecast 24h Rain (mm):</strong></label>
+              <input type="number" id="irrRainForecast" min="0" max="500" step="0.5" value="0.0">
+              <small class="field-hint">Delays pump if rain anticipated</small>
+            </div>
+
+            <div class="field-item">
+              <label for="irrPumpRating"><strong>Water Pump Capacity (HP):</strong></label>
+              <select id="irrPumpRating">
+                <option value="0.5 HP">0.5 HP (~75 L/min)</option>
+                <option value="1.0 HP" selected>1.0 HP (~150 L/min - Standard)</option>
+                <option value="2.0 HP">2.0 HP (~300 L/min)</option>
+                <option value="3.0 HP">3.0 HP (~480 L/min)</option>
+                <option value="5.0 HP">5.0 HP (~800 L/min)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inputs-row-four" style="margin-top: 10px;">
+            <div class="field-item">
+              <label for="irrMethod"><strong>Irrigation System:</strong></label>
+              <select id="irrMethod">
+                <option value="Drip Irrigation" selected>Drip Irrigation (90% Efficiency)</option>
+                <option value="Sprinkler Irrigation">Sprinkler Irrigation (75% Efficiency)</option>
+                <option value="Furrow / Flood Irrigation">Furrow / Flood (60% Efficiency)</option>
+              </select>
+            </div>
+
+            <div class="field-item">
+              <label for="irrLandAcres"><strong>Farm Land Area (Acres):</strong></label>
+              <input type="number" id="irrLandAcres" min="0.1" max="100" step="0.5" value="2.0">
+            </div>
+
+            <div class="field-item" style="grid-column: span 2; display: flex; align-items: flex-end;">
+              <button type="button" class="btn btn-primary" id="calcSmartIrrigationBtn" style="width: 100%; height: 42px;">
+                💧 Calculate Water Requirement & Pump Run-Time
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pump Operation & Relay Switch Banner -->
+        <div id="pumpDecisionBanner" class="pump-decision-card pump-running">
+          <div class="pump-banner-left">
+            <div class="pump-icon-wrap">
+              <span class="pump-spinning-icon" id="pumpIconVisual">⚙️</span>
+            </div>
+            <div>
+              <div class="pump-status-badge" id="pumpStatusBadge">⚡ PUMP ON — RUNNING REQUIRED</div>
+              <h3 id="pumpActionHeadline" class="pump-headline">Turn Water Pump ON for 102 Minutes</h3>
+              <p id="pumpReasonText" class="pump-sub">Root zone soil moisture is at 21.5% (deficient). 15,380 Litres required today.</p>
+            </div>
+          </div>
+          <div class="pump-banner-right">
+            <div class="pump-runtime-display">
+              <span class="runtime-label">Recommended Run-Time</span>
+              <strong id="pumpRuntimeDisplay" class="runtime-val">102 Mins</strong>
+              <small id="pumpTimingTip">Early Morning (6:00 - 8:30 AM)</small>
+            </div>
+            <button type="button" class="btn btn-relay-toggle" id="togglePumpRelayBtn">
+              🔌 Toggle Pump Relay (ON)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Metrics Grid -->
+        <div class="irrigation-dashboard-grid" style="margin-top: 18px;">
           <div class="irrigation-metric-card">
-            <div class="metric-label">Daily Crop Water Requirement</div>
+            <div class="metric-label">Gross Water Volume Needed Today</div>
             <div class="metric-big-val" id="dailyWaterLiters">15,380 L</div>
-            <small class="metric-sub" id="dailyWaterMm">3.8 mm/day per acre</small>
+            <small class="metric-sub" id="dailyWaterMm">3.8 mm net depth for 2.0 Acres</small>
           </div>
 
           <div class="irrigation-metric-card">
-            <div class="metric-label">Soil Moisture Status</div>
+            <div class="metric-label">Soil Moisture Health (Root Zone)</div>
             <div class="metric-big-val status-badge-val" id="soilMoistureStatus">Dry / Deficit</div>
-            <small class="metric-sub" id="soilRetentionInfo">Water retention: 4 days (Red Soil)</small>
+            <small class="metric-sub" id="soilRetentionInfo">Field Capacity: 26% | PWP: 12%</small>
           </div>
 
           <div class="irrigation-metric-card highlight-card">
-            <div class="metric-label">Next Irrigation Schedule</div>
-            <div class="metric-big-val" id="nextIrrigationDays">Due Today</div>
-            <small class="metric-sub" id="irrigationActionText">Water root zone to field capacity.</small>
+            <div class="metric-label">Estimated Energy Consumption</div>
+            <div class="metric-big-val" id="pumpEnergyKwh">1.5 kWh</div>
+            <small class="metric-sub" id="irrigationActionText">At 1.0 HP pump rating</small>
           </div>
         </div>
 
+        <!-- Advisory Callout -->
         <div class="advisory-callout-box">
-          <strong>💡 Agronomic Irrigation Tip:</strong>
-          <span id="irrigationTipText">Ensure optimum moisture during pegging for pod entry into soil. Avoid standing water.</span>
+          <strong>💡 Smart Irrigation Agronomic Rule:</strong>
+          <span id="irrigationTipText">Ensure optimum root zone moisture during flowering and pegging. Drip system reduces fungal foliar blight by preventing leaf wetness.</span>
         </div>
+
+        <!-- Hardware & Sensor Hookup Guide (Collapsible) -->
+        <details class="hardware-wiring-details" style="margin-top: 14px; background: var(--surface-alt); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <summary style="font-weight: 600; cursor: pointer; color: var(--primary-dark);">
+            🛠️ Hardware Setup Guide: Connecting Soil Moisture Sensor, NPK Sensor & Pump Relay to ESP32
+          </summary>
+          <div style="margin-top: 10px; font-size: 0.9rem; line-height: 1.6; color: var(--text-color);">
+            <p><strong>Required Components:</strong> ESP32 Microcontroller (or Arduino UNO + ESP8266), Capacitive Soil Moisture Sensor v1.2 (Analog Pin A0), RS485 NPK Soil Sensor (MAX485 module to Serial2 RX2/TX2), 5V Single-Channel Relay Module (Pin D7), and 12V/220V Water Pump.</p>
+            <p><strong>Arduino / ESP32 Code Sketch (Sends Telemetry via HTTP POST):</strong></p>
+            <pre style="background: #1e293b; color: #f8fafc; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; margin: 6px 0;">
+#include &lt;WiFi.h&gt;
+#include &lt;HTTPClient.h&gt;
+
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+const char* serverUrl = "http://YOUR_PC_IP:5000/api/sensors/telemetry";
+
+#define MOISTURE_PIN 36 // ADC1_CH0 (VP)
+#define RELAY_PIN 23    // GPIO connected to Relay IN
+
+void loop() {
+  int rawValue = analogRead(MOISTURE_PIN);
+  float moisturePct = map(rawValue, 3200, 1400, 0, 100); // Calibrated Dry vs Wet
+  
+  HTTPClient http;
+  http.begin(serverUrl);
+  http.addHeader("Content-Type", "application/json");
+  String payload = "{\"soil_moisture_pct\":" + String(moisturePct) + "}";
+  int httpCode = http.POST(payload);
+  http.end();
+  delay(15000); // Send every 15 seconds
+}
+            </pre>
+            <p><strong>Automated Pump Relay Control:</strong> The web app can toggle the pump relay directly by calling <code>POST /api/irrigation/pump-control</code> with <code>{"state": "ON"|"OFF"}</code>.</p>
+          </div>
+        </details>
       </section>
 
       <!-- Module 2: Fertilizer Dosage & NPK Deficit Calculator -->

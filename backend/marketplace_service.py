@@ -42,7 +42,7 @@ DEFAULT_LISTINGS = [
         "village": "Kalyandurg Rural",
         "district": "Anantapur",
         "state": "Andhra Pradesh",
-        "photo_url": "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=600&q=80",
+        "photo_url": "https://cdn.wikifarmer.com/images/detailed/2023/07/Groundnut-Plant-Information-History-Uses-and-Nutrition-Value.jpg",
         "notes": "Freshly machine-threshed pods, clean without soil clods, high oil content.",
         "created_at": "2026-10-22T14:15:00"
     },
@@ -59,7 +59,7 @@ DEFAULT_LISTINGS = [
         "village": "Rompicherla",
         "district": "Palnadu",
         "state": "Andhra Pradesh",
-        "photo_url": "https://images.unsplash.com/photo-1606041008023-472dfb5e530f?auto=format&fit=crop&w=600&q=80",
+        "photo_url": "https://cpimg.tistatic.com/06057924/b/4/Natural-Raw-Cotton.jpg",
         "notes": "First picking cotton, zero yellow staining, clean hand-picked lint.",
         "created_at": "2026-10-21T09:00:00"
     },
@@ -93,7 +93,7 @@ DEFAULT_LISTINGS = [
         "village": "Parchur",
         "district": "Bapatla",
         "state": "Andhra Pradesh",
-        "photo_url": "https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=600&q=80",
+        "photo_url": "https://www.shutterstock.com/image-photo/black-gram-urad-bean-dal-260nw-2435371213.jpg",
         "notes": "Cleaned and graded black gram, high protein content, ready for millers.",
         "created_at": "2026-10-23T16:20:00"
     }

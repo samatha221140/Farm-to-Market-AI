@@ -628,35 +628,9 @@ async function loadPhase2Data() {
         console.error("Fertilizer error:", e);
     }
 
-    // 2. Fetch Smart Irrigation Advisory
-    try {
-        const irrData = await fetchJSON(`${API_BASE}/api/phase2/irrigation-advisory`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                crop: crop,
-                soil_type: farmerSoilData.soil_type || "Red",
-                growth_stage: stage,
-                recent_rain_mm: 0.0,
-                temperature: farmerSoilData.temperature || 29.5
-            })
-        });
-
-        if (irrData.success && irrData.advisory) {
-            const adv = irrData.advisory;
-            if (getElement("dailyWaterLiters")) getElement("dailyWaterLiters").textContent = `${adv.daily_water_need_liters_per_acre.toLocaleString("en-IN")} L`;
-            if (getElement("dailyWaterMm")) getElement("dailyWaterMm").textContent = `${adv.daily_water_need_mm} mm/day per acre`;
-
-            if (getElement("soilMoistureStatus")) getElement("soilMoistureStatus").textContent = adv.moisture_status;
-            if (getElement("soilRetentionInfo")) getElement("soilRetentionInfo").textContent = `Retention interval: ${adv.soil_retention_interval_days} days (${farmerSoilData.soil_type || 'Red'} Soil)`;
-
-            if (getElement("nextIrrigationDays")) getElement("nextIrrigationDays").textContent = adv.next_irrigation_in_days === 1 ? "Due Today" : `In ${adv.next_irrigation_in_days} Days`;
-            if (getElement("irrigationActionText")) getElement("irrigationActionText").textContent = adv.action_advisory;
-            if (getElement("irrigationTipText")) getElement("irrigationTipText").textContent = adv.irrigation_method_tip;
-        }
-    } catch (e) {
-        console.error("Irrigation error:", e);
-    }
+    // 2. Fetch Smart Irrigation & IoT Sensor Advisory
+    await calculateSmartIrrigationUI();
+    await fetchLiveSensors();
 
     // 3. Fetch Pest & Weed Advisory
     try {
@@ -712,6 +686,191 @@ getElement("harvestReadyBannerBtn")?.addEventListener("click", () => {
     switchPhase(3);
     showMarketTab("list");
 });
+
+
+/* ==========================================================================
+   SMART IRRIGATION & IOT SENSOR CONTROLLER ENGINE
+   ========================================================================== */
+let currentPumpRelayState = "OFF";
+let currentSensorReadings = {};
+
+async function fetchLiveSensors() {
+    try {
+        const res = await fetchJSON(`${API_BASE}/api/sensors/latest`);
+        if (res.success && res.sensors) {
+            currentSensorReadings = res.sensors;
+            const s = res.sensors;
+            if (getElement("sensorLiveMoisture")) getElement("sensorLiveMoisture").textContent = `${s.soil_moisture_pct}%`;
+            if (getElement("sensorLiveN")) getElement("sensorLiveN").textContent = `${s.N} kg/ha`;
+            if (getElement("sensorLiveP")) getElement("sensorLiveP").textContent = `${s.P} kg/ha`;
+            if (getElement("sensorLiveK")) getElement("sensorLiveK").textContent = `${s.K} kg/ha`;
+            if (getElement("sensorLivePH")) getElement("sensorLivePH").textContent = `${s.pH}`;
+            if (getElement("sensorLiveRain")) getElement("sensorLiveRain").textContent = `${s.rainfall_today_mm} mm`;
+            
+            currentPumpRelayState = s.pump_relay_state || "OFF";
+            updatePumpRelayButtonUI();
+        }
+    } catch (e) {
+        console.warn("Sensor fetch notice:", e);
+    }
+}
+
+function updatePumpRelayButtonUI() {
+    const btn = getElement("togglePumpRelayBtn");
+    if (!btn) return;
+    if (currentPumpRelayState === "ON") {
+        btn.textContent = "🛑 Switch Pump Relay OFF";
+        btn.classList.add("active-on");
+    } else {
+        btn.textContent = "⚡ Switch Pump Relay ON";
+        btn.classList.remove("active-on");
+    }
+}
+
+async function togglePumpRelay() {
+    const nextState = currentPumpRelayState === "ON" ? "OFF" : "ON";
+    try {
+        const res = await fetchJSON(`${API_BASE}/api/irrigation/pump-control`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ state: nextState })
+        });
+        if (res.success) {
+            currentPumpRelayState = res.pump_relay_state;
+            updatePumpRelayButtonUI();
+            alert(`Pump Relay switched to: ${currentPumpRelayState}`);
+        }
+    } catch (e) {
+        alert("Failed to toggle pump relay: " + e.message);
+    }
+}
+
+async function calculateSmartIrrigationUI() {
+    const crop = selectedCrop || getElement("careCropSelector")?.value || "Groundnut";
+    const stage = getElement("careGrowthStage")?.value || "Flowering & Pegging / Tasseling (35-65 DAS)";
+    const soilType = farmerSoilData.soil_type || getElement("soil_type")?.value || "Red";
+    const soilMoisture = Number(getElement("irrSoilMoisture")?.value || 21.5);
+    const rainToday = Number(getElement("irrRainToday")?.value || 0.0);
+    const rainForecast = Number(getElement("irrRainForecast")?.value || 0.0);
+    const pumpRating = getElement("irrPumpRating")?.value || "1.0 HP";
+    const irrMethod = getElement("irrMethod")?.value || "Drip Irrigation";
+    const acres = Number(getElement("irrLandAcres")?.value || selectedAcreage || 2.0);
+
+    setButtonLoading("calcSmartIrrigationBtn", true, "Calculating Water Balance...", "💧 Calculate Water Requirement & Pump Run-Time");
+
+    try {
+        const res = await fetchJSON(`${API_BASE}/api/phase2/irrigation-advisory`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                crop: crop,
+                soil_type: soilType,
+                growth_stage: stage,
+                soil_moisture_pct: soilMoisture,
+                rainfall_today_mm: rainToday,
+                forecast_rain_mm: rainForecast,
+                temperature: farmerSoilData.temperature || 31.0,
+                humidity: farmerSoilData.humidity || 58.0,
+                pump_rating: pumpRating,
+                irrigation_method: irrMethod,
+                acres: acres
+            })
+        });
+
+        if (res.success && res.advisory) {
+            renderSmartIrrigation(res.advisory);
+        }
+    } catch (e) {
+        console.error("Irrigation calculation error:", e);
+    } finally {
+        setButtonLoading("calcSmartIrrigationBtn", false, "Calculating...", "💧 Calculate Water Requirement & Pump Run-Time");
+    }
+}
+
+function renderSmartIrrigation(adv) {
+    const pump = adv.pump_operation || {};
+    const water = adv.water_calculation || {};
+    const soil = adv.soil_water_status || {};
+
+    // 1. Pump Decision Banner
+    const banner = getElement("pumpDecisionBanner");
+    const statusBadge = getElement("pumpStatusBadge");
+    const actionHeadline = getElement("pumpActionHeadline");
+    const reasonText = getElement("pumpReasonText");
+    const runtimeVal = getElement("pumpRuntimeDisplay");
+    const timingTip = getElement("pumpTimingTip");
+
+    if (banner && statusBadge) {
+        if (pump.pump_state === "RECOMMENDED_ON" && pump.runtime_minutes > 0) {
+            banner.className = "pump-decision-card pump-running";
+            statusBadge.textContent = "⚡ PUMP ON — RUNNING REQUIRED";
+            statusBadge.style.color = "#15803d";
+            if (actionHeadline) actionHeadline.textContent = pump.action_headline;
+            if (reasonText) reasonText.textContent = `Root zone moisture is ${soil.sensor_moisture_pct}% (${soil.moisture_health}). ${water.total_water_liters.toLocaleString('en-IN')} L required for ${adv.land_acres} Acres.`;
+            if (runtimeVal) runtimeVal.textContent = pump.runtime_hours_str;
+            if (timingTip) timingTip.textContent = pump.recommended_timing;
+        } else {
+            banner.className = "pump-decision-card pump-stopped";
+            statusBadge.textContent = "⏹️ KEEP PUMP OFF — NO WATER NEEDED";
+            statusBadge.style.color = "#475569";
+            if (actionHeadline) actionHeadline.textContent = pump.action_headline;
+            if (reasonText) reasonText.textContent = `Soil moisture is at ${soil.sensor_moisture_pct}%. Rain/moisture balance is adequate today.`;
+            if (runtimeVal) runtimeVal.textContent = "0 Mins";
+            if (timingTip) timingTip.textContent = "Irrigation paused";
+        }
+    }
+
+    // 2. Metrics Cards
+    if (getElement("dailyWaterLiters")) {
+        getElement("dailyWaterLiters").textContent = `${water.total_water_liters.toLocaleString('en-IN')} L`;
+    }
+    if (getElement("dailyWaterMm")) {
+        getElement("dailyWaterMm").textContent = `${water.net_water_depth_mm} mm net depth (${adv.irrigation_method})`;
+    }
+    if (getElement("soilMoistureStatus")) {
+        getElement("soilMoistureStatus").textContent = `${soil.moisture_health} (${soil.sensor_moisture_pct}%)`;
+    }
+    if (getElement("soilRetentionInfo")) {
+        getElement("soilRetentionInfo").textContent = `Field Capacity: ${soil.field_capacity_pct}% | Wilting Point: ${soil.permanent_wilting_point_pct}%`;
+    }
+    if (getElement("pumpEnergyKwh")) {
+        getElement("pumpEnergyKwh").textContent = `${pump.estimated_kwh || 0} kWh`;
+    }
+
+    // 3. Tip text
+    if (getElement("irrigationTipText")) {
+        getElement("irrigationTipText").textContent = `Crop coefficient Kc=${adv.weather_factors.crop_coefficient_kc}. ${adv.irrigation_method} operates at ${adv.irrigation_efficiency_pct}% efficiency. ${pump.action_headline}.`;
+    }
+}
+
+// 1-Click Sync Sensor Readings to Forms
+function syncSensorsToForms() {
+    if (!currentSensorReadings || Object.keys(currentSensorReadings).length === 0) {
+        alert("Please click 'Read Live Sensors' first to connect to the node.");
+        return;
+    }
+    const s = currentSensorReadings;
+    if (getElement("irrSoilMoisture")) getElement("irrSoilMoisture").value = s.soil_moisture_pct;
+    if (getElement("irrRainToday")) getElement("irrRainToday").value = s.rainfall_today_mm;
+    
+    // Also sync to Soil Health Card form in Module 2
+    if (getElement("soilN")) getElement("soilN").value = s.N;
+    if (getElement("soilP")) getElement("soilP").value = s.P;
+    if (getElement("soilK")) getElement("soilK").value = s.K;
+    if (getElement("soilPH")) getElement("soilPH").value = s.pH;
+
+    // Trigger recalculation
+    calculateSmartIrrigationUI();
+    alert(`Synced live IoT sensors to Smart Irrigation & Soil Health forms:\n• Soil Moisture: ${s.soil_moisture_pct}%\n• N-P-K: ${s.N}-${s.P}-${s.K} kg/ha\n• pH: ${s.pH}`);
+}
+
+getElement("calcSmartIrrigationBtn")?.addEventListener("click", calculateSmartIrrigationUI);
+getElement("togglePumpRelayBtn")?.addEventListener("click", togglePumpRelay);
+getElement("syncSensorBtn")?.addEventListener("click", async () => {
+    await fetchLiveSensors();
+    alert("Live sensor telemetry refreshed from IoT Node.");
+});
+getElement("fillFromSensorBtn")?.addEventListener("click", syncSensorsToForms);
 
 
 /* ==========================================================================
@@ -1163,6 +1322,20 @@ function renderVisionDiagnosis(data) {
     if (getElement("diagConfidence")) getElement("diagConfidence").textContent = `${data.confidence_pct}%`;
     if (getElement("diagSummary")) getElement("diagSummary").textContent = data.summary;
 
+    if (getElement("diagModelBadge") && data.model_engine) {
+        getElement("diagModelBadge").textContent = `🤖 ${data.model_engine}`;
+    }
+
+    const candidatesWrap = getElement("diagTopCandidatesWrap");
+    if (candidatesWrap) {
+        if (data.top_candidates && data.top_candidates.length > 0) {
+            candidatesWrap.innerHTML = `<strong>🧠 Top Neural Network Probabilities:</strong> ` +
+                data.top_candidates.map(c => `<span style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; margin: 2px 4px; font-weight: 600;">${escapeHTML(c.class_name)} (${c.confidence_pct}%)</span>`).join("");
+        } else {
+            candidatesWrap.innerHTML = "";
+        }
+    }
+
     const catBadge = getElement("diagCategoryBadge");
     if (catBadge) {
         catBadge.textContent = data.category;
@@ -1361,6 +1534,13 @@ function renderSoilAndFertilizerResults(data, acres) {
                 <div class="bag-count">${bs.zinc_sulfate_kg} kg</div>
                 <small>Micronutrient</small>
             </div>
+            ${bs.gypsum_50kg_bags > 0 ? `
+            <div class="fert-bag-card">
+                <div class="bag-icon">🪨</div>
+                <div class="bag-name">Gypsum (CaSO₄)</div>
+                <div class="bag-count">${bs.gypsum_50kg_bags} Bags</div>
+                <small>Soil amendment / Pod calcium</small>
+            </div>` : ''}
         `;
     }
 
