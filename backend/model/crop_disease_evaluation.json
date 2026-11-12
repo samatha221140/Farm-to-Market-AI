@@ -1,0 +1,193 @@
+{
+  "model_architecture": "Random Forest Ensemble (200 Trees) + StandardScaler",
+  "dataset_total_samples": 336,
+  "train_samples": 268,
+  "test_samples": 68,
+  "test_accuracy_pct": 85.29,
+  "train_accuracy_pct": 92.91,
+  "num_classes": 18,
+  "classes": [
+    {
+      "id": 0,
+      "name": "Bacterial Spot",
+      "pathogen": "Xanthomonas campestris",
+      "type": "Disease"
+    },
+    {
+      "id": 1,
+      "name": "Early Blight",
+      "pathogen": "Alternaria solani",
+      "type": "Disease"
+    },
+    {
+      "id": 2,
+      "name": "Late Blight",
+      "pathogen": "Phytophthora infestans",
+      "type": "Disease"
+    },
+    {
+      "id": 3,
+      "name": "Leaf Mold",
+      "pathogen": "Passalora fulva",
+      "type": "Disease"
+    },
+    {
+      "id": 4,
+      "name": "Septoria Leaf Spot",
+      "pathogen": "Septoria lycopersici",
+      "type": "Disease"
+    },
+    {
+      "id": 5,
+      "name": "Target Spot",
+      "pathogen": "Corynespora cassiicola",
+      "type": "Disease"
+    },
+    {
+      "id": 6,
+      "name": "Yellow Leaf Curl Virus",
+      "pathogen": "Tomato Yellow Leaf Curl Virus (TYLCV)",
+      "type": "Disease"
+    },
+    {
+      "id": 7,
+      "name": "Mosaic Virus",
+      "pathogen": "ToMV / Cucumber Mosaic Virus",
+      "type": "Disease"
+    },
+    {
+      "id": 8,
+      "name": "Common Rust",
+      "pathogen": "Puccinia sorghi",
+      "type": "Disease"
+    },
+    {
+      "id": 9,
+      "name": "Cercospora and Gray Leaf Spot",
+      "pathogen": "Cercospora zeae-maydis",
+      "type": "Disease"
+    },
+    {
+      "id": 10,
+      "name": "Northern Leaf Blight",
+      "pathogen": "Exserohilum turcicum",
+      "type": "Disease"
+    },
+    {
+      "id": 11,
+      "name": "Anthracnose / Fruit Rot",
+      "pathogen": "Colletotrichum species",
+      "type": "Disease"
+    },
+    {
+      "id": 12,
+      "name": "Spider Mites",
+      "pathogen": "Tetranychus urticae",
+      "type": "Pest"
+    },
+    {
+      "id": 13,
+      "name": "Aphids Colony Damage",
+      "pathogen": "Aphis gossypii / Myzus persicae",
+      "type": "Pest"
+    },
+    {
+      "id": 14,
+      "name": "Cutworm / Caterpillar Chewing",
+      "pathogen": "Spodoptera litura / Helicoverpa armigera",
+      "type": "Pest"
+    },
+    {
+      "id": 15,
+      "name": "Nutgrass Sedge",
+      "pathogen": "Cyperus rotundus",
+      "type": "Weed"
+    },
+    {
+      "id": 16,
+      "name": "Parthenium Congress Grass",
+      "pathogen": "Parthenium hysterophorus",
+      "type": "Weed"
+    },
+    {
+      "id": 17,
+      "name": "Healthy Crop Foliage",
+      "pathogen": "No pathogen (Normal / Vigorous)",
+      "type": "Healthy"
+    }
+  ],
+  "feature_importances": [
+    {
+      "feature": "RG_Ratio",
+      "importance_pct": 12.74
+    },
+    {
+      "feature": "BG_Ratio",
+      "importance_pct": 11.38
+    },
+    {
+      "feature": "Green_Index_Ratio",
+      "importance_pct": 10.78
+    },
+    {
+      "feature": "Necrotic_Ratio",
+      "importance_pct": 9.55
+    },
+    {
+      "feature": "Green_Bias",
+      "importance_pct": 8.79
+    },
+    {
+      "feature": "RB_Diff",
+      "importance_pct": 8.41
+    },
+    {
+      "feature": "Chlorosis_Ratio",
+      "importance_pct": 5.23
+    },
+    {
+      "feature": "B_Mean",
+      "importance_pct": 5.05
+    },
+    {
+      "feature": "R_Mean",
+      "importance_pct": 4.13
+    },
+    {
+      "feature": "Edge_Energy",
+      "importance_pct": 3.88
+    },
+    {
+      "feature": "Brightness",
+      "importance_pct": 3.6
+    },
+    {
+      "feature": "G_Mean",
+      "importance_pct": 3.12
+    },
+    {
+      "feature": "Dark_Spots_Ratio",
+      "importance_pct": 3.12
+    },
+    {
+      "feature": "B_Std",
+      "importance_pct": 2.98
+    },
+    {
+      "feature": "Dynamic_Range",
+      "importance_pct": 2.28
+    },
+    {
+      "feature": "G_Std",
+      "importance_pct": 1.96
+    },
+    {
+      "feature": "R_Std",
+      "importance_pct": 1.54
+    },
+    {
+      "feature": "Contrast",
+      "importance_pct": 1.45
+    }
+  ]
+}
