@@ -22,7 +22,7 @@
         </div>
       </div>
       
-      <!-- Top Navigation Tabs for the 3 Phases -->
+      <!-- Top Navigation Tabs for the 3 Phases + Database Storage -->
       <nav class="phase-nav-tabs">
         <button type="button" class="phase-nav-btn active" id="navPhase1Btn" data-phase="1">
           <span class="nav-num">1</span>
@@ -35,6 +35,10 @@
         <button type="button" class="phase-nav-btn" id="navPhase3Btn" data-phase="3">
           <span class="nav-num">3</span>
           <span class="nav-title">Direct Marketplace</span>
+        </button>
+        <button type="button" class="phase-nav-btn" id="navDatabaseBtn" data-phase="4">
+          <span class="nav-num">💾</span>
+          <span class="nav-title">Database Records</span>
         </button>
       </nav>
     </div>
@@ -462,7 +466,7 @@
           <!-- Observation & Sample Selectors -->
           <div class="scanner-controls-panel">
             <div class="form-group">
-              <label for="visionCropSelect">Target Crop</label>
+              <label for="visionCropSelect">Target Crop / Category</label>
               <select id="visionCropSelect">
                 <option value="Chilli" selected>Chilli (Mirchi)</option>
                 <option value="Groundnut">Groundnut (Verusanaga)</option>
@@ -472,6 +476,12 @@
                 <option value="Black Gram">Black Gram (Minumu)</option>
                 <option value="Red Gram">Red Gram (Kandi)</option>
                 <option value="Sugarcane">Sugarcane (Cheruku)</option>
+                <option value="Bajra">Bajra (Sajjalu / Pearl Millet)</option>
+                <option value="Bengal Gram">Bengal Gram (Sanagalu / Chickpea)</option>
+                <option value="Green Gram">Green Gram (Pesalu / Moong)</option>
+                <option value="Jowar">Jowar (Jonnalu / Sorghum)</option>
+                <option value="Pest">Insect Pest Infestation</option>
+                <option value="Weed">Weed Infestation</option>
               </select>
             </div>
 
@@ -482,13 +492,16 @@
 
             <!-- Quick Demo Sample Photos -->
             <div class="sample-photos-bar">
-              <small><strong>Or Test Instantly with Sample Photos:</strong></small>
+              <small><strong>Test Instantly with Trained Real Dataset Samples:</strong></small>
               <div class="sample-btn-group">
                 <button type="button" class="sample-chip-btn" id="sampleChilliAnthracnose">🌶️ Chilli Leaf Rot</button>
-                <button type="button" class="sample-chip-btn" id="sampleGroundnutTikka">🥜 Groundnut Tikka Spot</button>
-                <button type="button" class="sample-chip-btn" id="samplePestCurl">🐛 Leaf Curl & Thrips</button>
                 <button type="button" class="sample-chip-btn" id="sampleRiceBlast">🌾 Rice Blast Lesion</button>
-                <button type="button" class="sample-chip-btn" id="sampleWeedInfest">🌿 Weed Overgrowth</button>
+                <button type="button" class="sample-chip-btn" id="sampleGroundnutTikka">🥜 Groundnut Tikka Spot</button>
+                <button type="button" class="sample-chip-btn" id="sampleCottonBlight">🌿 Cotton Blight</button>
+                <button type="button" class="sample-chip-btn" id="sampleMaizeRust">🌽 Maize Rust</button>
+                <button type="button" class="sample-chip-btn" id="samplePestSpiderMites">🕷️ Spider Mites</button>
+                <button type="button" class="sample-chip-btn" id="samplePestAphids">🐛 Aphid Colony</button>
+                <button type="button" class="sample-chip-btn" id="sampleWeedNutgrass">🌾 Nutgrass Sedge</button>
                 <button type="button" class="sample-chip-btn" id="sampleHealthyCrop">🍃 Healthy Foliage</button>
               </div>
             </div>
@@ -509,7 +522,7 @@
                 <span id="diagCategoryBadge" class="badge badge-warning">Disease</span>
                 <span id="diagSeverityBadge" class="badge badge-soil">Severe</span>
                 <span class="badge badge-success">Confidence: <span id="diagConfidence">94.2%</span></span>
-                <span class="badge badge-market" id="diagModelBadge">🤖 Pretrained MobileNetV2 Neural Network</span>
+                <span class="badge badge-market" id="diagModelBadge">🤖 Trained 67-Class Crop Disease, Pest & Weed Deep Ensemble</span>
               </div>
               <h3 id="diagTitle" class="diag-headline">Anthracnose & Fruit Rot (Dieback)</h3>
               <p id="diagPathogen" class="diag-sub">Pathogen: Colletotrichum capsici</p>
@@ -1224,6 +1237,108 @@ void loop() {
       </div>
 
     </div><!-- End Phase 3 Container -->
+
+    <!-- ===================================================================
+         DATABASE RECORDS & MULTI-PHASE ACTIVITY HISTORY (PERSISTENT STORAGE)
+         =================================================================== -->
+    <div id="databaseContainer" class="phase-container">
+
+      <!-- Hero Banner -->
+      <section class="hero-banner" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff;">
+        <div class="hero-content">
+          <span class="phase-pill" style="background: #38bdf8; color: #0f172a;">💾 PERSISTENT DATABASE STORAGE</span>
+          <h2>Farmer Interaction & AI Decision Audit Logs</h2>
+          <p>
+            All farmer inputs entered and AI outputs generated across <strong>Phase 1</strong> (Crop Recommendation), 
+            <strong>Phase 2</strong> (Smart Irrigation, Soil & Fertilizer, Disease / Pest / Weed Diagnoses), and 
+            <strong>Phase 3</strong> (Direct Marketplace Listings & Buyer Inquiries) are permanently stored in an 
+            ACID-compliant <strong>SQLite Database</strong> file and synchronized to a human-readable <strong>JSONL audit log</strong> file.
+          </p>
+
+          <!-- Storage File Indicators -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 18px;">
+            <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-md); padding: 14px;">
+              <div style="font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">📁 SQLite Relational Database File</div>
+              <div style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin: 4px 0;" id="dbFilePathDisplay">backend/data/farm_database.db</div>
+              <div style="font-size: 0.8rem; color: #cbd5e1;">Transactional multi-table persistent storage (<span id="dbFileSizeDisplay">-- KB</span>)</div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-md); padding: 14px;">
+              <div style="font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">📝 Stream Audit File (JSONL)</div>
+              <div style="font-size: 0.95rem; font-weight: 700; color: #4ade80; margin: 4px 0;" id="dbLogPathDisplay">backend/data/farm_activity_log.jsonl</div>
+              <div style="font-size: 0.8rem; color: #cbd5e1;">Chronological line-by-line event history (<span id="dbLogSizeDisplay">-- KB</span>)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Database Statistics Overview Bar -->
+      <section class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <h3>📊 Database Activity Summary</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time interaction counts persistently saved to disk.</p>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="refreshDatabaseBtn">
+            🔄 Refresh Live Records
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px;">
+          <div class="meter-box" style="text-align: center; padding: 14px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Phase 1 Recommendations</span>
+            <strong id="statP1Count" style="display: block; font-size: 1.6rem; color: var(--primary); margin-top: 4px;">0</strong>
+          </div>
+          <div class="meter-box" style="text-align: center; padding: 14px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Phase 2 Smart Irrigation</span>
+            <strong id="statP2IrrCount" style="display: block; font-size: 1.6rem; color: var(--sky); margin-top: 4px;">0</strong>
+          </div>
+          <div class="meter-box" style="text-align: center; padding: 14px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Phase 2 Soil Tests</span>
+            <strong id="statP2SoilCount" style="display: block; font-size: 1.6rem; color: #854d0e; margin-top: 4px;">0</strong>
+          </div>
+          <div class="meter-box" style="text-align: center; padding: 14px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Phase 2 Vision Diagnoses</span>
+            <strong id="statP2DiagCount" style="display: block; font-size: 1.6rem; color: #dc2626; margin-top: 4px;">0</strong>
+          </div>
+          <div class="meter-box" style="text-align: center; padding: 14px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Phase 3 Market Lots</span>
+            <strong id="statP3ListCount" style="display: block; font-size: 1.6rem; color: var(--accent); margin-top: 4px;">0</strong>
+          </div>
+          <div class="meter-box" style="text-align: center; padding: 14px;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Phase 3 Buyer Inquiries</span>
+            <strong id="statP3InqCount" style="display: block; font-size: 1.6rem; color: #7c3aed; margin-top: 4px;">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Database Filter & Feed Section -->
+      <section class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+          <div>
+            <h3>📜 Stored Records Explorer</h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Filter records by phase to inspect inputs entered and AI outputs returned.</p>
+          </div>
+
+          <!-- Phase Filters -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="dbFilterPills">
+            <button type="button" class="sample-chip-btn active" data-db-phase="all">All Records</button>
+            <button type="button" class="sample-chip-btn" data-db-phase="phase1">Phase 1: Crops</button>
+            <button type="button" class="sample-chip-btn" data-db-phase="phase2_irr">Phase 2: Irrigation</button>
+            <button type="button" class="sample-chip-btn" data-db-phase="phase2_soil">Phase 2: Soil</button>
+            <button type="button" class="sample-chip-btn" data-db-phase="phase2_diag">Phase 2: Disease Diagnoses</button>
+            <button type="button" class="sample-chip-btn" data-db-phase="phase3">Phase 3: Market</button>
+          </div>
+        </div>
+
+        <p id="dbStatus" class="status"></p>
+
+        <!-- Records Feed Container -->
+        <div id="dbRecordsFeed" style="display: flex; flex-direction: column; gap: 14px;">
+          <p style="color: var(--text-muted); text-align: center; padding: 24px;">Loading database records...</p>
+        </div>
+      </section>
+
+    </div><!-- End Database Records Container -->
 
   </main>
 

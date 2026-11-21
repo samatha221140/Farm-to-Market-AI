@@ -54,19 +54,29 @@ async function fetchJSON(url, options = {}) {
 }
 
 /* ==========================================================================
-   GLOBAL PHASE NAVIGATION (1 -> 2 -> 3)
+   GLOBAL PHASE NAVIGATION (1 -> 2 -> 3 -> 4 Database)
    ========================================================================== */
 function switchPhase(phaseNum) {
     currentPhase = Number(phaseNum);
 
     // Update Nav Buttons
-    const navBtns = [getElement("navPhase1Btn"), getElement("navPhase2Btn"), getElement("navPhase3Btn")];
+    const navBtns = [
+        getElement("navPhase1Btn"),
+        getElement("navPhase2Btn"),
+        getElement("navPhase3Btn"),
+        getElement("navDatabaseBtn")
+    ];
     navBtns.forEach((btn, idx) => {
         if (btn) btn.classList.toggle("active", idx + 1 === currentPhase);
     });
 
     // Update Phase Containers
-    const containers = [getElement("phase1Container"), getElement("phase2Container"), getElement("phase3Container")];
+    const containers = [
+        getElement("phase1Container"),
+        getElement("phase2Container"),
+        getElement("phase3Container"),
+        getElement("databaseContainer")
+    ];
     containers.forEach((c, idx) => {
         if (c) c.classList.toggle("active", idx + 1 === currentPhase);
     });
@@ -74,7 +84,7 @@ function switchPhase(phaseNum) {
     // Update Active Crop Bar
     const activeBar = getElement("activeCropBar");
     if (activeBar) {
-        activeBar.style.display = (currentPhase >= 2 || selectedCrop) ? "block" : "none";
+        activeBar.style.display = (currentPhase >= 2 && currentPhase <= 3 && selectedCrop) ? "block" : "none";
         if (getElement("activeCropNameDisplay")) getElement("activeCropNameDisplay").textContent = selectedCrop;
         if (getElement("activeCropAreaDisplay")) getElement("activeCropAreaDisplay").textContent = `${selectedAcreage.toFixed(1)} Acres`;
     }
@@ -84,6 +94,9 @@ function switchPhase(phaseNum) {
         loadPhase2Data();
     } else if (currentPhase === 3) {
         loadMarketplaceListings();
+    } else if (currentPhase === 4) {
+        loadDatabaseStats();
+        loadDatabaseRecords(currentDbFilter || "all");
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -92,6 +105,7 @@ function switchPhase(phaseNum) {
 getElement("navPhase1Btn")?.addEventListener("click", () => switchPhase(1));
 getElement("navPhase2Btn")?.addEventListener("click", () => switchPhase(2));
 getElement("navPhase3Btn")?.addEventListener("click", () => switchPhase(3));
+getElement("navDatabaseBtn")?.addEventListener("click", () => switchPhase(4));
 
 getElement("quickJumpPhase2Btn")?.addEventListener("click", () => switchPhase(2));
 getElement("quickJumpPhase3Btn")?.addEventListener("click", () => switchPhase(3));
@@ -1272,10 +1286,13 @@ function loadSamplePhoto(type, crop, notes) {
 }
 
 getElement("sampleChilliAnthracnose")?.addEventListener("click", () => loadSamplePhoto("chilli_rot", "Chilli", "dark necrotic lesions & dieback"));
-getElement("sampleGroundnutTikka")?.addEventListener("click", () => loadSamplePhoto("groundnut_tikka", "Groundnut", "brown spots with yellow halo"));
-getElement("samplePestCurl")?.addEventListener("click", () => loadSamplePhoto("pest_curl", "Chilli", "upward curled leaves & thrips damage"));
 getElement("sampleRiceBlast")?.addEventListener("click", () => loadSamplePhoto("rice_blast", "Rice", "spindle shaped diamond lesions on leaf blades"));
-getElement("sampleWeedInfest")?.addEventListener("click", () => loadSamplePhoto("weed_overgrowth", "Cotton", "invasive grass and broadleaf weeds in field"));
+getElement("sampleGroundnutTikka")?.addEventListener("click", () => loadSamplePhoto("groundnut_tikka", "Groundnut", "brown spots with yellow halo"));
+getElement("sampleCottonBlight")?.addEventListener("click", () => loadSamplePhoto("chilli_rot", "Cotton", "angular water-soaked black spots"));
+getElement("sampleMaizeRust")?.addEventListener("click", () => loadSamplePhoto("rice_blast", "Maize", "elongated reddish-brown powdery rust pustules"));
+getElement("samplePestSpiderMites")?.addEventListener("click", () => loadSamplePhoto("pest_curl", "Pest", "yellow stippling, webbing & tiny crawling mites"));
+getElement("samplePestAphids")?.addEventListener("click", () => loadSamplePhoto("pest_curl", "Pest", "clusters of sucking aphids under leaves"));
+getElement("sampleWeedNutgrass")?.addEventListener("click", () => loadSamplePhoto("weed_overgrowth", "Weed", "invasive nutgrass sedge tubers and shoots"));
 getElement("sampleHealthyCrop")?.addEventListener("click", () => loadSamplePhoto("healthy", "Groundnut", "vigorous green foliage"));
 
 // Scan & Diagnose Button Handler
@@ -1333,7 +1350,11 @@ function renderVisionDiagnosis(data) {
     if (candidatesWrap) {
         if (data.top_candidates && data.top_candidates.length > 0) {
             candidatesWrap.innerHTML = `<strong>🧠 Top Neural Network Probabilities:</strong> ` +
-                data.top_candidates.map(c => `<span style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; margin: 2px 4px; font-weight: 600;">${escapeHTML(c.class_name)} (${c.confidence_pct}%)</span>`).join("");
+                data.top_candidates.map(c => {
+                    const cName = c.condition || c.class_name || "Disorder";
+                    const prob = c.probability_pct ?? c.confidence_pct ?? 0;
+                    return `<span style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; margin: 2px 4px; font-weight: 600;">${escapeHTML(cName)} (${prob}%)</span>`;
+                }).join("");
         } else {
             candidatesWrap.innerHTML = "";
         }
@@ -1595,3 +1616,284 @@ getElement("tabInmFertBtn")?.addEventListener("click", () => {
     getElement("viewOrganicFert")?.classList.remove("active");
     getElement("viewChemicalFert")?.classList.remove("active");
 });
+
+
+/* ==========================================================================
+   DATABASE RECORDS & PERSISTENT ACTIVITY AUDIT MODULE
+   ========================================================================== */
+let currentDbFilter = "all";
+
+async function loadDatabaseStats() {
+    try {
+        const data = await fetchJSON(`${API_BASE}/api/database/stats`);
+        const stats = data.database_stats || {};
+
+        if (getElement("statP1Count")) getElement("statP1Count").textContent = stats.phase1_recommendations ?? 0;
+        if (getElement("statP2IrrCount")) getElement("statP2IrrCount").textContent = stats.phase2_smart_irrigation ?? 0;
+        if (getElement("statP2SoilCount")) getElement("statP2SoilCount").textContent = stats.phase2_soil_fertilizer ?? 0;
+        if (getElement("statP2DiagCount")) getElement("statP2DiagCount").textContent = stats.phase2_diagnoses ?? 0;
+        if (getElement("statP3ListCount")) getElement("statP3ListCount").textContent = stats.phase3_marketplace_listings ?? 0;
+        if (getElement("statP3InqCount")) getElement("statP3InqCount").textContent = stats.phase3_buyer_inquiries ?? 0;
+
+        if (getElement("dbFilePathDisplay") && stats.db_file_path) {
+            getElement("dbFilePathDisplay").textContent = stats.db_file_path;
+        }
+        if (getElement("dbFileSizeDisplay")) {
+            getElement("dbFileSizeDisplay").textContent = `${stats.db_file_size_kb ?? 0} KB`;
+        }
+        if (getElement("dbLogPathDisplay") && stats.audit_log_path) {
+            getElement("dbLogPathDisplay").textContent = stats.audit_log_path;
+        }
+        if (getElement("dbLogSizeDisplay")) {
+            getElement("dbLogSizeDisplay").textContent = `${stats.audit_log_size_kb ?? 0} KB`;
+        }
+    } catch (err) {
+        console.warn("Failed loading database stats:", err);
+    }
+}
+
+async function loadDatabaseRecords(filterPhase = "all") {
+    currentDbFilter = filterPhase;
+    const feed = getElement("dbRecordsFeed");
+    if (!feed) return;
+
+    setStatus("dbStatus", "Loading saved records from SQLite database...", "loading");
+
+    try {
+        const data = await fetchJSON(`${API_BASE}/api/database/records?phase=all&limit=100`);
+        const recs = data.records || {};
+
+        let combined = [];
+
+        // 1. Phase 1 Recommendations
+        (recs.phase1_recommendations || []).forEach(r => {
+            let top5 = [], top3 = [];
+            try { top5 = JSON.parse(r.top_5_suitable_crops || "[]"); } catch (e) {}
+            try { top3 = JSON.parse(r.top_3_profitable_crops || "[]"); } catch (e) {}
+            combined.push({
+                type: "phase1",
+                timestamp: r.timestamp,
+                title: "Crop Recommendation & Profit Ranking",
+                badge: "Phase 1 : Recommendation",
+                badgeClass: "badge-success",
+                inputs: [
+                    { label: "NPK & pH", val: `N:${r.input_n} P:${r.input_p} K:${r.input_k} | pH:${r.input_ph}` },
+                    { label: "Soil & Water", val: `${r.input_soil_type} Soil | ${r.input_water_availability} Water` },
+                    { label: "Season & Land", val: `${r.input_season} | ${r.input_land_acres} Acres` },
+                    { label: "Weather", val: `${r.input_temperature}°C | Rain: ${r.input_rainfall}mm | Hum: ${r.input_humidity}%` }
+                ],
+                outputs: [
+                    { label: "Top 5 Suitable Crops", val: top5.map(c => c.crop || c).join(", ") || "None" },
+                    { label: "Top 3 Profitable Crops", val: top3.map(c => `${c.crop} (₹${Math.round(c.estimated_net_profit_rs || 0).toLocaleString("en-IN")})`).join(", ") || "None" }
+                ],
+                raw: r
+            });
+        });
+
+        // 2. Phase 2 Smart Irrigation
+        (recs.phase2_smart_irrigation || []).forEach(r => {
+            combined.push({
+                type: "phase2_irr",
+                timestamp: r.timestamp,
+                title: `Smart Irrigation Advisory (${r.input_crop || "Crop"})`,
+                badge: "Phase 2 : Smart Irrigation",
+                badgeClass: "badge-sky",
+                inputs: [
+                    { label: "Target Crop & Area", val: `${r.input_crop} (${r.input_land_acres} Acres)` },
+                    { label: "Soil & Growth Stage", val: `${r.input_soil_type} Soil | ${r.input_growth_stage}` },
+                    { label: "Soil Moisture Sensor", val: `${r.input_soil_moisture_pct}% (Rain Today: ${r.input_rainfall_today_mm}mm)` },
+                    { label: "Pump & System", val: `${r.input_pump_rating} Motor (${r.input_irrigation_method})` }
+                ],
+                outputs: [
+                    { label: "Pump Relay Action", val: `Status: ${r.output_pump_status}` },
+                    { label: "Water & Runtime", val: `${Math.round(r.output_water_needed_litres || 0).toLocaleString("en-IN")} Litres | Runtime: ${Math.round(r.output_runtime_minutes || 0)} min (${(r.output_power_kwh || 0).toFixed(2)} kWh)` },
+                    { label: "Advisory Text", val: r.output_summary || "Calculated optimal water balance." }
+                ],
+                raw: r
+            });
+        });
+
+        // 3. Phase 2 Soil Health & Fertilizer
+        (recs.phase2_soil_fertilizer || []).forEach(r => {
+            let chem = {}, org = {};
+            try { chem = JSON.parse(r.output_chemical_bags_json || "{}"); } catch (e) {}
+            try { org = JSON.parse(r.output_organic_package_json || "{}"); } catch (e) {}
+            combined.push({
+                type: "phase2_soil",
+                timestamp: r.timestamp,
+                title: `Soil Health & Fertilizer Plan (${r.input_crop})`,
+                badge: "Phase 2 : Soil & Fertilizer",
+                badgeClass: "badge-soil",
+                inputs: [
+                    { label: "Target Crop & Acres", val: `${r.input_crop} (${r.input_acres} Acres)` },
+                    { label: "Tested Soil N-P-K", val: `N:${r.input_soil_n} | P:${r.input_soil_p} | K:${r.input_soil_k} kg/ha` },
+                    { label: "Soil pH & OC", val: `pH: ${r.input_soil_ph} | OC: ${r.input_organic_carbon}% | Zinc: ${r.input_zinc} ppm` }
+                ],
+                outputs: [
+                    { label: "Chemical Fertilizer Bags", val: `Urea: ${chem.urea_bags_50kg ?? chem.urea ?? 0} bags | DAP: ${chem.dap_bags_50kg ?? chem.dap ?? 0} bags | MOP: ${chem.mop_bags_50kg ?? chem.mop ?? 0} bags` },
+                    { label: "Organic Bio-Package", val: `${org.fym_tons || 2} Tons FYM + ${org.vermicompost_kg || 400} kg Vermicompost + Bio-inoculants` }
+                ],
+                raw: r
+            });
+        });
+
+        // 4. Phase 2 Vision Diagnosis
+        (recs.phase2_diagnoses || []).forEach(r => {
+            combined.push({
+                type: "phase2_diag",
+                timestamp: r.timestamp,
+                title: `Photo Diagnosis: ${r.output_condition || "Crop Foliage"}`,
+                badge: `Phase 2 : ${r.output_category || "Diagnosis"}`,
+                badgeClass: r.output_category === "Disease" ? "badge-warning" : (r.output_category === "Pest" ? "badge-market" : (r.output_category === "Weed" ? "badge-soil" : "badge-success")),
+                imageUrl: r.image_url ? `${API_BASE}${r.image_url}` : null,
+                imageFile: r.image_filename,
+                inputs: [
+                    { label: "Target Crop", val: r.input_crop || "Crop Foliage" },
+                    { label: "Farmer Observed Symptoms", val: r.input_farmer_notes || "Field photograph uploaded" }
+                ],
+                outputs: [
+                    { label: "Diagnosed Condition", val: `${r.output_condition} (${r.output_confidence_pct}% confidence, Severity: ${r.output_severity})` },
+                    { label: "Pathogen / Species", val: r.output_pathogen || "Identified Botanical / Pathological Agent" },
+                    { label: "Organic Remedy", val: (r.output_organic_cure || "").slice(0, 140) + "..." },
+                    { label: "Chemical Treatment", val: (r.output_chemical_cure || "").slice(0, 140) + "..." }
+                ],
+                raw: r
+            });
+        });
+
+        // 5. Phase 3 Marketplace Listings
+        (recs.phase3_marketplace_listings || []).forEach(r => {
+            combined.push({
+                type: "phase3",
+                timestamp: r.timestamp,
+                title: `Produce Lot Published: ${r.crop} (${r.variety || "Lot"})`,
+                badge: "Phase 3 : Marketplace Listing",
+                badgeClass: "badge-accent",
+                inputs: [
+                    { label: "Farmer & Contact", val: `${r.farmer_name} (📞 ${r.phone_number})` },
+                    { label: "Location", val: `${r.village}, ${r.district}, ${r.state}` },
+                    { label: "Lot Spec", val: `${r.quantity_quintals} Quintals (${r.quality_grade})` }
+                ],
+                outputs: [
+                    { label: "Listing Code", val: r.listing_code },
+                    { label: "Price / Quintal", val: `₹${Math.round(r.price_rs_per_quintal || 0).toLocaleString("en-IN")}` },
+                    { label: "Total Estimated Value", val: `₹${Math.round(r.total_estimated_value_rs || 0).toLocaleString("en-IN")}` },
+                    { label: "Status", val: r.status || "ACTIVE" }
+                ],
+                raw: r
+            });
+        });
+
+        // 6. Phase 3 Buyer Inquiries
+        (recs.phase3_buyer_inquiries || []).forEach(r => {
+            combined.push({
+                type: "phase3",
+                timestamp: r.timestamp,
+                title: `Buyer Inquiry for Lot #${r.listing_code || "Direct"}`,
+                badge: "Phase 3 : Buyer Inquiry",
+                badgeClass: "badge-market",
+                inputs: [
+                    { label: "Buyer Name & Location", val: `${r.buyer_name} (${r.buyer_location})` },
+                    { label: "Buyer Contact", val: `📞 ${r.buyer_phone}` },
+                    { label: "Inquiry Message", val: r.message }
+                ],
+                outputs: [
+                    { label: "Inquiry Reference", val: r.inquiry_code },
+                    { label: "Offered Price", val: `₹${Math.round(r.offered_price_rs_per_quintal || 0).toLocaleString("en-IN")} / Quintal` },
+                    { label: "Quantity Requested", val: `${r.quantity_requested_quintals} Quintals` },
+                    { label: "Delivery Status", val: r.status || "DELIVERED_TO_FARMER" }
+                ],
+                raw: r
+            });
+        });
+
+        // Sort descending by timestamp / id
+        combined.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+        // Apply phase filter
+        if (filterPhase !== "all") {
+            combined = combined.filter(c => c.type === filterPhase);
+        }
+
+        if (combined.length === 0) {
+            feed.innerHTML = `
+                <div style="text-align: center; padding: 40px; background: #ffffff; border: 1px dashed var(--border); border-radius: var(--radius-md);">
+                    <div style="font-size: 2.2rem; margin-bottom: 8px;">📭</div>
+                    <h4>No Records Found for "${filterPhase}"</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        Perform recommendations in Phase 1, growing care in Phase 2, or listings in Phase 3 to see real entries recorded here!
+                    </p>
+                </div>
+            `;
+            setStatus("dbStatus", `Displaying 0 records for filter: ${filterPhase}`, "success");
+            return;
+        }
+
+        feed.innerHTML = combined.map((item, idx) => `
+            <div class="card" style="border-left: 4px solid var(--primary); padding: 18px; margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                    <div>
+                        <span class="badge ${item.badgeClass}">${escapeHTML(item.badge)}</span>
+                        <h4 style="margin-top: 6px; font-size: 1.05rem;">${escapeHTML(item.title)}</h4>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
+                        ⏱️ ${escapeHTML(item.timestamp)}
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; background: var(--bg-subtle); padding: 12px; border-radius: var(--radius-md);">
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 6px;">
+                            📥 Inputs Entered by Farmer:
+                        </div>
+                        <ul style="list-style: none; font-size: 0.85rem; line-height: 1.6;">
+                            ${item.inputs.map(inp => `<li><strong>${escapeHTML(inp.label)}:</strong> ${escapeHTML(inp.val)}</li>`).join("")}
+                        </ul>
+                        ${item.imageUrl ? `
+                        <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
+                            <a href="${item.imageUrl}" target="_blank" rel="noopener noreferrer">
+                                <img src="${item.imageUrl}" alt="Crop Photo" style="width: 54px; height: 54px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1;">
+                            </a>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                <strong>📷 Uploaded Photo Saved:</strong><br>
+                                <code>${escapeHTML(item.imageFile || "crop_photo.jpg")}</code>
+                            </div>
+                        </div>` : ""}
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 6px;">
+                            🤖 Outputs Generated by AI:
+                        </div>
+                        <ul style="list-style: none; font-size: 0.85rem; line-height: 1.6;">
+                            ${item.outputs.map(out => `<li><strong>${escapeHTML(out.label)}:</strong> ${escapeHTML(out.val)}</li>`).join("")}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        setStatus("dbStatus", `Displaying ${combined.length} persistent database records. (Filter: ${filterPhase})`, "success");
+
+    } catch (err) {
+        feed.innerHTML = `<p style="color: #dc2626; text-align: center; padding: 20px;">Error loading database: ${err.message}</p>`;
+        setStatus("dbStatus", `Database query error: ${err.message}`, "error");
+    }
+}
+
+// Wire up Database UI Event Listeners
+getElement("refreshDatabaseBtn")?.addEventListener("click", () => {
+    loadDatabaseStats();
+    loadDatabaseRecords(currentDbFilter);
+});
+
+// Wire up Filter Pills
+const filterPills = document.querySelectorAll("#dbFilterPills button");
+filterPills.forEach(btn => {
+    btn.addEventListener("click", () => {
+        filterPills.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const filterVal = btn.getAttribute("data-db-phase") || "all";
+        loadDatabaseRecords(filterVal);
+    });
+});
+

@@ -1,5 +1,35 @@
 [
   {
+    "inquiry_id": "INQ-6",
+    "listing_id": null,
+    "buyer_name": "Spices Export Corp",
+    "buyer_phone": "9848011223",
+    "offer_price_per_quintal": null,
+    "quantity_needed": null,
+    "message": "Need export quality Guntur Teja.",
+    "timestamp": "2026-11-21T18:12:03.686591"
+  },
+  {
+    "inquiry_id": "INQ-5",
+    "listing_id": "LOT-1013",
+    "buyer_name": "South India Cotton Mills",
+    "buyer_phone": "9849098765",
+    "offer_price_per_quintal": null,
+    "quantity_needed": null,
+    "message": "Full lot procurement requested for immediate transport dispatch.",
+    "timestamp": "2026-11-21T17:24:47.940912"
+  },
+  {
+    "inquiry_id": "INQ-4",
+    "listing_id": "LOT-1012",
+    "buyer_name": "ITC Spices Procurement",
+    "buyer_phone": "9123456789",
+    "offer_price_per_quintal": null,
+    "quantity_needed": null,
+    "message": "Ready for immediate gate pickup with instant RTGS payment.",
+    "timestamp": "2026-11-21T17:16:09.723253"
+  },
+  {
     "inquiry_id": "INQ-3",
     "listing_id": "LOT-1009",
     "buyer_name": "samatha",

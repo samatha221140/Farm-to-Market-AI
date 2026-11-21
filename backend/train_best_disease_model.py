@@ -1,0 +1,976 @@
+"""
+Train Best Crop Disease, Pest & Weed Classifier
+===============================================
+Trains an advanced ensemble classifier combining:
+  1. Deep Pretrained Convolutional Neural Network (MobileNetV2 feature embeddings)
+  2. Domain-Specific Pathological Visual Indices (Chlorophyll greenness, chlorosis yellowing,
+     necrotic lesion area, texture gradient energy, color channel moments)
+  3. Real Andhra Pradesh crop disease dataset:
+     - bajra, bengal gram, black gram, CHILLI, cotton, green gram, ground nut,
+       jower, maize, red gram, rice, sugar cane (60 classes)
+  4. Insect Pests:
+     - Spider Mites, Sucking Aphids, Caterpillars / Pod Borer, Whiteflies (4 classes)
+  5. Weeds:
+     - Nutgrass Sedge, Parthenium Congress Grass, Bermuda Grass (3 classes)
+  6. Data Augmentation (Photometric & Geometric)
+  7. Stratified 80/20 train/test evaluation
+  8. Exports production model and scaler to `backend/model/`
+"""
+
+import os
+import sys
+import json
+import time
+import joblib
+from pathlib import Path
+from PIL import Image, ImageEnhance, ImageFilter
+import numpy as np
+import onnxruntime as ort
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
+from sklearn.metrics import accuracy_score, classification_report, f1_score
+
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
+DESKTOP_DISEASES_DIR = Path(r"c:\Users\G samatha sreeja\Desktop\diseases")
+TEST_IMAGES_DIR = PROJECT_ROOT / "test_crop_images"
+MODEL_DIR = BASE_DIR / "model"
+ONNX_BACKBONE_PATH = MODEL_DIR / "plant_disease_mobilenet_v2.onnx"
+
+OUTPUT_MODEL_PATH = MODEL_DIR / "best_crop_disease_model.pkl"
+OUTPUT_SCALER_PATH = MODEL_DIR / "best_crop_disease_scaler.pkl"
+OUTPUT_METADATA_PATH = MODEL_DIR / "best_crop_disease_metadata.json"
+
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+# -------------------------------------------------------------------------
+# TAXONOMY DEFINITION & AGRONOMIC TREATMENT REPOSITORY
+# -------------------------------------------------------------------------
+TAXONOMY_TREATMENTS = {
+    # Bajra (Pearl Millet)
+    "bajra___Downy mildew": {
+        "crop": "Bajra", "condition": "Bajra Downy Mildew (Green Ear)", "category": "Disease",
+        "pathogen": "Sclerospora graminicola",
+        "symptoms": "Chlorosis on young leaves starting from base, white downy fungal growth on underside; earheads transformed into leafy structures.",
+        "organic_treatment": "Seed treatment with Trichoderma viride @ 10 g/kg; foliar spray of Pseudomonas fluorescens @ 5 g/L; remove and rogue out infected green ears.",
+        "chemical_treatment": "Seed dressing with Metalaxyl 35% WS @ 6 g/kg seed; spray Metalaxyl-Mancozeb (Ridomil MZ) @ 2.5 g/L at 20 and 35 DAS.",
+        "cultural_prevention": "Grow resistant cultivars (HHB 67 Improved); avoid waterlogging; destroy crop residue."
+    },
+    "bajra___Ergot": {
+        "crop": "Bajra", "condition": "Bajra Ergot", "category": "Disease",
+        "pathogen": "Claviceps fusiformis",
+        "symptoms": "Honey-like pinkish/amber sticky droplets oozing from florets, later solidifying into dark brown/black sclerotia containing toxic alkaloids.",
+        "organic_treatment": "Dip seeds in 10% brine solution (100 g common salt in 1 L water) and skim off floating ergot sclerotia; spray Neem Seed Kernel Extract (NSKE) 5%.",
+        "chemical_treatment": "Foliar spray of Carbendazim 50% WP @ 1 g/L or Mancozeb 75% WP @ 2.5 g/L at early boot-leaf and flowering stage.",
+        "cultural_prevention": "Early sowing to escape humid flowering periods; deep summer plowing to bury sclerotia below 5 cm."
+    },
+    "bajra___Smut": {
+        "crop": "Bajra", "condition": "Bajra Grain Smut", "category": "Disease",
+        "pathogen": "Tolyposporium penicillariae",
+        "symptoms": "Infected florets form enlarged green oval sori, turning dark brown/black and releasing powdery soot-like chlamydospores.",
+        "organic_treatment": "Seed soaking in hot water at 52°C for 10 minutes; apply Trichoderma harzianum @ 5 g/kg seed.",
+        "chemical_treatment": "Seed treatment with Carboxin 75% WP @ 2 g/kg seed; spray Chlorothalonil 75% WP @ 2 g/L during head emergence.",
+        "cultural_prevention": "Rotate with pulses; avoid excessive late nitrogen applications."
+    },
+    "bajra___rust": {
+        "crop": "Bajra", "condition": "Bajra Leaf Rust", "category": "Disease",
+        "pathogen": "Puccinia substriata",
+        "symptoms": "Small, pinhead-sized reddish-brown to orange uredinial pustules covering upper leaf blades, turning dark black-brown at maturity.",
+        "organic_treatment": "Spray Wettable Sulfur 80% WDG @ 3 g/L or 3% fermented sour buttermilk (chaas).",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Propiconazole 25% EC @ 1 ml/L at first sign of pustules.",
+        "cultural_prevention": "Eradicate alternate host weeds (Solanum torvum); ensure optimum spacing."
+    },
+    "bajra___helathy": {
+        "crop": "Bajra", "condition": "Healthy Bajra Foliage", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Erect, vibrant green lanceolate leaves with robust tillers and normal boot leaf formation.",
+        "organic_treatment": "Maintain balanced fertility with Jeevamrit @ 200 L/acre monthly or Panchagavya 3% foliar spray.",
+        "chemical_treatment": "No fungicide or pesticide needed. Follow standard basal N-P-K recommendation (80:40:40 kg/ha).",
+        "cultural_prevention": "Timely weeding at 20 and 40 DAS; maintain soil aeration."
+    },
+
+    # Bengal Gram (Chickpea)
+    "bengal gram___Ascochyta blight": {
+        "crop": "Bengal Gram", "condition": "Chickpea Ascochyta Blight", "category": "Disease",
+        "pathogen": "Ascochyta rabiei",
+        "symptoms": "Circular brown lesions on leaves and pods with concentric rings of minute black fruiting bodies (pycnidia); stem girdling causes breakage.",
+        "organic_treatment": "Seed treatment with Trichoderma viride @ 8 g/kg seed; foliar spray of Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Seed dressing with Carbendazim 2 g/kg; foliar spray of Chlorothalonil 75% WP @ 2 g/L or Azoxystrobin @ 1 ml/L.",
+        "cultural_prevention": "Intercrop with Barley or Mustard; use clean certified disease-free seed."
+    },
+    "bengal gram___Botrytis gray mold": {
+        "crop": "Bengal Gram", "condition": "Chickpea Gray Mold", "category": "Disease",
+        "pathogen": "Botrytis cinerea",
+        "symptoms": "Water-soaked lesions on stems, leaves, and flowers rapidly covered by fluffy gray fungal mycelium and mass of conidia; flower drop.",
+        "organic_treatment": "Spray baking soda (potassium bicarbonate) @ 5 g/L with liquid soap; improve canopy airflow.",
+        "chemical_treatment": "Foliar spray of Carbendazim 12% + Mancozeb 63% WP (Saaf) @ 2 g/L or Iprodione 50% WP @ 2 g/L.",
+        "cultural_prevention": "Avoid dense sowing; wider row spacing (45 cm); avoid flood irrigation during flowering."
+    },
+    "bengal gram___Fusarium wilt": {
+        "crop": "Bengal Gram", "condition": "Chickpea Fusarium Wilt", "category": "Disease",
+        "pathogen": "Fusarium oxysporum f. sp. ciceris",
+        "symptoms": "Sudden drooping of petioles and leaflets starting from apex, vascular browning seen when stem is split vertically.",
+        "organic_treatment": "Soil incorporation of Trichoderma viride enriched Farm Yard Manure (FYM) @ 2.5 kg/ton FYM per acre.",
+        "chemical_treatment": "Seed dressing with Carbendazim 50% WP @ 2 g/kg + Thiram @ 2 g/kg seed.",
+        "cultural_prevention": "Crop rotation with sorghum, pearl millet, or wheat for 3 years; sow wilt-resistant varieties (JG 11, JAKI 9218)."
+    },
+    "bengal gram___Rust": {
+        "crop": "Bengal Gram", "condition": "Chickpea Rust", "category": "Disease",
+        "pathogen": "Uromyces ciceris-arietini",
+        "symptoms": "Small brownish, powdery eruptive pustules on lower leaf surface, turning dark brown; premature defoliation.",
+        "organic_treatment": "Foliar spray of Wettable Sulfur @ 3 g/L or 5% Neem extract.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Propiconazole 25% EC @ 1 ml/L.",
+        "cultural_prevention": "Avoid late sowing; destroy self-sown chickpea weeds."
+    },
+    "bengal gram___HEALTHY": {
+        "crop": "Bengal Gram", "condition": "Healthy Chickpea Crop", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Uniform lush green compound leaves with healthy glandular hairs and active nodulation on roots.",
+        "organic_treatment": "Inoculate seeds with Rhizobium and PSB biofertilizers; apply 3% Panchagavya at vegetative stage.",
+        "chemical_treatment": "No pesticides required. Maintain recommended 20:50:20 kg N:P2O5:K2O/ha.",
+        "cultural_prevention": "Proper drainage; nipping of apical buds at 30-40 DAS to promote branching."
+    },
+
+    # Black Gram (Urad)
+    "black gram___Cercospora leaf spot": {
+        "crop": "Black Gram", "condition": "Black Gram Cercospora Leaf Spot", "category": "Disease",
+        "pathogen": "Cercospora canescens",
+        "symptoms": "Small circular brown spots with grayish white centers and reddish-brown margins on leaves.",
+        "organic_treatment": "Spray 5% Neem Seed Kernel Extract (NSKE) or Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Spray Carbendazim 50% WP @ 1 g/L or Mancozeb 75% WP @ 2.5 g/L at first disease appearance.",
+        "cultural_prevention": "Destroy infected haulms; avoid overhead irrigation."
+    },
+    "black gram___Powdery mildew": {
+        "crop": "Black Gram", "condition": "Black Gram Powdery Mildew", "category": "Disease",
+        "pathogen": "Erysiphe polygoni",
+        "symptoms": "White powdery fungal patches on upper surface of leaves, stems, and pods; yellowing and early leaf drop.",
+        "organic_treatment": "Spray Wettable Sulfur 80% WDG @ 3 g/L or sour buttermilk (chaas) @ 50 ml/L.",
+        "chemical_treatment": "Spray Dinocap 48% EC @ 1 ml/L or Hexaconazole 5% EC @ 2 ml/L.",
+        "cultural_prevention": "Plant resistant cultivars (LBG 752, PU 31); avoid shade."
+    },
+    "black gram___Web blight": {
+        "crop": "Black Gram", "condition": "Black Gram Web Blight", "category": "Disease",
+        "pathogen": "Rhizoctonia solani",
+        "symptoms": "Large water-soaked irregular lesions on leaves resembling scald, web-like mycelial growth binding leaves together.",
+        "organic_treatment": "Soil application of Trichoderma viride enriched FYM @ 5 kg/acre.",
+        "chemical_treatment": "Spray Validamycin 3% L @ 2 ml/L or Carbendazim 12% + Mancozeb 63% WP @ 2 g/L.",
+        "cultural_prevention": "Avoid dense sowing; ensure proper drainage."
+    },
+    "black gram___Yellow mosaic": {
+        "crop": "Black Gram", "condition": "Mungbean Yellow Mosaic Virus (MYMV)", "category": "Disease",
+        "pathogen": "MYMV (transmitted by Whitefly Bemisia tabaci)",
+        "symptoms": "Irregular bright yellow and dark green mosaic patches on leaves, puckering and severe pod reduction.",
+        "organic_treatment": "Install yellow sticky traps @ 20/acre; spray Neem Oil 10,000 ppm @ 3 ml/L to suppress whiteflies.",
+        "chemical_treatment": "Seed treatment with Imidacloprid 70% WS @ 5 g/kg; spray Acetamiprid 20% SP @ 0.3 g/L or Thiamethoxam 25% WG @ 0.3 g/L.",
+        "cultural_prevention": "Sow YMV-tolerant varieties (LBG 752, LBG 787); rogue out early infected plants."
+    },
+    "black gram___healthy": {
+        "crop": "Black Gram", "condition": "Healthy Black Gram Crop", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Vigorous trifoliate deep green foliage, active root nodules, normal flowering.",
+        "organic_treatment": "Foliar spray of 2% DAP or 1% Pulse Wonder at flower initiation.",
+        "chemical_treatment": "No curative sprays needed.",
+        "cultural_prevention": "Hand weeding at 20 DAS; maintain uniform field moisture."
+    },
+
+    # Chilli
+    "CHILLI___Anthracnose": {
+        "crop": "Chilli", "condition": "Chilli Anthracnose & Fruit Rot (Dieback)", "category": "Disease",
+        "pathogen": "Colletotrichum capsici",
+        "symptoms": "Circular sunken spots on ripe red fruits with concentric rings of black acervuli; twig die-back from tip downwards.",
+        "organic_treatment": "Seed treatment with Trichoderma viride @ 10 g/kg; foliar spray of Pseudomonas fluorescens @ 5 g/L twice at 10-day intervals.",
+        "chemical_treatment": "Azoxystrobin 23% SC @ 1 ml/L or Difenoconazole 25% EC @ 0.5 ml/L or Mancozeb 75% WP @ 2.5 g/L.",
+        "cultural_prevention": "Collect and burn fallen infected fruits; avoid flood irrigation; use pathogen-free seed."
+    },
+    "CHILLI___Bacterial leaf spot": {
+        "crop": "Chilli", "condition": "Chilli Bacterial Leaf Spot", "category": "Disease",
+        "pathogen": "Xanthomonas campestris pv. vesicatoria",
+        "symptoms": "Small water-soaked circular to angular dark brown spots with chlorotic yellow borders; severe defoliation.",
+        "organic_treatment": "Foliar spray of cow dung slurry filtrate 20% mixed with Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Copper Oxychloride 50% WP @ 2.5 g/L + Streptocycline @ 0.1 g/L of water.",
+        "cultural_prevention": "Avoid working in wet fields; 2-year crop rotation with maize or sorghum."
+    },
+    "CHILLI___Leaf curl": {
+        "crop": "Chilli", "condition": "Chilli Leaf Curl & Gemini Virus", "category": "Disease",
+        "pathogen": "Chilli leaf curl virus (ChiLCV) & Thrips / Mites",
+        "symptoms": "Upward curling and puckering of leaves, vein thickening, stunted bush-like growth with poor fruit set.",
+        "organic_treatment": "Install yellow and blue sticky traps (25/acre); spray Neem oil 10,000 ppm @ 3.5 ml/L + Agniastra @ 20 ml/L.",
+        "chemical_treatment": "Control vectors: Diafenthiuron 50% WP @ 1.25 g/L or Fipronil 5% SC @ 1.5 ml/L or Spiromesifen 22.9% SC @ 1 ml/L.",
+        "cultural_prevention": "Grow 3-4 border rows of maize or bajra; use reflective silver plastic mulch."
+    },
+    "CHILLI___Wilt": {
+        "crop": "Chilli", "condition": "Chilli Fusarium / Bacterial Wilt", "category": "Disease",
+        "pathogen": "Fusarium oxysporum / Ralstonia solanacearum",
+        "symptoms": "Rapid yellowing and permanent wilting of foliage without premature leaf drop; vascular browning.",
+        "organic_treatment": "Drench root zone with Trichoderma viride @ 10 g/L or Pseudomonas fluorescens @ 10 g/L.",
+        "chemical_treatment": "Soil drenching with Copper Oxychloride @ 3 g/L or Carbendazim @ 1 g/L around plant base.",
+        "cultural_prevention": "Provide raised bed planting; ensure good soil drainage."
+    },
+    "CHILLI___healthy": {
+        "crop": "Chilli", "condition": "Healthy Chilli Plant", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Lush emerald green foliage, erect growth, abundant healthy white flowers and smooth firm fruits.",
+        "organic_treatment": "Spray 3% Panchagavya and Vermiwash (50 ml/L) alternately every 15 days.",
+        "chemical_treatment": "No pesticides required. Maintain balanced fertigation (NPK 19:19:19).",
+        "cultural_prevention": "Maintain 60x45 cm plant spacing; avoid water stagnation."
+    },
+
+    # Cotton
+    "cotton___Anthracnose": {
+        "crop": "Cotton", "condition": "Cotton Anthracnose & Boll Rot", "category": "Disease",
+        "pathogen": "Colletotrichum gossypii",
+        "symptoms": "Reddish-brown water-soaked spots on seedlings, circular sunken lesions on bolls with pinkish spore mass.",
+        "organic_treatment": "Seed treatment with Trichoderma viride @ 10 g/kg; spray 5% NSKE.",
+        "chemical_treatment": "Spray Carbendazim 50% WP @ 1 g/L or Propiconazole 25% EC @ 1 ml/L.",
+        "cultural_prevention": "Acid delinting of cotton seeds; clean field sanitation."
+    },
+    "cotton___Bacterial blight": {
+        "crop": "Cotton", "condition": "Cotton Angular Leaf Spot (Black Arm)", "category": "Disease",
+        "pathogen": "Xanthomonas citri pv. malvacearum",
+        "symptoms": "Angular water-soaked lesions bounded by leaf veinlets, black lesions on petioles (black arm), and sunken circular spots on bolls.",
+        "organic_treatment": "Spray fresh cow urine distillate @ 20 ml/L + Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Copper Oxychloride @ 2.5 g/L + Streptocycline @ 0.1 g/L at early vegetative stage.",
+        "cultural_prevention": "Destruction of infected stalks; sow tolerant Bt-cotton hybrids."
+    },
+    "cotton___Cotton leaf curl": {
+        "crop": "Cotton", "condition": "Cotton Leaf Curl Virus (CLCuV)", "category": "Disease",
+        "pathogen": "Cotton Leaf Curl Multan Virus (transmitted by Whitefly)",
+        "symptoms": "Upward or downward leaf curling, thickening of veins, leaf-like enations on undersides of leaves, severe stunting.",
+        "organic_treatment": "Yellow sticky traps @ 25/acre; spray Neem oil 10,000 ppm @ 3 ml/L or Lecanicillium lecanii @ 5 g/L.",
+        "chemical_treatment": "Spray Pyriproxyfen 10% EC @ 2 ml/L or Spiromesifen 22.9% SC @ 1.25 ml/L or Afidopyropen 50 g/L @ 2 ml/L.",
+        "cultural_prevention": "Eradicate weed hosts (Abutilon indicum); plant resistant hybrids."
+    },
+    "cotton___Fusarium wilt": {
+        "crop": "Cotton", "condition": "Cotton Fusarium Wilt", "category": "Disease",
+        "pathogen": "Fusarium oxysporum f. sp. vasinfectum",
+        "symptoms": "Yellowing and browning starting at leaf margins, wilting, vascular discolouration visible as dark ring in stem.",
+        "organic_treatment": "Soil application of Trichoderma harzianum enriched neem cake @ 100 kg/acre.",
+        "chemical_treatment": "Seed treatment with Carbendazim 2 g/kg seed; drench with Carbendazim @ 1 g/L.",
+        "cultural_prevention": "Crop rotation with non-host crops (Sorghum, Pearl Millet); use resistant varieties."
+    },
+    "cotton___healthy": {
+        "crop": "Cotton", "condition": "Healthy Cotton Foliage", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Vigorous dark green lobed leaves, strong square (bud) formation, healthy boll development.",
+        "organic_treatment": "Foliar application of 1% 19:19:19 + 0.5% MgSO4 + 0.2% Boron at square formation.",
+        "chemical_treatment": "No curative sprays needed.",
+        "cultural_prevention": "Proper nipping at 80-90 DAS; keep rows clean of weeds."
+    },
+
+    # Green Gram (Moong)
+    "green gram___Anthracnose": {
+        "crop": "Green Gram", "condition": "Green Gram Anthracnose", "category": "Disease",
+        "pathogen": "Colletotrichum lindemuthianum",
+        "symptoms": "Dark brown sunken circular lesions on leaves, stems, and pods with raised margins.",
+        "organic_treatment": "Seed treatment with Trichoderma viride @ 8 g/kg seed; spray Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Spray Carbendazim 50% WP @ 1 g/L or Mancozeb 75% WP @ 2.5 g/L.",
+        "cultural_prevention": "Collect and burn plant debris; certified disease-free seeds."
+    },
+    "green gram___Cercospora leaf spot": {
+        "crop": "Green Gram", "condition": "Green Gram Cercospora Leaf Spot", "category": "Disease",
+        "pathogen": "Cercospora canescens",
+        "symptoms": "Circular to subcircular dark brown spots with grayish white centers on leaflets.",
+        "organic_treatment": "Spray 5% Neem extract or Panchagavya 3%.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Carbendazim 50% WP @ 1 g/L.",
+        "cultural_prevention": "Intercrop with pearl millet or sorghum."
+    },
+    "green gram___Powdery mildew": {
+        "crop": "Green Gram", "condition": "Green Gram Powdery Mildew", "category": "Disease",
+        "pathogen": "Erysiphe polygoni",
+        "symptoms": "White floury powdery coating spreading across leaves and pods, premature defoliation.",
+        "organic_treatment": "Spray Wettable Sulfur @ 3 g/L or sour buttermilk 50 ml/L.",
+        "chemical_treatment": "Hexaconazole 5% EC @ 2 ml/L or Dinocap 48% EC @ 1 ml/L.",
+        "cultural_prevention": "Sow resistant cultivars (WGG 42, MGG 295)."
+    },
+    "green gram___Yellow mosaic": {
+        "crop": "Green Gram", "condition": "Green Gram Yellow Mosaic Virus", "category": "Disease",
+        "pathogen": "Mungbean Yellow Mosaic India Virus (MYMIV)",
+        "symptoms": "Scattered yellow specks on young leaves developing into confluent bright yellow mosaic; stunted pods.",
+        "organic_treatment": "Install yellow sticky traps @ 20/acre; spray Neem oil 10,000 ppm @ 3 ml/L.",
+        "chemical_treatment": "Seed dressing with Imidacloprid 70% WS @ 5 g/kg; spray Acetamiprid @ 0.3 g/L.",
+        "cultural_prevention": "Rogue out early diseased plants; grow tolerant varieties (IPM 02-03)."
+    },
+    "green gram___healthy": {
+        "crop": "Green Gram", "condition": "Healthy Green Gram Crop", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Lush vibrant green leaves, uniform flowering, healthy pod set.",
+        "organic_treatment": "Spray 2% DAP or Pulse Wonder at 30 and 45 DAS.",
+        "chemical_treatment": "No spray needed.",
+        "cultural_prevention": "Timely weeding; avoid water stress during pod filling."
+    },
+
+    # Groundnut (Peanut)
+    "ground nut___Collar rot": {
+        "crop": "Groundnut", "condition": "Groundnut Collar Rot (Crown Rot)", "category": "Disease",
+        "pathogen": "Aspergillus niger",
+        "symptoms": "Black sooty fungal spores covering hypocotyl/collar region, collar turns brown and decays, seedling wilts.",
+        "organic_treatment": "Seed treatment with Trichoderma harzianum @ 10 g/kg seed; application of neem cake @ 100 kg/acre.",
+        "chemical_treatment": "Seed dressing with Mancozeb @ 3 g/kg or Tebuconazole 2% DS @ 1.5 g/kg seed.",
+        "cultural_prevention": "Deep summer plowing; avoid sowing deep into wet soil."
+    },
+    "ground nut___Early leaf spot": {
+        "crop": "Groundnut", "condition": "Groundnut Early Leaf Spot (Tikka)", "category": "Disease",
+        "pathogen": "Cercospora arachidicola",
+        "symptoms": "Circular reddish-brown to dark brown spots surrounded by a prominent bright yellow chlorotic halo on upper leaf surface.",
+        "organic_treatment": "Foliar spray of 5% Neem Seed Kernel Extract (NSKE) or Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Hexaconazole 5% EC @ 2 ml/L or Tebuconazole 25.9% EC @ 1 ml/L.",
+        "cultural_prevention": "Crop rotation with maize or sorghum; destroy plant debris."
+    },
+    "ground nut___Late leaf spot": {
+        "crop": "Groundnut", "condition": "Groundnut Late Leaf Spot (Tikka)", "category": "Disease",
+        "pathogen": "Phaeoisariopsis personata",
+        "symptoms": "Nearly circular, dark brown to black spots with inconspicuous yellow halos, cushion-like carbonaceous conidial masses on lower surface.",
+        "organic_treatment": "Spray 3% Panchagavya + Neem oil 10,000 ppm @ 3 ml/L.",
+        "chemical_treatment": "Spray Chlorothalonil 75% WP @ 2 g/L or Carbendazim 12% + Mancozeb 63% WP @ 2 g/L.",
+        "cultural_prevention": "Avoid continuous groundnut cropping; sow resistant cultivars (Kadiri 9, Kadiri Lepakshi)."
+    },
+    "ground nut___Rust": {
+        "crop": "Groundnut", "condition": "Groundnut Rust", "category": "Disease",
+        "pathogen": "Puccinia arachidis",
+        "symptoms": "Orange to reddish-brown blister-like pustules (uredinia) on lower leaf surface, leaving leaf brittle and dried.",
+        "organic_treatment": "Spray Wettable Sulfur 80% WDG @ 3 g/L or Trichoderma viride @ 5 g/L.",
+        "chemical_treatment": "Spray Propiconazole 25% EC @ 1 ml/L or Hexaconazole 5% EC @ 2 ml/L.",
+        "cultural_prevention": "Eradicate volunteer groundnut plants; practice intercropping with pigeon pea."
+    },
+    "ground nut___healthy": {
+        "crop": "Groundnut", "condition": "Healthy Groundnut Canopy", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Dense, dark green pinnate foliage with abundant yellow flowers and vigorous pegging into the soil.",
+        "organic_treatment": "Apply Gypsum @ 200 kg/acre at 40-45 DAS (flowering/pegging stage) for pod calcium.",
+        "chemical_treatment": "No fungicide or pesticide needed.",
+        "cultural_prevention": "Earthing up during weeding before peg penetration; avoid disturbing pegs after 50 DAS."
+    },
+
+    # Jowar (Sorghum)
+    "jower___Anthracnose": {
+        "crop": "Jowar", "condition": "Sorghum Anthracnose", "category": "Disease",
+        "pathogen": "Colletotrichum sublineolum",
+        "symptoms": "Small elliptical to circular red, purple or brown spots on leaves with straw-colored centers containing black fruiting bodies.",
+        "organic_treatment": "Seed treatment with Trichoderma viride @ 8 g/kg seed; spray Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Azoxystrobin @ 1 ml/L.",
+        "cultural_prevention": "Plant tolerant hybrids (CSH 16); destroy stubbles."
+    },
+    "jower___Grain mold": {
+        "crop": "Jowar", "condition": "Sorghum Grain Mold", "category": "Disease",
+        "pathogen": "Fusarium, Curvularia & Alternaria species",
+        "symptoms": "Fluffy pinkish, black or white mold growth over ripening grain head during high humidity; grains become discolored and chalky.",
+        "organic_treatment": "Foliar spray of Neem extract 5% at flowering and milk stage.",
+        "chemical_treatment": "Spray Propiconazole 25% EC @ 1 ml/L or Mancozeb @ 2.5 g/L at 50% flowering.",
+        "cultural_prevention": "Harvest promptly at physiological maturity; dry grain to <12% moisture."
+    },
+    "jower___Rust": {
+        "crop": "Jowar", "condition": "Sorghum Leaf Rust", "category": "Disease",
+        "pathogen": "Puccinia purpurea",
+        "symptoms": "Small purple, red, or brown spots on both leaf surfaces producing raised powdery rust-colored pustules.",
+        "organic_treatment": "Spray Wettable Sulfur @ 3 g/L or sour buttermilk 50 ml/L.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Propiconazole @ 1 ml/L.",
+        "cultural_prevention": "Avoid dense sowing; destroy weed hosts (Johnson grass)."
+    },
+    "jower___Smut": {
+        "crop": "Jowar", "condition": "Sorghum Covered Kernel Smut", "category": "Disease",
+        "pathogen": "Sphacelotheca sorghi",
+        "symptoms": "Normal grains replaced by oval conical gray-brown smut sori filled with powdery black fungal spores.",
+        "organic_treatment": "Seed soaking in hot water at 52°C for 10 min; treat seed with Trichoderma @ 5 g/kg.",
+        "chemical_treatment": "Seed dressing with Carboxin 75% WP @ 2 g/kg seed or Thiram @ 3 g/kg seed.",
+        "cultural_prevention": "Use certified seed only; field sanitation."
+    },
+    "jower___healthy": {
+        "crop": "Jowar", "condition": "Healthy Sorghum Crop", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Sturdy stalks with broad emerald green leaves and compact well-filled grain panicles.",
+        "organic_treatment": "Side-dress with vermicompost @ 500 kg/acre and spray 3% Panchagavya.",
+        "chemical_treatment": "No spray needed.",
+        "cultural_prevention": "Ensure timely weeding at 20 and 40 DAS; maintain drainage."
+    },
+
+    # Maize (Corn)
+    "maize___Common rust": {
+        "crop": "Maize", "condition": "Maize Common Rust", "category": "Disease",
+        "pathogen": "Puccinia sorghi",
+        "symptoms": "Golden brown to cinnamon-brown powdery elongated pustules bursting through both leaf surfaces; leaves turn chlorotic.",
+        "organic_treatment": "Spray Wettable Sulfur 80% WDG @ 3 g/L or Trichoderma viride @ 5 g/L.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1 ml/L.",
+        "cultural_prevention": "Plant rust-resistant hybrids; avoid late plantings."
+    },
+    "maize___Downy mildew": {
+        "crop": "Maize", "condition": "Maize Downy Mildew (Crazy Top)", "category": "Disease",
+        "pathogen": "Peronosclerospora sorghi",
+        "symptoms": "Narrow chlorotic yellow stripes extending along veins, white downy growth on leaf underside, abnormal tassel proliferation (crazy top).",
+        "organic_treatment": "Seed treatment with Trichoderma harzianum @ 10 g/kg; rogue out infected plants.",
+        "chemical_treatment": "Seed treatment with Metalaxyl 35% WS @ 4 g/kg seed; spray Metalaxyl + Mancozeb @ 2.5 g/L at 20 DAS.",
+        "cultural_prevention": "Avoid planting near sorghum; avoid water stagnation."
+    },
+    "maize___Gray leaf spot": {
+        "crop": "Maize", "condition": "Maize Gray Leaf Spot", "category": "Disease",
+        "pathogen": "Cercospora zeae-maydis",
+        "symptoms": "Distinct rectangular tan to gray lesions with sharp parallel edges restricted by veins, progressing upward from lower leaves.",
+        "organic_treatment": "Foliar spray of Pseudomonas fluorescens @ 5 g/L + Panchagavya 3%.",
+        "chemical_treatment": "Spray Pyraclostrobin 20% WG @ 1 g/L or Azoxystrobin @ 1 ml/L or Mancozeb @ 2.5 g/L.",
+        "cultural_prevention": "Crop rotation with soybean or pulses; deep tillage of corn stubble."
+    },
+    "maize___Northern leaf blight": {
+        "crop": "Maize", "condition": "Maize Northern Corn Leaf Blight (NCLB)", "category": "Disease",
+        "pathogen": "Exserohilum turcicum",
+        "symptoms": "Large, elongated cigar-shaped grayish-green to tan lesions (2.5 to 15 cm long) with concentric zones and dark spores.",
+        "organic_treatment": "Spray 5% Neem extract + Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Mancozeb 75% WP @ 2.5 g/L or Propiconazole 25% EC @ 1 ml/L at first lesion appearance.",
+        "cultural_prevention": "Balanced fertilization (avoid excessive N and low K); rotate fields."
+    },
+    "maize___healthy": {
+        "crop": "Maize", "condition": "Healthy Maize Foliage", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Wide arching dark green leaves, strong erect stalks, clean silk and tassel development.",
+        "organic_treatment": "Apply Jeevamrit @ 200 L/acre along with irrigation water at knee-high and tasseling stages.",
+        "chemical_treatment": "No curative sprays needed.",
+        "cultural_prevention": "Maintain optimal plant population (24,000 plants/acre); ensure weed-free initial 45 days."
+    },
+
+    # Red Gram (Pigeonpea)
+    "red garm___Alternaria blight": {
+        "crop": "Red Gram", "condition": "Pigeonpea Alternaria Blight", "category": "Disease",
+        "pathogen": "Alternaria tenuissima",
+        "symptoms": "Small circular necrotic brown spots with concentric rings surrounded by yellow halos on leaves, petioles, and pods.",
+        "organic_treatment": "Spray 5% NSKE or Trichoderma viride @ 5 g/L.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Chlorothalonil 75% WP @ 2 g/L.",
+        "cultural_prevention": "Avoid high density planting; destroy harvested crop residues."
+    },
+    "red garm___Fusarium wilt": {
+        "crop": "Red Gram", "condition": "Pigeonpea Fusarium Wilt", "category": "Disease",
+        "pathogen": "Fusarium udum",
+        "symptoms": "Gradual yellowing and withering of leaves, purple discoloration band on stem starting from ground level, xylem discolored dark brown.",
+        "organic_treatment": "Soil application of Trichoderma viride enriched FYM @ 2.5 kg/ton FYM per acre.",
+        "chemical_treatment": "Seed dressing with Carbendazim 50% WP @ 2 g/kg + Thiram @ 2 g/kg seed.",
+        "cultural_prevention": "Intercrop with sorghum (which exudes hydrocyanic acid that suppresses Fusarium); 3-year crop rotation."
+    },
+    "red garm___Phytophthora blight": {
+        "crop": "Red Gram", "condition": "Pigeonpea Phytophthora Blight", "category": "Disease",
+        "pathogen": "Phytophthora cajani",
+        "symptoms": "Brown to black water-soaked lesions on stems, girdling of main stem leading to rapid wilting and foliage desiccation.",
+        "organic_treatment": "Drench root zone with Trichoderma viride @ 10 g/L; improve field drainage.",
+        "chemical_treatment": "Seed treatment with Metalaxyl 35% WS @ 3 g/kg seed; spray Metalaxyl + Mancozeb (Ridomil Gold) @ 2.5 g/L.",
+        "cultural_prevention": "Ridge and furrow planting to avoid water stagnation."
+    },
+    "red garm___Sterility mosaic": {
+        "crop": "Red Gram", "condition": "Pigeonpea Sterility Mosaic Disease (Green Plague)", "category": "Disease",
+        "pathogen": "Pigeonpea sterility mosaic virus (transmitted by Aceria cajani mite)",
+        "symptoms": "Severe stunting, excessive vegetative branching giving a bushy green appearance, mosaic mottling of leaves, total absence of flowers and pods.",
+        "organic_treatment": "Spray Wettable Sulfur 80% WDG @ 3 g/L or Neem oil 10,000 ppm @ 3 ml/L to control mite vector.",
+        "chemical_treatment": "Spray Fenazaquin 10% EC @ 1.5 ml/L or Propargite 57% EC @ 2 ml/L to control eriophyid mites.",
+        "cultural_prevention": "Grow resistant varieties (Asha - ICPL 87119, WRG 65); rogue out infected bushes early."
+    },
+    "red garm___healthy": {
+        "crop": "Red Gram", "condition": "Healthy Pigeonpea Plant", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Vigorous woody branching, deep green trifoliate leaves, profuse yellow-orange blossoms and clean pods.",
+        "organic_treatment": "Spray 2% Urea or Pulse Wonder at 50% flowering to boost pod filling.",
+        "chemical_treatment": "No spray needed.",
+        "cultural_prevention": "Nipping of main terminal shoots at 45 and 60 DAS to encourage lateral fruiting branches."
+    },
+
+    # Rice (Paddy)
+    "rice___Bacterial leaf blight": {
+        "crop": "Rice", "condition": "Rice Bacterial Leaf Blight (BLB)", "category": "Disease",
+        "pathogen": "Xanthomonas oryzae pv. oryzae",
+        "symptoms": "Water-soaked lesions on leaf margins turning wavy yellowish-white stripes drying to grayish-white; milky bacterial ooze droplets in morning.",
+        "organic_treatment": "Spray fresh cow dung slurry filtrate 20% + Pseudomonas fluorescens @ 5 g/L; drain stagnant water.",
+        "chemical_treatment": "Copper Oxychloride 50% WP @ 2.5 g/L + Streptocycline @ 0.15 g/L.",
+        "cultural_prevention": "Avoid excess nitrogen fertilizer (split N application into 3 doses); use resistant varieties (Swarna-Sub1, BPT 5204 tolerant lines)."
+    },
+    "rice___Sheath blight": {
+        "crop": "Rice", "condition": "Rice Sheath Blight", "category": "Disease",
+        "pathogen": "Rhizoctonia solani",
+        "symptoms": "Oval or elliptical greenish-gray water-soaked spots with dark brown margins on leaf sheaths just above water level, progressing upward.",
+        "organic_treatment": "Soil application of Trichoderma viride @ 2.5 kg/acre in vermicompost; spray Pseudomonas fluorescens @ 5 g/L.",
+        "chemical_treatment": "Spray Hexaconazole 5% EC @ 2 ml/L or Validamycin 3% L @ 2 ml/L or Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1 ml/L.",
+        "cultural_prevention": "Avoid close spacing; keep bunds weed-free; ensure balanced potash (K) application."
+    },
+    "rice___brown spot": {
+        "crop": "Rice", "condition": "Rice Brown Spot (Helminthosporiose)", "category": "Disease",
+        "pathogen": "Bipolaris oryzae",
+        "symptoms": "Numerous small circular to oval brown spots with gray or whitish centers and yellowish halos resembling sesame seeds.",
+        "organic_treatment": "Seed treatment with Pseudomonas fluorescens @ 10 g/kg seed; foliar spray of 5% NSKE.",
+        "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/L or Propiconazole 25% EC @ 1 ml/L.",
+        "cultural_prevention": "Correct soil nutrient deficiencies (especially Potassium and Silicon); avoid drought stress."
+    },
+    "rice___rice blast": {
+        "crop": "Rice", "condition": "Rice Blast (Leaf & Neck Blast)", "category": "Disease",
+        "pathogen": "Magnaporthe oryzae (Pyricularia oryzae)",
+        "symptoms": "Spindle-shaped / diamond-shaped lesions with pointed ends, gray/white centers and dark brown borders; neck rot causes rotten neck and empty panicles.",
+        "organic_treatment": "Seed treatment with Pseudomonas fluorescens @ 10 g/kg; foliar spray of 3% Panchagavya + Neem oil.",
+        "chemical_treatment": "Spray Tricyclazole 75% WP @ 0.6 g/L or Isoprothiolane 40% EC @ 1.5 ml/L or Kasugamycin 3% SL @ 2.5 ml/L.",
+        "cultural_prevention": "Avoid high doses of nitrogenous fertilizers; maintain continuous shallow water layer."
+    },
+    "rice___healthy": {
+        "crop": "Rice", "condition": "Healthy Rice Crop (Paddy)", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Erect, deep green leaves with clean leaf sheaths, vigorous tillering and heavy golden-yellow panicles.",
+        "organic_treatment": "Apply Azospirillum and PSB @ 2 kg/acre each; foliar spray of 1% 19:19:19 at panicle initiation.",
+        "chemical_treatment": "No spray needed.",
+        "cultural_prevention": "Alternate wetting and drying (AWD) irrigation to save water and stimulate deep rooting."
+    },
+
+    # Sugar Cane
+    "sugar cane___Grassy shoot": {
+        "crop": "Sugarcane", "condition": "Sugarcane Grassy Shoot Disease (GSD)", "category": "Disease",
+        "pathogen": "Candidatus Phytoplasma (transmitted by Leafhopper & Aphids)",
+        "symptoms": "Profuse tillering producing dense mass of thin, slender grassy shoots with chlorotic papery white/yellow leaves; stunted millable canes.",
+        "organic_treatment": "Hot water treatment of seed setts at 50°C for 2 hours; rogue out infected grassy clumps.",
+        "chemical_treatment": "Control sucking insect vectors: Imidacloprid 17.8% SL @ 0.5 ml/L or Thiamethoxam 25% WG @ 0.3 g/L.",
+        "cultural_prevention": "Use tissue-cultured disease-free planting material; avoid ratoon crops from infected mother cane."
+    },
+    "sugar cane___Red rot": {
+        "crop": "Sugarcane", "condition": "Sugarcane Red Rot (Cancer of Sugarcane)", "category": "Disease",
+        "pathogen": "Colletotrichum falcatum",
+        "symptoms": "Third and fourth leaves wither from tip downwards, split cane shows longitudinal red discolouration with distinct white transverse patches; alcohol smell.",
+        "organic_treatment": "Dip setts in Trichoderma viride slurry (10 g/L) for 30 min before planting; apply Trichoderma enriched FYM @ 5 kg/acre.",
+        "chemical_treatment": "Dip setts in Carbendazim 50% WP @ 1 g/L for 15 minutes before planting; foliar spray of Thiophanate Methyl 70% WP @ 1.5 g/L.",
+        "cultural_prevention": "Plant red-rot resistant varieties (Co 86032, Co 0238); avoid ratooning in infected plots; crop rotation with rice."
+    },
+    "sugar cane___Smut": {
+        "crop": "Sugarcane", "condition": "Sugarcane Whip Smut", "category": "Disease",
+        "pathogen": "Sporisorium scitamineum",
+        "symptoms": "Central stalk terminal shoot produces a long, whip-like unbranched curved structure covered with silver membrane that bursts releasing black soot.",
+        "organic_treatment": "Carefully enclose smut whip in cloth bag, cut and destroy by burning; dip setts in hot water at 52°C for 30 minutes.",
+        "chemical_treatment": "Dip setts in Triadimefon 25% WP @ 1 g/L or Propiconazole 25% EC @ 1 ml/L before planting.",
+        "cultural_prevention": "Rogue out early whip-smut plants before spore dispersal; inspect seed nursery."
+    },
+    "sugar cane___Wilt": {
+        "crop": "Sugarcane", "condition": "Sugarcane Wilt", "category": "Disease",
+        "pathogen": "Fusarium sacchari / Cephalosporium sacchari",
+        "symptoms": "Canes become light, hollow and pithy; internal tissue shows diffuse dull reddish discoloration without white patches; crown leaves turn yellow and dry.",
+        "organic_treatment": "Soil drenching with Pseudomonas fluorescens @ 10 g/L; incorporate press mud @ 5 tons/acre.",
+        "chemical_treatment": "Sett treatment with Carbendazim 50% WP @ 1 g/L; drench root zone with Carbendazim @ 1 g/L.",
+        "cultural_prevention": "Ensure good field drainage; avoid root damage by root grubs or nematodes."
+    },
+    "sugar cane___healthy": {
+        "crop": "Sugarcane", "condition": "Healthy Sugarcane Foliage", "category": "Healthy",
+        "pathogen": "None (Vigorous Crop)",
+        "symptoms": "Robust thick stalks with lush green arching foliage, thick wax bloom on internodes, clean leaf sheaths.",
+        "organic_treatment": "Apply Gluconacetobacter diazotrophicus (endophytic nitrogen fixer) @ 2 kg/acre; trash mulching between cane rows.",
+        "chemical_treatment": "No curative sprays needed.",
+        "cultural_prevention": "Detrashing of dry lower leaves at 150 and 210 DAS to improve aeration and prevent scale insects."
+    },
+
+    # Insect Pests
+    "Pest___Spider Mites": {
+        "crop": "Multiple Crops", "condition": "Spider Mites / Broad Mites", "category": "Pest",
+        "pathogen": "Tetranychus urticae & Polyphagotarsonemus latus",
+        "symptoms": "Fine yellow stippling and bronzing on upper leaf surface, delicate silken webbing on leaf undersides with active crawling tiny mites.",
+        "organic_treatment": "Foliar spray of cold-pressed Neem Oil (10,000 ppm) @ 3.5 ml/L with 1 ml detergent OR Karanja Oil @ 5 ml/L; release predatory mites (Phytoseiulus persimilis).",
+        "chemical_treatment": "Spiromesifen 22.9% SC @ 1.25 ml/L OR Diafenthiuron 50% WP @ 1.25 g/L OR Propargite 57% EC @ 2 ml/L.",
+        "cultural_prevention": "Avoid water stress in crops (spider mites multiply in dry, hot weather); overhead misting suppresses mite colonies."
+    },
+    "Pest___Aphids Colony Damage": {
+        "crop": "Multiple Crops", "condition": "Sucking Aphids Colony Damage", "category": "Pest",
+        "pathogen": "Aphis gossypii & Myzus persicae",
+        "symptoms": "Dense clusters of soft-bodied pear-shaped insects on tender shoots and under leaves, leaf crinkling, sticky honeydew attracting black sooty mold.",
+        "organic_treatment": "Spray Neem Seed Kernel Extract (NSKE) 5% or soap water spray (10 g washing soap/L); encourage natural ladybird beetles.",
+        "chemical_treatment": "Imidacloprid 17.8% SL @ 0.5 ml/L OR Acetamiprid 20% SP @ 0.4 g/L OR Thiamethoxam 25% WG @ 0.3 g/L.",
+        "cultural_prevention": "Install yellow sticky cards; avoid excessive nitrogen fertilizer which causes succulent tender vegetative growth."
+    },
+    "Pest___Cutworm / Caterpillar Chewing": {
+        "crop": "Multiple Crops", "condition": "Caterpillar / Tobacco Cutworm / Pod Borer", "category": "Pest",
+        "pathogen": "Spodoptera litura & Helicoverpa armigera",
+        "symptoms": "Irregular large holes chewed through leaves, skeletonized foliage, severed young seedlings at ground level, bored holes in pods and fruits.",
+        "organic_treatment": "Install Pheromone Traps @ 5/acre; spray Bacillus thuringiensis (Bt) kurstaki @ 2 g/L OR Beauveria bassiana @ 5 g/L; spray NSKE 5%.",
+        "chemical_treatment": "Chlorantraniliprole 18.5% SC (Coragen) @ 0.3 ml/L OR Emamectin Benzoate 5% SG @ 0.5 g/L OR Flubendiamide 39.35% SC @ 0.4 ml/L.",
+        "cultural_prevention": "Deep summer plowing to expose pupae to birds; plant border rows of Castor or Marigold as trap crops."
+    },
+    "Pest___Whitefly Infestation": {
+        "crop": "Multiple Crops", "condition": "Whitefly Colony & Viral Vector", "category": "Pest",
+        "pathogen": "Bemisia tabaci",
+        "symptoms": "Tiny moth-like white powdery flies fluttering when disturbed; leaves turn mottled yellow, stunted growth, transmission of Geminiviruses.",
+        "organic_treatment": "Install Yellow Sticky Traps @ 25/acre; spray Neem Oil 10,000 ppm @ 4 ml/L OR Lecanicillium lecanii @ 5 g/L.",
+        "chemical_treatment": "Diafenthiuron 50% WP @ 1.25 g/L OR Pyriproxyfen 10% EC @ 2 ml/L OR Afidopyropen 50 g/L @ 2 ml/L.",
+        "cultural_prevention": "Grow barrier crops (Maize/Bajra); use silver reflective mulch to disorient incoming whiteflies."
+    },
+
+    # Weeds
+    "Weed___Nutgrass Sedge": {
+        "crop": "Multiple Crops", "condition": "Nutgrass Sedge Weed", "category": "Weed",
+        "pathogen": "Cyperus rotundus (Purple Nutsedge)",
+        "symptoms": "Persistent perennial sedge with triangular stems, shiny dark green narrow leaves, and underground tuber network outcompeting crops.",
+        "organic_treatment": "Hand digging of underground tubers; repeated cycle hoeing; thick organic straw mulching (15 cm) or black polyethylene mulch.",
+        "chemical_treatment": "Post-emergence: Halosulfuron-methyl 75% WG (Sempra) @ 36 g/acre in 150 L water. For non-crop areas: Glyphosate 41% SL @ 10 ml/L.",
+        "cultural_prevention": "Deep summer plowing during hot May months to expose tubers to sunlight and heat desiccation."
+    },
+    "Weed___Parthenium Congress Grass": {
+        "crop": "Multiple Crops", "condition": "Parthenium Congress Grass Weed", "category": "Weed",
+        "pathogen": "Parthenium hysterophorus (Carrot Grass)",
+        "symptoms": "Invasive herbaceous weed with deeply dissected leaves and white flower heads; produces parthenin toxin inhibiting crop germination.",
+        "organic_treatment": "Physical uprooting before flowering (wear gloves); biological control with Mexican leaf beetle (Zygogramma bicolorata).",
+        "chemical_treatment": "Spray Metribuzin 70% WP @ 300 g/acre or 2,4-D Ethyl Ester 38% EC @ 1 L/acre on young actively growing weeds.",
+        "cultural_prevention": "Maintain competitive smother crops; plant Cassia tora along field borders to suppress Parthenium."
+    },
+    "Weed___Bermuda Grass / Grassy Weed": {
+        "crop": "Multiple Crops", "condition": "Bermuda Grass / Doob Grass", "category": "Weed",
+        "pathogen": "Cynodon dactylon (Creeping Doob Grass)",
+        "symptoms": "Extensively creeping perennial grass forming dense fibrous sod through stolons and rhizomes, robbing soil moisture and nutrients.",
+        "organic_treatment": "Multiple passes of cultivator in dry summer to drag rhizomes to surface; cover cropping with dense cowpea or sunnhemp.",
+        "chemical_treatment": "In broadleaf crops: Quizalofop-ethyl 5% EC @ 300 ml/acre OR Fenoxaprop-p-ethyl 9.3% EC @ 350 ml/acre.",
+        "cultural_prevention": "Crop rotation with competitive puddle rice; solarization with transparent plastic sheets."
+    }
+}
+
+
+# -------------------------------------------------------------------------
+# VISUAL FEATURE EXTRACTION (DEEP BACKBONE + PATHOLOGICAL INDICES)
+# -------------------------------------------------------------------------
+class CropFeatureExtractor:
+    def __init__(self, onnx_model_path: Path):
+        self.onnx_available = False
+        self.session = None
+        if onnx_model_path.exists():
+            try:
+                self.session = ort.InferenceSession(str(onnx_model_path), providers=["CPUExecutionProvider"])
+                self.onnx_available = True
+                print(f"[Info] Pretrained MobileNetV2 ONNX backbone loaded from {onnx_model_path.name}")
+            except Exception as e:
+                print(f"[Warning] Could not load ONNX model: {e}")
+
+    def extract_deep_features(self, images_pil: list) -> np.ndarray:
+        """Runs batch through MobileNetV2 to extract 38 deep pathological logits."""
+        if not self.onnx_available or not images_pil:
+            return np.zeros((len(images_pil), 38), dtype=np.float32)
+
+        batch_tensors = []
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+        std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+
+        for img in images_pil:
+            im_resized = img.convert("RGB").resize((224, 224))
+            arr = np.array(im_resized, dtype=np.float32) / 255.0
+            arr = (arr - mean) / std
+            arr = np.transpose(arr, (2, 0, 1))
+            batch_tensors.append(arr)
+
+        tensor_batch = np.array(batch_tensors, dtype=np.float32)
+        try:
+            outputs = self.session.run(None, {"pixel_values": tensor_batch})
+            return outputs[0]  # shape: (N, 38)
+        except Exception as e:
+            print(f"[Warning] Deep feature extraction batch failed: {e}")
+            return np.zeros((len(images_pil), 38), dtype=np.float32)
+
+    def extract_color_pathology_features(self, img_pil: Image.Image) -> np.ndarray:
+        """
+        Extracts 20 domain-specific plant pathological, colorimetric & texture indices:
+          - Channel moments (R, G, B mean & std)
+          - HSV color moments (Hue, Saturation, Value)
+          - Chlorophyll Greenness Index: (2G - R - B) / (2G + R + B)
+          - Chlorosis (Yellowing) fraction
+          - Necrotic lesion fraction (dark brown/black dead spots)
+          - Dark spore / frass / insect bite fraction
+          - Texture edge energy (spatial gradient magnitude)
+          - Color ratios & dynamic range
+        """
+        img_rgb = img_pil.convert("RGB").resize((128, 128))
+        arr = np.array(img_rgb, dtype=np.float32)
+        r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+        total_pix = 128.0 * 128.0
+
+        r_mean, r_std = float(np.mean(r)), float(np.std(r))
+        g_mean, g_std = float(np.mean(g)), float(np.std(g))
+        b_mean, b_std = float(np.mean(b)), float(np.std(b))
+
+        # HSV conversion
+        img_hsv = img_rgb.convert("HSV")
+        hsv_arr = np.array(img_hsv, dtype=np.float32)
+        h_mean = float(np.mean(hsv_arr[:, :, 0]))
+        s_mean, s_std = float(np.mean(hsv_arr[:, :, 1])), float(np.std(hsv_arr[:, :, 1]))
+        v_mean = float(np.mean(hsv_arr[:, :, 2]))
+
+        # Vegetation & Chlorophyll Index
+        green_diff = (2.0 * g - r - b) / (2.0 * g + r + b + 1e-5)
+        green_ratio = float(np.sum(green_diff > 0.12) / total_pix)
+
+        # Chlorosis (Yellowing)
+        yellow_mask = (r > 130) & (g > 130) & (b < 100)
+        chlorosis_ratio = float(np.sum(yellow_mask) / total_pix)
+
+        # Necrotic fungal/bacterial spot mask
+        necrotic_mask = (r > 40) & (r < 170) & (g > 20) & (g < 120) & (b < 80) & (r > g)
+        necrotic_ratio = float(np.sum(necrotic_mask) / total_pix)
+
+        # Dark spore / bite mask
+        dark_mask = (r < 55) & (g < 55) & (b < 55)
+        dark_ratio = float(np.sum(dark_mask) / total_pix)
+
+        # Texture gradient energy
+        gray = 0.299 * r + 0.587 * g + 0.114 * b
+        grad_x = np.diff(gray, axis=1)
+        grad_y = np.diff(gray, axis=0)
+        edge_energy = float(np.mean(np.abs(grad_x)) + np.mean(np.abs(grad_y)))
+
+        # Dynamic range & ratios
+        rg_ratio = float(r_mean / (g_mean + 1e-5))
+        bg_ratio = float(b_mean / (g_mean + 1e-5))
+        rb_diff = float(abs(r_mean - b_mean))
+        contrast = float(np.std(gray))
+        dynamic_range = float(np.percentile(gray, 90) - np.percentile(gray, 10))
+
+        feats = [
+            r_mean, r_std, g_mean, g_std, b_mean, b_std,
+            h_mean, s_mean, s_std, v_mean,
+            green_ratio, chlorosis_ratio, necrotic_ratio, dark_ratio,
+            edge_energy, rg_ratio, bg_ratio, rb_diff,
+            contrast, dynamic_range
+        ]
+        return np.array(feats, dtype=np.float32)
+
+
+def generate_augmented_variants(img: Image.Image) -> list:
+    """Generates realistic geometric and photometric augmented variations."""
+    augmented = [img]
+    # Geometric
+    augmented.append(img.transpose(Image.FLIP_LEFT_RIGHT))
+    augmented.append(img.transpose(Image.FLIP_TOP_BOTTOM))
+    augmented.append(img.rotate(90))
+    augmented.append(img.rotate(180))
+    augmented.append(img.rotate(270))
+    augmented.append(img.rotate(12, resample=Image.BICUBIC))
+    augmented.append(img.rotate(-12, resample=Image.BICUBIC))
+
+    # Photometric (Lighting / Sun exposure)
+    enhancer_bright = ImageEnhance.Brightness(img)
+    augmented.append(enhancer_bright.enhance(0.85))
+    augmented.append(enhancer_bright.enhance(1.15))
+
+    enhancer_contrast = ImageEnhance.Contrast(img)
+    augmented.append(enhancer_contrast.enhance(0.85))
+    augmented.append(enhancer_contrast.enhance(1.20))
+
+    # Blur / Sharpness
+    augmented.append(img.filter(ImageFilter.GaussianBlur(radius=0.7)))
+    enhancer_sharp = ImageEnhance.Sharpness(img)
+    augmented.append(enhancer_sharp.enhance(1.4))
+
+    return augmented
+
+
+# -------------------------------------------------------------------------
+# DATASET SCANNING & MULTI-SOURCE COMPILATION
+# -------------------------------------------------------------------------
+def build_dataset_catalogue() -> tuple:
+    r"""
+    Scans `c:/Users/G samatha sreeja/Desktop/diseases` and `test_crop_images`
+    to map every image file to one of our unified 67 classes.
+    """
+    class_to_files = {}
+
+    # Initialize all classes
+    for key in TAXONOMY_TREATMENTS.keys():
+        class_to_files[key] = []
+
+    # 1. Scan Desktop/diseases (12 crops, 60 subdirectories)
+    if DESKTOP_DISEASES_DIR.exists():
+        for crop_dir in DESKTOP_DISEASES_DIR.iterdir():
+            if not crop_dir.is_dir() or crop_dir.name.endswith(".lnk"):
+                continue
+            crop_name = crop_dir.name
+            for sub_dir in crop_dir.iterdir():
+                if not sub_dir.is_dir():
+                    continue
+                sub_name = sub_dir.name
+                class_key = f"{crop_name}___{sub_name}"
+                if class_key in class_to_files:
+                    for f in sub_dir.iterdir():
+                        if f.is_file() and not f.name.endswith(".jxl") and not f.name.endswith(".lnk"):
+                            class_to_files[class_key].append(f)
+                else:
+                    # Look for case-insensitive match
+                    for k in class_to_files.keys():
+                        if k.lower() == class_key.lower():
+                            for f in sub_dir.iterdir():
+                                if f.is_file() and not f.name.endswith(".jxl") and not f.name.endswith(".lnk"):
+                                    class_to_files[k].append(f)
+                            break
+
+    # 2. Scan Pests from test_crop_images/2_Pests
+    pests_dir = TEST_IMAGES_DIR / "2_Pests"
+    if pests_dir.exists():
+        for f in pests_dir.iterdir():
+            if not f.is_file():
+                continue
+            fname = f.name.lower()
+            if "spider" in fname or "mite" in fname:
+                class_to_files["Pest___Spider Mites"].append(f)
+            elif "aphid" in fname:
+                class_to_files["Pest___Aphids Colony Damage"].append(f)
+            elif "caterpillar" in fname or "spodoptera" in fname or "borer" in fname:
+                class_to_files["Pest___Cutworm / Caterpillar Chewing"].append(f)
+            elif "whitefly" in fname or "bemisia" in fname:
+                class_to_files["Pest___Whitefly Infestation"].append(f)
+
+    # 3. Scan Weeds from test_crop_images/3_Weeds
+    weeds_dir = TEST_IMAGES_DIR / "3_Weeds"
+    if weeds_dir.exists():
+        for f in weeds_dir.iterdir():
+            if not f.is_file():
+                continue
+            fname = f.name.lower()
+            if "nutgrass" in fname or "cyperus" in fname:
+                class_to_files["Weed___Nutgrass Sedge"].append(f)
+            elif "parthenium" in fname:
+                class_to_files["Weed___Parthenium Congress Grass"].append(f)
+            elif "bermuda" in fname or "cynodon" in fname:
+                class_to_files["Weed___Bermuda Grass / Grassy Weed"].append(f)
+
+    # 4. Additional Healthy images from test_crop_images/4_Healthy_Crops
+    healthy_dir = TEST_IMAGES_DIR / "4_Healthy_Crops"
+    if healthy_dir.exists():
+        for f in healthy_dir.iterdir():
+            if f.is_file():
+                fname = f.name.lower()
+                if "chilli" in fname:
+                    class_to_files["CHILLI___healthy"].append(f)
+                elif "corn" in fname or "maize" in fname:
+                    class_to_files["maize___healthy"].append(f)
+                elif "groundnut" in fname:
+                    class_to_files["ground nut___healthy"].append(f)
+
+    # Filter out empty classes or ensure fallback
+    active_classes = [k for k, v in class_to_files.items() if len(v) > 0]
+    print(f"[Dataset Scan] Found {len(active_classes)} active classes with seed images.")
+    return class_to_files, sorted(active_classes)
+
+
+# -------------------------------------------------------------------------
+# TRAINING & EVALUATION PIPELINE
+# -------------------------------------------------------------------------
+def train_best_model():
+    print("=" * 70)
+    print("TRAINING ADVANCED CROP DISEASE, PEST & WEED ENSEMBLE CLASSIFIER")
+    print("=" * 70)
+
+    extractor = CropFeatureExtractor(ONNX_BACKBONE_PATH)
+    class_to_files, active_classes = build_dataset_catalogue()
+
+    class_to_id = {cls_name: idx for idx, cls_name in enumerate(active_classes)}
+    id_to_class = {idx: cls_name for cls_name, idx in class_to_id.items()}
+
+    print(f"\nProcessing {len(active_classes)} classes across 12 Andhra Pradesh crops, pests and weeds...")
+
+    all_features = []
+    all_labels = []
+    batch_images = []
+    batch_indices = []
+
+    t0 = time.time()
+    total_images_processed = 0
+
+    for cls_name in active_classes:
+        files = class_to_files[cls_name]
+        label_id = class_to_id[cls_name]
+        for fpath in files:
+            try:
+                base_img = Image.open(fpath).convert("RGB")
+                variants = generate_augmented_variants(base_img)
+                for var_img in variants:
+                    # Domain-specific color/pathological features (20-dim)
+                    color_feats = extractor.extract_color_pathology_features(var_img)
+                    batch_images.append(var_img)
+                    batch_indices.append((color_feats, label_id))
+                    total_images_processed += 1
+
+                    # Process in batches for fast ONNX inference
+                    if len(batch_images) >= 64:
+                        deep_feats = extractor.extract_deep_features(batch_images)
+                        for i, (c_feat, lbl) in enumerate(batch_indices):
+                            combined = np.concatenate([deep_feats[i], c_feat])
+                            all_features.append(combined)
+                            all_labels.append(lbl)
+                        batch_images = []
+                        batch_indices = []
+            except Exception as e:
+                print(f"[Warning] Failed loading image {fpath}: {e}")
+
+    # Process remaining batch
+    if batch_images:
+        deep_feats = extractor.extract_deep_features(batch_images)
+        for i, (c_feat, lbl) in enumerate(batch_indices):
+            combined = np.concatenate([deep_feats[i], c_feat])
+            all_features.append(combined)
+            all_labels.append(lbl)
+
+    X = np.array(all_features, dtype=np.float32)
+    y = np.array(all_labels, dtype=np.int64)
+
+    dt_extract = time.time() - t0
+    print(f"\nExtracted features for {X.shape[0]} samples in {dt_extract:.1f} seconds.")
+    print(f"Feature Dimension per Image: {X.shape[1]} (38 Deep Logits + 20 Agronomic Pathological Descriptors)")
+
+    # 1. Feature Scaling: Z-score Normalization
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # 2. Stratified Train / Test Split (80% Train, 20% Test)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_scaled, y, test_size=0.20, random_state=42, stratify=y
+    )
+    print(f"Training Samples:   {X_train.shape[0]}")
+    print(f"Testing Samples:    {X_test.shape[0]}")
+
+    # 3. Model Training: Extra Trees & Random Forest Ensemble
+    print("\nTraining Ensemble Classifier with 200 Decision Trees...")
+    t_train = time.time()
+    model = RandomForestClassifier(
+        n_estimators=200,
+        max_depth=30,
+        min_samples_split=2,
+        max_features="sqrt",
+        random_state=42,
+        n_jobs=-1
+    )
+    model.fit(X_train, y_train)
+    dt_train = time.time() - t_train
+    print(f"Model training completed in {dt_train:.2f} seconds.")
+
+    # 4. Evaluation
+    y_pred_train = model.predict(X_train)
+    y_pred_test = model.predict(X_test)
+
+    train_acc = accuracy_score(y_train, y_pred_train)
+    test_acc = accuracy_score(y_test, y_pred_test)
+    macro_f1 = f1_score(y_test, y_pred_test, average="macro")
+
+    print("\n" + "=" * 70)
+    print("MODEL EVALUATION PERFORMANCE:")
+    print("=" * 70)
+    print(f"Training Accuracy:   {train_acc * 100:.2f}%")
+    print(f"Test Accuracy:       {test_acc * 100:.2f}%")
+    print(f"Macro F1-Score:      {macro_f1:.4f}")
+
+    # 5. Export Model & Metadata
+    print(f"\nSaving best model to {OUTPUT_MODEL_PATH}...")
+    joblib.dump(model, OUTPUT_MODEL_PATH, compress=3)
+    joblib.dump(scaler, OUTPUT_SCALER_PATH)
+
+    metadata = {
+        "model_type": "RandomForestEnsemble_MobileNetV2_Hybrid",
+        "n_estimators": 200,
+        "feature_dim": int(X.shape[1]),
+        "total_samples": int(X.shape[0]),
+        "train_samples": int(X_train.shape[0]),
+        "test_samples": int(X_test.shape[0]),
+        "train_accuracy_pct": round(float(train_acc * 100), 2),
+        "test_accuracy_pct": round(float(test_acc * 100), 2),
+        "macro_f1": round(float(macro_f1), 4),
+        "active_classes_count": len(active_classes),
+        "class_to_id": class_to_id,
+        "id_to_class": {str(k): v for k, v in id_to_class.items()},
+        "taxonomy": TAXONOMY_TREATMENTS,
+        "trained_at": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    with open(OUTPUT_METADATA_PATH, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2, ensure_ascii=False)
+
+    print("Model, scaler, and metadata saved successfully!")
+    return metadata
+
+
+if __name__ == "__main__":
+    train_best_model()
