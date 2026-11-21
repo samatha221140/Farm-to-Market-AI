@@ -6,9 +6,25 @@ if (typeof window !== "undefined" && window.location && window.location.protocol
     if (window.location.port === "5000") {
         API_BASE = "";
     } else {
-        API_BASE = `http://${window.location.hostname || "127.0.0.1"}:5000`;
+        API_BASE = "http://127.0.0.1:5000";
     }
 }
+
+async function checkBackendHealth(manual = false) {
+    const alertBox = getElement("backendOfflineAlert");
+    try {
+        const res = await fetch(`${API_BASE}/api/health`, { method: "GET", cache: "no-store" });
+        if (res.ok) {
+            if (alertBox) alertBox.style.display = "none";
+            if (manual) setStatus("cropStatus", "Connected to Python Flask backend!", "success");
+            return true;
+        }
+    } catch (e) {
+        if (alertBox) alertBox.style.display = "block";
+        return false;
+    }
+}
+window.checkBackendHealth = checkBackendHealth;
 
 // State Management across Phase 1, Phase 2, and Phase 3
 let currentPhase = 1;
@@ -53,12 +69,25 @@ function escapeHTML(str) {
 }
 
 async function fetchJSON(url, options = {}) {
-    const response = await fetch(url, options);
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.error || data.message || `HTTP request failed (${response.status})`);
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.error || data.message || `HTTP request failed (${response.status})`);
+        }
+        return data;
+    } catch (err) {
+        if (url.includes("127.0.0.1:5000")) {
+            try {
+                const fallbackUrl = url.replace("127.0.0.1:5000", "localhost:5000");
+                const response = await fetch(fallbackUrl, options);
+                const data = await response.json().catch(() => ({}));
+                if (response.ok) return data;
+            } catch (e2) {}
+        }
+        checkBackendHealth();
+        throw err;
     }
-    return data;
 }
 
 /* ==========================================================================
@@ -104,6 +133,7 @@ function switchPhase(phaseNum) {
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
+window.switchPhase = switchPhase;
 
 getElement("navPhase1Btn")?.addEventListener("click", () => switchPhase(1));
 getElement("navPhase2Btn")?.addEventListener("click", () => switchPhase(2));
@@ -913,6 +943,7 @@ function showMarketTab(tab) {
         if (getElement("postHarvestDate")) getElement("postHarvestDate").value = new Date().toISOString().slice(0, 10);
     }
 }
+window.showMarketTab = showMarketTab;
 
 getElement("tabBrowseLotsBtn")?.addEventListener("click", () => showMarketTab("browse"));
 getElement("tabListProduceBtn")?.addEventListener("click", () => showMarketTab("list"));
@@ -1105,6 +1136,7 @@ getElement("buyerInquiryForm")?.addEventListener("submit", async (event) => {
 
 // Default Startup
 window.addEventListener("DOMContentLoaded", () => {
+    checkBackendHealth();
     loadWeather("Vijayawada");
     loadMarketplaceListings();
 });
