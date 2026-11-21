@@ -1,0 +1,18 @@
+{
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/backend/rules"
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "liveServer.settings.ignoreFiles": [
+        "**/.git/**",
+        "**/backend/**",
+        "**/*.db*",
+        "**/*.jsonl",
+        "**/*.json",
+        "**/*.pkl",
+        "**/*.onnx",
+        "**/*.csv",
+        "**/test_crop_images/**",
+        "**/uploads/**"
+    ]
+}
