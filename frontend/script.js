@@ -1,8 +1,14 @@
 "use strict";
 
-const API_BASE = (window.location.protocol.startsWith("http") && window.location.port)
-    ? `${window.location.protocol}//${window.location.hostname}:${window.location.port}`
-    : "http://127.0.0.1:5000";
+// Target Flask backend server on port 5000
+let API_BASE = "http://127.0.0.1:5000";
+if (typeof window !== "undefined" && window.location && window.location.protocol.startsWith("http")) {
+    if (window.location.port === "5000") {
+        API_BASE = "";
+    } else {
+        API_BASE = `http://${window.location.hostname || "127.0.0.1"}:5000`;
+    }
+}
 
 // State Management across Phase 1, Phase 2, and Phase 3
 let currentPhase = 1;

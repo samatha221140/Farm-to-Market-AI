@@ -35,7 +35,7 @@ app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
 CORS(app)
 
 
-@app.get("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
     """Serves the main user-friendly web application."""
     return send_from_directory(str(FRONTEND_DIR), "index.html")
@@ -81,7 +81,7 @@ def health():
 # PHASE 1: CROP RECOMMENDATION & PROFIT RANKING
 # =========================================================================
 
-@app.post("/api/recommend")
+@app.route("/api/recommend", methods=["GET", "POST"])
 def recommend_pipeline():
     """
     Phase 1 Two-stage recommendation pipeline:
@@ -89,6 +89,13 @@ def recommend_pipeline():
        N, P, K, pH, and Soil Type.
     2. Then ranks and recommends top 3 crops based on Market Price and Estimated Net Profit.
     """
+    if request.method == "GET":
+        return jsonify({
+            "status": "ready",
+            "endpoint": "POST /api/recommend",
+            "description": "Send POST request with farm conditions JSON to get crop recommendations."
+        })
+
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({
@@ -175,9 +182,11 @@ def recommend_pipeline():
     })
 
 
-@app.post("/api/profit-estimate")
+@app.route("/api/profit-estimate", methods=["GET", "POST"])
 def profit_estimate():
     """Interactive profit calculation for custom farmer scenarios."""
+    if request.method == "GET":
+        return jsonify({"status": "ready", "endpoint": "POST /api/profit-estimate"})
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"success": False, "error": "Invalid JSON input."}), 400
@@ -259,9 +268,11 @@ def get_mandi_prices():
 # PHASE 2: CROP GROWING & MONITORING
 # =========================================================================
 
-@app.post("/api/phase2/fertilizer-plan")
+@app.route("/api/phase2/fertilizer-plan", methods=["GET", "POST"])
 def phase2_fertilizer():
     """Calculates custom N-P-K fertilizer bags and schedule for the selected crop."""
+    if request.method == "GET":
+        return jsonify({"status": "ready", "endpoint": "POST /api/phase2/fertilizer-plan"})
     data = request.get_json(silent=True) or {}
     crop = data.get("crop", "Groundnut")
     soil_n = float(data.get("soil_n", 40.0))
@@ -273,9 +284,11 @@ def phase2_fertilizer():
     return jsonify({"success": True, "plan": plan})
 
 
-@app.post("/api/phase2/irrigation-advisory")
+@app.route("/api/phase2/irrigation-advisory", methods=["GET", "POST"])
 def phase2_irrigation():
     """Calculates smart irrigation need, water volume, and schedule with IoT moisture sensor."""
+    if request.method == "GET":
+        return jsonify({"status": "ready", "endpoint": "POST /api/phase2/irrigation-advisory"})
     data = request.get_json(silent=True) or {}
     crop = data.get("crop", "Groundnut")
     soil_type = data.get("soil_type", "Red")
@@ -362,9 +375,11 @@ def phase2_pest_weed():
     return jsonify({"success": True, "advisory": advisory})
 
 
-@app.post("/api/phase2/diagnose-image")
+@app.route("/api/phase2/diagnose-image", methods=["GET", "POST"])
 def phase2_diagnose_image():
     """Analyzes an uploaded crop photo to identify disease, pest, or weed with dual organic/chemical cures."""
+    if request.method == "GET":
+        return jsonify({"status": "ready", "endpoint": "POST /api/phase2/diagnose-image"})
     image_data = None
     crop = "Chilli"
     notes = ""
@@ -390,9 +405,11 @@ def phase2_diagnose_image():
     return jsonify(result)
 
 
-@app.post("/api/phase2/analyze-soil-fertilizer")
+@app.route("/api/phase2/analyze-soil-fertilizer", methods=["GET", "POST"])
 def phase2_analyze_soil_fertilizer():
     """Analyzes soil health test values and generates dual Organic and Chemical fertilizer packages."""
+    if request.method == "GET":
+        return jsonify({"status": "ready", "endpoint": "POST /api/phase2/analyze-soil-fertilizer"})
     data = request.get_json(silent=True) or {}
     crop = data.get("crop", "Groundnut")
     acres = float(data.get("acres", 1.0))
@@ -433,8 +450,10 @@ def phase3_get_listings():
     })
 
 
-@app.post("/api/phase3/create-listing")
+@app.route("/api/phase3/create-listing", methods=["GET", "POST"])
 def phase3_create_listing():
+    if request.method == "GET":
+        return jsonify({"status": "ready", "endpoint": "POST /api/phase3/create-listing"})
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"success": False, "error": "Invalid listing data."}), 400
@@ -457,8 +476,10 @@ def phase3_create_listing():
     })
 
 
-@app.post("/api/phase3/buyer-inquiry")
+@app.route("/api/phase3/buyer-inquiry", methods=["GET", "POST"])
 def phase3_buyer_inquiry():
+    if request.method == "GET":
+        return jsonify({"status": "ready", "endpoint": "POST /api/phase3/buyer-inquiry"})
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify({"success": False, "error": "Invalid inquiry data."}), 400
@@ -536,6 +557,18 @@ def api_database_audit_file():
 def serve_uploaded_file(filename):
     """Serves physically saved crop diagnosis and marketplace produce photos."""
     return send_from_directory(str(config.UPLOAD_BASE_DIR), filename)
+
+
+@app.errorhandler(405)
+def handle_method_not_allowed(e):
+    """Gracefully handles 405 Method Not Allowed errors."""
+    if not request.path.startswith("/api/"):
+        return send_from_directory(str(FRONTEND_DIR), "index.html")
+    return jsonify({
+        "success": False,
+        "error": f"HTTP {request.method} method not allowed for {request.path}",
+        "hint": "Check the API documentation at /api or send appropriate GET/POST request."
+    }), 200
 
 
 if __name__ == "__main__":
