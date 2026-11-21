@@ -96,6 +96,14 @@ async function fetchJSON(url, options = {}) {
 function switchPhase(phaseNum) {
     currentPhase = Number(phaseNum);
 
+    // Save active phase so reloads never lose the current tab
+    try {
+        sessionStorage.setItem("activePhase", String(currentPhase));
+        if (history.replaceState) {
+            history.replaceState(null, "", `#phase${currentPhase}`);
+        }
+    } catch (e) {}
+
     // Update Nav Buttons
     const navBtns = [
         getElement("navPhase1Btn"),
@@ -794,7 +802,7 @@ async function togglePumpRelay() {
     }
 }
 
-async function calculateSmartIrrigationUI() {
+async function calculateSmartIrrigationUI(saveRecord = false) {
     const crop = selectedCrop || getElement("careCropSelector")?.value || "Groundnut";
     const stage = getElement("careGrowthStage")?.value || "Flowering & Pegging / Tasseling (35-65 DAS)";
     const soilType = farmerSoilData.soil_type || getElement("soil_type")?.value || "Red";
@@ -822,7 +830,8 @@ async function calculateSmartIrrigationUI() {
                 humidity: farmerSoilData.humidity || 58.0,
                 pump_rating: pumpRating,
                 irrigation_method: irrMethod,
-                acres: acres
+                acres: acres,
+                save_to_db: Boolean(saveRecord)
             })
         });
 
@@ -913,7 +922,7 @@ function syncSensorsToForms() {
     alert(`Synced live IoT sensors to Smart Irrigation & Soil Health forms:\n• Soil Moisture: ${s.soil_moisture_pct}%\n• N-P-K: ${s.N}-${s.P}-${s.K} kg/ha\n• pH: ${s.pH}`);
 }
 
-getElement("calcSmartIrrigationBtn")?.addEventListener("click", calculateSmartIrrigationUI);
+getElement("calcSmartIrrigationBtn")?.addEventListener("click", () => calculateSmartIrrigationUI(true));
 getElement("togglePumpRelayBtn")?.addEventListener("click", togglePumpRelay);
 getElement("syncSensorBtn")?.addEventListener("click", async () => {
     await fetchLiveSensors();
@@ -1139,6 +1148,15 @@ window.addEventListener("DOMContentLoaded", () => {
     checkBackendHealth();
     loadWeather("Vijayawada");
     loadMarketplaceListings();
+
+    // Restore active phase from hash or sessionStorage
+    try {
+        const hashPhase = window.location.hash ? window.location.hash.replace("#phase", "") : null;
+        const savedPhase = hashPhase || sessionStorage.getItem("activePhase");
+        if (savedPhase && ["1", "2", "3"].includes(String(savedPhase)) && Number(savedPhase) !== 1) {
+            switchPhase(Number(savedPhase));
+        }
+    } catch (e) {}
 });
 
 

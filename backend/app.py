@@ -316,20 +316,21 @@ def phase2_irrigation():
         irrigation_method=irrigation_method
     )
 
-    # Persistent recording to multi-phase SQLite database & audit file
-    try:
-        database.record_phase2_smart_irrigation(
-            inputs={
-                "crop": crop, "acres": acres, "soil_type": soil_type,
-                "growth_stage": growth_stage, "soil_moisture_pct": soil_moisture,
-                "rainfall_today_mm": recent_rain, "forecast_rain_24h_mm": forecast_rain,
-                "temperature_c": temp_c, "humidity_pct": humidity,
-                "pump_rating": pump_rating, "irrigation_method": irrigation_method
-            },
-            advisory=advisory
-        )
-    except Exception as db_err:
-        print(f"[Warning] Failed recording irrigation to database: {db_err}")
+    # Persistent recording to multi-phase SQLite database & audit file (only on active user calculation)
+    if data.get("save_to_db", True):
+        try:
+            database.record_phase2_smart_irrigation(
+                inputs={
+                    "crop": crop, "acres": acres, "soil_type": soil_type,
+                    "growth_stage": growth_stage, "soil_moisture_pct": soil_moisture,
+                    "rainfall_today_mm": recent_rain, "forecast_rain_24h_mm": forecast_rain,
+                    "temperature_c": temp_c, "humidity_pct": humidity,
+                    "pump_rating": pump_rating, "irrigation_method": irrigation_method
+                },
+                advisory=advisory
+            )
+        except Exception as db_err:
+            print(f"[Warning] Failed recording irrigation to database: {db_err}")
 
     return jsonify({"success": True, "advisory": advisory})
 
