@@ -12,6 +12,7 @@ except ImportError:
 # Setup project and rules paths
 BACKEND_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = BACKEND_DIR.parent
+FRONTEND_DIR = PROJECT_ROOT / "frontend"
 RULES_DIR = BACKEND_DIR / "rules"
 DATA_DIR = BACKEND_DIR / "data"
 
@@ -30,12 +31,19 @@ import soil_analyzer_service
 import smart_irrigation_service
 import database
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
 CORS(app)
 
 
 @app.get("/")
 def home():
+    """Serves the main user-friendly web application."""
+    return send_from_directory(str(FRONTEND_DIR), "index.html")
+
+
+@app.get("/api")
+def api_catalog():
+    """Returns the API endpoints catalog."""
     return jsonify({
         "project": "Farm-to-Market-AI: 3-Phase Smart Agricultural Ecosystem",
         "phases": {
