@@ -571,53 +571,79 @@ getElement("tabTop3Btn")?.addEventListener("click", () => {
 });
 
 /* MANDI PRICES LOOKUP */
-getElement("mandiForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const crop = getElement("mandiCrop")?.value.trim() || "";
+async function loadMandiPrices(filterCrop = null) {
+    const container = getElement("mandiResults");
+    const statusElem = getElement("mandiStatus");
+    const sessionBadge = getElement("mandiSessionBadge");
+
+    const crop = (filterCrop !== null ? filterCrop : (getElement("mandiCrop")?.value.trim() || "")).trim();
     const state = getElement("mandiState")?.value.trim() || "Andhra Pradesh";
     const district = getElement("mandiDistrict")?.value.trim() || "";
 
-    setButtonLoading("searchMandiButton", true, "Searching...", "Search Mandi Rates");
-    setStatus("mandiStatus", "Loading mandi arrivals...", "loading");
+    setButtonLoading("searchMandiButton", true, "Updating...", "Search Mandi Rates");
+    setStatus("mandiStatus", "Updating live APMC mandi arrivals for today...", "loading");
 
     try {
-        const q = new URLSearchParams({ crop, state });
+        const q = new URLSearchParams({ state });
+        if (crop) q.set("crop", crop);
         if (district) q.set("district", district);
+
         const data = await fetchJSON(`${API_BASE}/api/mandi-prices?${q.toString()}`);
-        const container = getElement("mandiResults");
         if (!container) return;
 
         if (!data.records || data.records.length === 0) {
-            container.innerHTML = `<p class="status">No matching records found.</p>`;
-            setStatus("mandiStatus", "Zero records found.", "error");
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 26px; background: #fffbeb; border-radius: 8px; border: 1px solid #fef3c7;">
+                <p style="font-weight: 600; color: #92400e; margin-bottom: 8px;">No matching mandi records found for "${escapeHTML(crop)}".</p>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('mandiCrop').value=''; loadMandiPrices('');">Show All 12 Crops</button>
+            </div>`;
+            setStatus("mandiStatus", "Zero matching records found.", "warning");
             return;
         }
 
+        if (sessionBadge) {
+            sessionBadge.textContent = `🟢 Live APMC Session: ${data.today_date || "Today"}`;
+            sessionBadge.title = `Last updated: ${data.last_updated || "Just now"}`;
+        }
+
         container.innerHTML = data.records.map(record => `
-            <div class="mandi-record-card">
-                <div class="mandi-card-header">
-                    <div>
-                        <div class="mandi-crop-name">${escapeHTML(record.crop)}</div>
-                        <div class="mandi-market-name">🏛️ ${escapeHTML(record.market)}, ${escapeHTML(record.district || record.state)}</div>
+            <div class="mandi-record-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <div class="mandi-card-header">
+                        <div>
+                            <div class="mandi-crop-name">${escapeHTML(record.crop)}</div>
+                            <div class="mandi-market-name">🏛️ ${escapeHTML(record.market)}, ${escapeHTML(record.district || record.state)}</div>
+                        </div>
+                        <span class="badge badge-market" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; font-weight:700;">${escapeHTML(record.market_trend || "Active Mandi")}</span>
                     </div>
-                    <span class="badge badge-market">Mandi Price</span>
+                    <div class="mandi-price-box">
+                        <div class="mandi-modal-price">${formatRupees(record.modal_price_rs_per_quintal)} / qtl</div>
+                        <div class="mandi-range">Range: ${formatRupees(record.min_price_rs_per_quintal)} – ${formatRupees(record.max_price_rs_per_quintal)}</div>
+                    </div>
                 </div>
-                <div class="mandi-price-box">
-                    <div class="mandi-modal-price">${formatRupees(record.modal_price_rs_per_quintal)} / qtl</div>
-                    <div class="mandi-range">Range: ${formatRupees(record.min_price_rs_per_quintal)} – ${formatRupees(record.max_price_rs_per_quintal)}</div>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-subtle);">
-                    📅 Date: ${escapeHTML(record.arrival_date || "Recent")}
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-subtle); margin-top:8px; border-top:1px solid #f1f5f9; padding-top:8px;">
+                    <span>📅 <b>Arrival:</b> ${escapeHTML(record.arrival_date || "Today")}</span>
+                    <button type="button" class="btn btn-secondary" style="padding:4px 10px; font-size:0.75rem; border-radius:4px; cursor:pointer;" onclick="selectCropAndGoToPhase2('${escapeHTML(record.crop)}')">Plan Crop →</button>
                 </div>
             </div>
         `).join("");
 
-        setStatus("mandiStatus", `Loaded ${data.records.length} mandi records.`, "success");
+        const countText = data.records.length === 1 ? "1 commodity rate" : `${data.records.length} commodity rates`;
+        setStatus("mandiStatus", `Updated: ${countText} loaded for today (${data.today_date || "Live"}).`, "success");
     } catch (err) {
-        setStatus("mandiStatus", err.message, "error");
+        setStatus("mandiStatus", `Mandi rates notice: ${err.message}`, "warning");
     } finally {
-        setButtonLoading("searchMandiButton", false, "Searching...", "Search Mandi Rates");
+        setButtonLoading("searchMandiButton", false, "Updating...", "Search Mandi Rates");
     }
+}
+window.loadMandiPrices = loadMandiPrices;
+
+getElement("mandiForm")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    loadMandiPrices();
+});
+
+getElement("refreshMandiBtn")?.addEventListener("click", () => {
+    loadMandiPrices();
 });
 
 
@@ -1148,6 +1174,7 @@ window.addEventListener("DOMContentLoaded", () => {
     checkBackendHealth();
     loadWeather("Vijayawada");
     loadMarketplaceListings();
+    loadMandiPrices(); // Automatically updates & displays live Mandi rates every time the website opens
 
     // Restore active phase from hash or sessionStorage
     try {

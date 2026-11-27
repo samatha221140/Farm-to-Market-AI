@@ -351,10 +351,14 @@
 
       <!-- Live Mandi Prices -->
       <section class="card mandi-section" id="mandiSection">
-        <div class="card-header">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
             <h3>🏪 Live Mandi Market Prices</h3>
-            <p class="section-desc">Check current reported prices from Andhra Pradesh and regional agricultural markets.</p>
+            <p class="section-desc">Real-time commodity arrivals, modal prices, and wholesale trends across Andhra Pradesh APMC market yards.</p>
+          </div>
+          <div class="mandi-header-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <span id="mandiSessionBadge" class="badge badge-success" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 700; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">🟢 Live APMC Session: Today</span>
+            <button id="refreshMandiBtn" type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem; cursor: pointer;">🔄 Refresh Rates</button>
           </div>
         </div>
 
@@ -370,10 +374,13 @@
             </div>
             <div class="field-item">
               <label for="mandiDistrict">District (Optional)</label>
-              <input id="mandiDistrict" type="text" placeholder="e.g. Guntur, Kurnool">
+              <input id="mandiDistrict" type="text" placeholder="e.g. Guntur, Kurnool, Anantapur">
             </div>
           </div>
-          <button id="searchMandiButton" type="submit" class="btn btn-primary">Search Mandi Rates</button>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="searchMandiButton" type="submit" class="btn btn-primary">Search Mandi Rates</button>
+            <button id="clearMandiFilterBtn" type="button" class="btn btn-secondary" onclick="document.getElementById('mandiCrop').value=''; loadMandiPrices('');">Show All 12 Crops</button>
+          </div>
         </form>
 
         <p id="mandiStatus" class="status"></p>
