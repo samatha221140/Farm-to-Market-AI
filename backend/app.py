@@ -71,6 +71,7 @@ def health():
         "phase_1_engine": "Agronomic Multi-Factor Suitability & Market Economics",
         "phase_2_engine": "ICAR/ANGRAU Fertilizer Dosage & Smart Irrigation Advisory",
         "phase_3_engine": "Farmer-to-Buyer Marketplace & Direct Connect",
+        "database_engine": "MongoDB (Native NoSQL Document Store)",
         "crops_supported": list(CROP_RULES.keys()),
         "crops_count": len(CROP_RULES),
         "market_dataset_loaded": len(market_data) > 0
@@ -462,11 +463,15 @@ def phase3_create_listing():
     if not data.get("crop") or not data.get("phone_number"):
         return jsonify({"success": False, "error": "Crop name and farmer contact number are required."}), 400
 
+    photo_input = data.get("photo_base64")
     listing = marketplace_service.create_new_listing(data)
 
-    # Persistent recording to multi-phase SQLite database & audit file
+    # Persistent recording to MongoDB / SQLite database & save uploaded .jpg/.png image
     try:
-        database.record_phase3_listing(listing)
+        _, saved_image_url = database.record_phase3_listing(listing, produce_image_input=photo_input)
+        if saved_image_url:
+            listing["photo_url"] = saved_image_url
+            marketplace_service.update_listing_photo(listing["id"], saved_image_url)
     except Exception as db_err:
         print(f"[Warning] Failed recording marketplace listing to database: {db_err}")
 
@@ -573,4 +578,6 @@ def handle_method_not_allowed(e):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=config.PORT, debug=config.DEBUG)
+    # use_reloader=False prevents Flask watchdog from restarting on every sklearn/numpy change
+    # threaded=True ensures concurrent requests (image analysis + irrigation) don't block each other
+    app.run(host="0.0.0.0", port=config.PORT, debug=config.DEBUG, use_reloader=False, threaded=True)

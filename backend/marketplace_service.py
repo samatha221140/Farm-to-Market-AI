@@ -159,6 +159,15 @@ def create_new_listing(payload):
     return listing
 
 
+def update_listing_photo(listing_id, photo_url):
+    listings = _load_listings()
+    for item in listings:
+        if item.get("id") == listing_id:
+            item["photo_url"] = photo_url
+            break
+    _save_listings(listings)
+
+
 def save_buyer_inquiry(inquiry):
     inquiries = []
     if INQUIRIES_FILE.exists():

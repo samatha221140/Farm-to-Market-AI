@@ -978,11 +978,13 @@ async function loadMarketplaceListings() {
         grid.innerHTML = data.listings.map(lot => {
             const price = Number(lot.asking_price_per_quintal) || 0;
             const safeLot = JSON.stringify(lot).replace(/"/g, '&quot;');
+            const rawPhoto = lot.photo_url || "";
+            const resolvedPhoto = rawPhoto.startsWith("/") ? `${API_BASE}${rawPhoto}` : rawPhoto;
 
             return `
                 <div class="lot-card">
                     <div class="lot-image-wrap">
-                        <img src="${escapeHTML(lot.photo_url)}" alt="${escapeHTML(lot.crop)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'">
+                        <img src="${escapeHTML(resolvedPhoto)}" alt="${escapeHTML(lot.crop)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'">
                         <span class="lot-grade-badge">${escapeHTML(lot.quality_grade)}</span>
                     </div>
 
@@ -1036,6 +1038,37 @@ getElement("clearMarketFilterBtn")?.addEventListener("click", () => {
 });
 
 /* POST HARVEST FORM SUBMIT (FARMER PORTAL) */
+let postPhotoBase64 = null;
+
+getElement("postPhotoFile")?.addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    const previewWrap = getElement("postPhotoPreviewWrap");
+    const previewImg = getElement("postPhotoPreview");
+
+    if (!file) {
+        postPhotoBase64 = null;
+        if (previewWrap) previewWrap.style.display = "none";
+        return;
+    }
+
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!validTypes.includes(file.type) && !/\.(jpe?g|png)$/i.test(file.name)) {
+        setStatus("postStatus", "Please select a valid .jpg or .png image file.", "error");
+        e.target.value = "";
+        postPhotoBase64 = null;
+        if (previewWrap) previewWrap.style.display = "none";
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        postPhotoBase64 = ev.target.result;
+        if (previewImg) previewImg.src = postPhotoBase64;
+        if (previewWrap) previewWrap.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+});
+
 getElement("postHarvestForm")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     setButtonLoading("publishLotBtn", true, "Publishing...", "📢 Publish Harvest Lot to Marketplace");
@@ -1048,7 +1081,7 @@ getElement("postHarvestForm")?.addEventListener("submit", async (event) => {
         quality_grade: getElement("postGrade")?.value,
         asking_price_per_quintal: Number(getElement("postAskingPrice")?.value),
         harvest_date: getElement("postHarvestDate")?.value,
-        photo_url: getElement("postPhotoUrl")?.value,
+        photo_base64: postPhotoBase64,
         notes: getElement("postNotes")?.value,
         farmer_name: getElement("postFarmerName")?.value,
         phone_number: getElement("postPhone")?.value,
@@ -1065,6 +1098,10 @@ getElement("postHarvestForm")?.addEventListener("submit", async (event) => {
         });
 
         if (!data.success) throw new Error(data.error || "Failed to post listing.");
+
+        postPhotoBase64 = null;
+        if (getElement("postPhotoFile")) getElement("postPhotoFile").value = "";
+        if (getElement("postPhotoPreviewWrap")) getElement("postPhotoPreviewWrap").style.display = "none";
 
         setStatus("postStatus", `Published successfully as Lot #${data.listing.id}! Redirecting to Marketplace...`, "success");
         setTimeout(() => {
@@ -1668,4 +1705,3 @@ getElement("tabInmFertBtn")?.addEventListener("click", () => {
     getElement("viewOrganicFert")?.classList.remove("active");
     getElement("viewChemicalFert")?.classList.remove("active");
 });
-

@@ -1,31 +1,20 @@
 """
-Farm-to-Market AI - Database Viewer CLI Utility
-================================================
-Quick interactive or command-line inspector to view all stored inputs,
-physical image uploads, and AI outputs across Phase 1, Phase 2, and Phase 3.
-
-Usage:
-  python view_database.py              # Interactive menu or full summary
-  python view_database.py --stats      # Row counts & file stats
-  python view_database.py --phase 1    # View Phase 1 crop recommendations
-  python view_database.py --phase 2    # View Phase 2 irrigation, soil & diagnoses
-  python view_database.py --phase 3    # View Phase 3 marketplace & inquiries
-  python view_database.py --uploads    # List physically saved images
+view_database.py
+Unified Database Inspector for Farm-to-Market AI.
+Inspects both MongoDB and SQLite fallback storage, displaying live transaction counts,
+model predictions, and saved crop image records.
 """
 
+import os
 import sys
 import json
 import argparse
 from pathlib import Path
 
-# Add backend directory to path
-PROJECT_ROOT = Path(__file__).resolve().parent
-BACKEND_DIR = PROJECT_ROOT / "backend"
-if str(BACKEND_DIR) not in sys.path:
-    sys.path.insert(0, str(BACKEND_DIR))
+# Add project root to sys.path
+sys.path.insert(0, os.path.abspath("."))
 
-import config
-import database
+from backend import database, config
 
 
 def print_header(title: str):
@@ -35,16 +24,18 @@ def print_header(title: str):
 
 
 def show_stats():
-    print_header("Database System & Storage Summary")
+    print_header("Database System & Storage Summary (MongoDB / Document Engine)")
     stats = database.get_database_stats()
-    print(f"  Database Engine        : {stats.get('database_type', 'sqlite').upper()}")
-    print(f"  Active Database Path   : {stats.get('db_file_path')}")
-    print(f"  Database File Size     : {stats.get('db_file_size_kb')} KB")
+    print(f"  Database Engine        : {stats.get('engine_name', 'MongoDB NoSQL')}")
+    print(f"  MongoDB Active         : {stats.get('mongodb_connected', False)}")
+    print(f"  MongoDB Database       : {stats.get('mongodb_database', 'N/A')}")
+    print(f"  Configured URI         : {stats.get('masked_database_url', 'N/A')}")
+    print(f"  Local Fallback Path    : {stats.get('db_file_path')}")
+    print(f"  Local Fallback Size    : {stats.get('db_file_size_kb')} KB")
     print(f"  Audit Stream Log       : {stats.get('audit_log_path')}")
     print(f"  Audit Log Size         : {stats.get('audit_log_size_kb')} KB")
     print(f"  Uploads Directory      : {stats.get('uploads_directory')}")
     print(f"  Saved Crop Photos      : {stats.get('saved_crop_photos_count')} images on disk")
-    print(f"  Remote Cloud Connected : {stats.get('is_remote_connected')}")
     print(f"  Loaded Config File     : {stats.get('env_file_loaded') or 'System Environment'}")
     print("\n  Recorded Transaction Counts:")
     print(f"    - Phase 1 Crop Recommendations   : {stats.get('phase1_recommendations', 0)}")
@@ -65,14 +56,26 @@ def show_phase1(limit: int = 5):
         return
 
     for r in records:
-        print(f"\n[ID #{r['id']}] {r['timestamp']} | Acres: {r['input_land_acres']}")
-        print(f"  Inputs  : N={r['input_n']}, P={r['input_p']}, K={r['input_k']}, pH={r['input_ph']}, Soil={r['input_soil_type']}, Water={r['input_water_availability']}, Season={r['input_season']}")
-        try:
-            top3 = json.loads(r.get("top_3_profitable_crops") or "[]")
-            crops = [f"{c.get('crop')} (Net: Rs {c.get('expected_net_profit_rs', 0):,})" for c in top3]
+        rec_id = r.get("id") or r.get("_id")
+        inputs = r.get("farm_inputs") or r
+        acres = r.get("acres") or r.get("land_acres") or r.get("input_land_acres") or 1.0
+        print(f"\n[ID #{rec_id}] {r.get('timestamp')} | Acres: {acres}")
+        print(f"  Inputs  : N={inputs.get('N_kg_ha') or inputs.get('input_n')}, P={inputs.get('P_kg_ha') or inputs.get('input_p')}, K={inputs.get('K_kg_ha') or inputs.get('input_k')}, pH={inputs.get('pH') or inputs.get('input_ph')}, Soil={inputs.get('Soil_Type') or inputs.get('input_soil_type')}, Water={inputs.get('Water_Availability') or inputs.get('input_water_availability')}, Season={inputs.get('Season') or inputs.get('input_season')}")
+        top3 = r.get("top_3_profitable_crops") or []
+        if isinstance(top3, str):
+            try:
+                top3 = json.loads(top3)
+            except Exception:
+                pass
+        if isinstance(top3, list) and top3:
+            crops = []
+            for c in top3:
+                if isinstance(c, dict):
+                    profit = c.get("net_profit_estimate") or c.get("expected_net_profit_rs") or c.get("total_net_profit_rs", 0)
+                    crops.append(f"{c.get('crop')} (Net: Rs {profit:,.0f})")
             print(f"  Outputs : Top 3 Profitable -> {', '.join(crops)}")
-        except Exception:
-            print(f"  Outputs : {r.get('top_3_profitable_crops')}")
+        else:
+            print(f"  Outputs : {top3}")
 
 
 def show_phase2(limit: int = 5):
@@ -85,119 +88,151 @@ def show_phase2(limit: int = 5):
     if not diags:
         print("  No diagnosis records.")
     for d in diags:
-        print(f"[ID #{d['id']}] {d['timestamp']} | Crop: {d['input_crop']} | Notes: {d.get('input_farmer_notes') or 'None'}")
-        print(f"  Condition Diagnosed  : {d['output_condition']} ({d['output_category']}) - Confidence: {d['output_confidence_pct']}% | Severity: {d['output_severity']}")
-        print(f"  Pathogen Species     : {d.get('output_pathogen') or 'N/A'}")
-        print(f"  Saved Image File     : {d.get('image_filename')} ({d.get('image_size_bytes', 0):,} bytes)")
-        print(f"  Image Server URL     : {d.get('image_url')}")
-        print(f"  Organic Solution     : {str(d.get('output_organic_cure'))[:75]}...")
-        print(f"  Chemical Solution    : {str(d.get('output_chemical_cure'))[:75]}...\n")
+        rec_id = d.get("id") or d.get("_id")
+        img_meta = d.get("image_metadata") or {}
+        treatments = d.get("treatment_protocols") or {}
+        filename = img_meta.get("filename") or d.get("image_filename") or "None"
+        filesize = img_meta.get("file_size_bytes") or d.get("image_size_bytes") or 0
+        img_url = img_meta.get("server_url") or d.get("image_url") or "None"
+        condition = d.get("condition_diagnosed") or d.get("condition") or d.get("output_condition") or "Healthy"
+        confidence = d.get("confidence_score") or d.get("confidence_pct") or d.get("output_confidence_pct") or 0
+        pathogen = d.get("pathogen_species") or d.get("pathogen") or d.get("output_pathogen") or "N/A"
+        organic = treatments.get("organic_solution") or d.get("organic_cure") or d.get("output_organic_cure") or "None"
+        chemical = treatments.get("chemical_solution") or d.get("chemical_cure") or d.get("output_chemical_cure") or "None"
+
+        print(f"[ID #{rec_id}] {d.get('timestamp')} | Crop: {d.get('crop') or d.get('input_crop')} | Notes: {d.get('notes') or d.get('farmer_notes') or 'None'}")
+        print(f"  Condition Diagnosed  : {condition} - Confidence: {confidence}% | Severity: {d.get('severity') or d.get('output_severity')}")
+        print(f"  Pathogen Species     : {pathogen}")
+        print(f"  Saved Image File     : {filename} ({filesize:,} bytes)")
+        print(f"  Image Server URL     : {img_url}")
+        print(f"  Organic Solution     : {str(organic)[:75]}...")
+        print(f"  Chemical Solution    : {str(chemical)[:75]}...\n")
 
     # 2. Smart Irrigation
     irrs = data.get("phase2_smart_irrigation", [])
     print(f"\n--- Smart Irrigation & Pump Advisories ({len(irrs)} shown) ---")
     if not irrs:
         print("  No irrigation records.")
-    for i in irrs:
-        print(f"[ID #{i['id']}] {i['timestamp']} | Crop: {i['input_crop']} ({i['input_land_acres']} ac) | Moisture: {i['input_soil_moisture_pct']}% | Rain Today: {i['input_rainfall_today_mm']} mm")
-        print(f"  Pump Action  : {i['output_pump_status']} | Runtime: {i['output_runtime_minutes']} mins | Water Needed: {i['output_water_needed_litres']} L | Power: {i['output_power_kwh']} kWh")
-        print(f"  Advisory     : {i.get('output_summary')}\n")
+    for irr in irrs:
+        rec_id = irr.get("id") or irr.get("_id")
+        method = irr.get("irrigation_method") or irr.get("output_pump_status") or "N/A"
+        litres = irr.get("water_needed_litres") or irr.get("output_water_needed_litres", 0)
+        hours = irr.get("pump_duration_hours") or round((irr.get("output_runtime_minutes", 0) / 60), 1)
+        note = irr.get("recommended_timing") or irr.get("output_summary") or "Standard Irrigation"
+        print(f"[ID #{rec_id}] {irr.get('timestamp')} | Crop: {irr.get('crop') or irr.get('input_crop')} | Method: {method}")
+        print(f"  Water Requirement   : {litres:,} Litres | Pump Run Time: {hours} Hours")
+        print(f"  Advisory / Timing   : {note}\n")
 
-    # 3. Soil Fertilizer
+    # 3. Soil Health & Fertilizer
     soils = data.get("phase2_soil_fertilizer", [])
-    print(f"\n--- Soil Tests & Dual Fertilizer Packages ({len(soils)} shown) ---")
+    print(f"\n--- Soil Health & Fertilizer Packages ({len(soils)} shown) ---")
     if not soils:
-        print("  No soil fertilizer records.")
+        print("  No soil analysis records.")
     for s in soils:
-        print(f"[ID #{s['id']}] {s['timestamp']} | Crop: {s['input_crop']} ({s['input_acres']} ac) | Soil NPK: {s['input_soil_n']}/{s['input_soil_p']}/{s['input_soil_k']}, pH: {s['input_soil_ph']}")
-        print(f"  Chemical Bags : {s.get('output_chemical_bags_json')}")
-        print(f"  Organic Pkg   : {s.get('output_organic_package_json')}")
-        print(f"  INM Advisory  : {s.get('output_schedule_inm')}\n")
+        rec_id = s.get("id") or s.get("_id")
+        inm = s.get("inm_guidance") or s.get("schedule_inm") or s.get("output_schedule_inm") or "Balanced NPK application"
+        print(f"[ID #{rec_id}] {s.get('timestamp')} | Crop: {s.get('crop') or s.get('input_crop')} | Acres: {s.get('acres') or s.get('input_acres')}")
+        print(f"  INM Guidance        : {str(inm)[:90]}...\n")
 
 
 def show_phase3(limit: int = 5):
-    print_header(f"Phase 3: Farmer Marketplace & Buyer Inquiries (Latest {limit})")
+    print_header(f"Phase 3: Direct Marketplace Produce Lots & Inquiries (Latest {limit})")
     data = database.get_all_records(phase="3", limit=limit)
 
     listings = data.get("phase3_marketplace_listings", [])
-    print(f"\n--- Farmer Harvest Produce Listings ({len(listings)} shown) ---")
+    print(f"\n--- Published Harvest Lots ({len(listings)} shown) ---")
     if not listings:
-        print("  No produce listings.")
+        print("  No marketplace listings found.")
     for l in listings:
-        print(f"[{l.get('listing_code')}] {l['timestamp']} | Farmer: {l['farmer_name']} ({l['phone_number']}) | Location: {l['village']}, {l['district']}")
-        print(f"  Produce       : {l['crop']} ({l.get('variety') or 'Standard'}) - Grade: {l['quality_grade']}")
-        print(f"  Quantity/Price: {l['quantity_quintals']} Qtl @ Rs {l['price_rs_per_quintal']:,}/Qtl | Est. Total Value: Rs {l.get('total_estimated_value_rs', 0):,}")
-        print(f"  Lot Image URL : {l.get('produce_image_url') or 'None'}")
-        print(f"  Status        : {l.get('status')}\n")
+        lot_id = l.get("lot_id") or l.get("listing_code")
+        farmer = l.get("farmer") or {}
+        farmer_name = farmer.get("name") or l.get("farmer_name")
+        phone = farmer.get("phone") or l.get("phone_number")
+        village = farmer.get("village") or l.get("village")
+        district = farmer.get("district") or l.get("district")
+        price = l.get("expected_price_per_qtl") or l.get("price_rs_per_quintal")
+        val = l.get("total_lot_value") or l.get("total_estimated_value_rs", 0)
+        photos = l.get("photos") or []
+        photo_url = photos[0] if (photos and isinstance(photos, list)) else (l.get("produce_image_url") or "None")
+
+        print(f"[{lot_id}] Crop: {l.get('crop')} ({l.get('variety')}) | Grade: {l.get('quality_grade')}")
+        print(f"  Quantity: {l.get('quantity_quintals')} Quintals | Price: Rs {price}/Qtl | Value: Rs {val:,}")
+        print(f"  Farmer: {farmer_name} (Phone: {phone}) | Village: {village}, {district}")
+        print(f"  Harvest Date: {l.get('harvest_date')} | Photo URL: {photo_url}\n")
 
     inquiries = data.get("phase3_buyer_inquiries", [])
-    print(f"\n--- Direct Buyer Inquiries ({len(inquiries)} shown) ---")
+    print(f"\n--- Buyer Direct Inquiries ({len(inquiries)} shown) ---")
     if not inquiries:
-        print("  No buyer inquiries.")
-    for q in inquiries:
-        print(f"[{q.get('inquiry_code')}] {q['timestamp']} | Buyer: {q['buyer_name']} ({q['buyer_phone']}) | APMC/City: {q.get('buyer_location')}")
-        print(f"  Lot Reference : {q.get('listing_code')} | Crop: {q['crop']}")
-        print(f"  Offer Details : {q.get('quantity_requested_quintals')} Qtl @ Rs {q.get('offered_price_rs_per_quintal', 0):,}/Qtl")
-        print(f"  Buyer Message : \"{q.get('message')}\"")
-        print(f"  Status        : {q.get('status')}\n")
+        print("  No buyer inquiries recorded.")
+    for inq in inquiries:
+        inq_id = inq.get("inquiry_id") or inq.get("inquiry_code")
+        lot_id = inq.get("lot_id") or inq.get("listing_code")
+        buyer = inq.get("buyer") or {}
+        b_name = buyer.get("name") or inq.get("buyer_name")
+        b_phone = buyer.get("phone") or inq.get("buyer_phone")
+        b_loc = buyer.get("location") or inq.get("buyer_location")
+        price = inq.get("offered_price_per_qtl") or inq.get("offered_price_rs_per_quintal")
+        qty = inq.get("quantity_requested_quintals")
+
+        print(f"[{inq_id}] Inquiring on Lot: {lot_id} | Crop: {inq.get('target_crop') or inq.get('crop')}")
+        print(f"  Buyer: {b_name} (Phone: {b_phone}, {b_loc})")
+        print(f"  Offer: Rs {price}/Qtl for {qty} Qtl")
+        print(f"  Terms / Message: \"{inq.get('payment_terms') or inq.get('message')}\" | Status: {inq.get('status')}\n")
 
 
-def show_saved_uploads():
-    print_header("Physically Saved Uploaded Crop & Marketplace Photos")
-    upload_dir = config.UPLOAD_BASE_DIR
-    diag_dir = config.DIAGNOSES_UPLOAD_DIR
-    market_dir = config.MARKETPLACE_UPLOAD_DIR
+def show_uploads():
+    print_header("Physically Saved Image Uploads Repository")
+    diag_files = list(config.DIAGNOSES_UPLOAD_DIR.glob("*.jpg")) if config.DIAGNOSES_UPLOAD_DIR.exists() else []
+    market_files = list(config.MARKETPLACE_UPLOAD_DIR.glob("*.jpg")) if config.MARKETPLACE_UPLOAD_DIR.exists() else []
 
-    diag_files = sorted(diag_dir.glob("*.jpg"), key=lambda f: f.stat().st_mtime, reverse=True) if diag_dir.exists() else []
-    market_files = sorted(market_dir.glob("*.jpg"), key=lambda f: f.stat().st_mtime, reverse=True) if market_dir.exists() else []
-
-    print(f"  Upload Storage Root: {upload_dir}")
-    print(f"\n  [Diagnoses Folder: {diag_dir}] ({len(diag_files)} photos)")
+    print(f"\n  [Crop Diagnoses Uploads: {len(diag_files)} files in {config.DIAGNOSES_UPLOAD_DIR}]")
     for f in diag_files[:10]:
         size_kb = round(f.stat().st_size / 1024, 1)
-        url = f"/uploads/diagnoses/{f.name}"
-        print(f"    - {f.name} ({size_kb} KB) -> URL: {url}")
+        print(f"    - {f.name} ({size_kb} KB)")
+    if len(diag_files) > 10:
+        print(f"      ... and {len(diag_files) - 10} more files")
 
-    print(f"\n  [Marketplace Folder: {market_dir}] ({len(market_files)} photos)")
+    print(f"\n  [Marketplace Produce Uploads: {len(market_files)} files in {config.MARKETPLACE_UPLOAD_DIR}]")
     for f in market_files[:10]:
         size_kb = round(f.stat().st_size / 1024, 1)
-        url = f"/uploads/marketplace/{f.name}"
-        print(f"    - {f.name} ({size_kb} KB) -> URL: {url}")
+        print(f"    - {f.name} ({size_kb} KB)")
+    if len(market_files) > 10:
+        print(f"      ... and {len(market_files) - 10} more files")
     print()
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Farm-to-Market AI Database Inspector")
-    parser.add_argument("--stats", action="store_true", help="Display storage and database statistics")
-    parser.add_argument("--phase", choices=["1", "2", "3", "all"], help="Filter by Phase (1, 2, 3, or all)")
-    parser.add_argument("--uploads", action="store_true", help="List physically saved upload photos")
-    parser.add_argument("--limit", type=int, default=5, help="Number of latest records to display per table")
-
+    parser = argparse.ArgumentParser(description="Farm-to-Market AI - Database & MongoDB Viewer")
+    parser.add_argument("--stats", action="store_true", help="Show system database statistics")
+    parser.add_argument("--phase", choices=["1", "2", "3", "all"], help="Filter by agricultural phase")
+    parser.add_argument("--uploads", action="store_true", help="List physical image files stored on disk")
+    parser.add_argument("--limit", type=int, default=5, help="Number of latest records to show")
     args = parser.parse_args()
 
     if args.stats:
         show_stats()
-        return
-
-    if args.uploads:
-        show_saved_uploads()
-        return
-
-    if args.phase:
-        if args.phase in ["1", "all"]:
-            show_phase1(limit=args.limit)
-        if args.phase in ["2", "all"]:
-            show_phase2(limit=args.limit)
-        if args.phase in ["3", "all"]:
-            show_phase3(limit=args.limit)
-        return
-
-    # Default if no arguments: show stats and recent activity across all phases
-    show_stats()
-    show_phase1(limit=3)
-    show_phase2(limit=3)
-    show_phase3(limit=3)
-    show_saved_uploads()
+    elif args.uploads:
+        show_uploads()
+    elif args.phase == "1":
+        show_phase1(args.limit)
+    elif args.phase == "2":
+        show_phase2(args.limit)
+    elif args.phase == "3":
+        show_phase3(args.limit)
+    elif args.phase == "all":
+        show_stats()
+        show_phase1(args.limit)
+        show_phase2(args.limit)
+        show_phase3(args.limit)
+        show_uploads()
+    else:
+        # Default full overview
+        show_stats()
+        show_phase1(3)
+        show_phase2(3)
+        show_phase3(3)
+        show_uploads()
+        print("[*] Tip: Run 'python view_database.py --help' to see specific filters.\n")
 
 
 if __name__ == "__main__":
